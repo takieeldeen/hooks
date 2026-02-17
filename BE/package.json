@@ -6,9 +6,7 @@
   "author": "",
   "type": "commonjs",
   "main": "index.js",
-  "imports": {
-    "#*": "./src*"
-  },
+
   "scripts": {
     "dev": "tsx --watch --env-file .env src/index.ts",
     "start": "node --env-file .env dist/index.js",
@@ -21,10 +19,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.29",
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
     "@types/cors": "^2.8.19",
     "@types/node-cron": "^3.0.11",
+    "ai": "^6.0.86",
     "better-auth": "^1.4.18",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
