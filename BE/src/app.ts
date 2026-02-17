@@ -1,0 +1,27 @@
+import express, { json } from 'express';
+import { testFn } from "./controllers/test";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./lib/auth";
+import cors from 'cors';
+import { checkAuth } from './lib/errors';
+import aiRouter from './routers/aiRouter';
+
+const app = express();
+
+
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
+
+// cron.schedule("* * * * *",task)
+app.all("/api/auth/*splat", toNodeHandler(auth));
+app.use(json());
+app.use("/api/ai",aiRouter);
+app.get("/api", checkAuth,testFn);
+
+
+
+export default app;

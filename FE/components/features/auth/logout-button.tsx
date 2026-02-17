@@ -6,16 +6,11 @@ import React from "react";
 
 function LogoutButton() {
   const router = useRouter();
-  return (
-    <Button
-      onClick={async () => {
-        await logout();
-        router.refresh();
-      }}
-    >
-      Logout
-    </Button>
-  );
+  const handleLogout: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    await logout();
+    router.refresh();
+  };
+  return <Button onClick={handleLogout}>Logout</Button>;
 }
 
 export default LogoutButton;
