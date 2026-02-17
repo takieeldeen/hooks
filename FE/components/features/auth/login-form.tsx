@@ -31,6 +31,7 @@ import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { login } from "@/api/auth";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email"),
@@ -43,10 +44,11 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter();
   const defaultValues = useMemo(
     () => ({
-      email: "",
-      password: "",
+      email: "takie.eldeen1998@gmail.com",
+      password: "123456789",
     }),
     [],
   );
@@ -61,14 +63,18 @@ export function LoginForm({
     formState: { isSubmitting },
   } = form;
 
-  const onSubmit = useCallback(async (data: LoginFormValuesTypes) => {
-    try {
-      await login(data);
-    } catch (err: any) {
-      toast.error(err.message);
-      console.log(err);
-    }
-  }, []);
+  const onSubmit = useCallback(
+    async (data: LoginFormValuesTypes) => {
+      try {
+        await login(data);
+        router.push("/");
+      } catch (err: any) {
+        toast.error(err.message);
+        console.log(err);
+      }
+    },
+    [router],
+  );
 
   return (
     <Form {...form}>

@@ -37,6 +37,9 @@ export const logout = async () => {
 };
 
 export const getCurrentSession = async (): Promise<SessionData> => {
-  const response = await axios.get(endpoints.auth.getSession);
+  const response = await axios.get(endpoints.auth.getSession, {
+    withCredentials: true,
+  });
+  console.log(response);
   return response.data;
 };

@@ -1,7 +1,10 @@
+import { GuestsOnly } from "@/components/features/auth/auth-guards";
 import { RegisterForm } from "@/components/features/auth/signup-form";
-import { requireUnauth } from "@/lib/auth-utils";
 
 export default async function RegisterPage() {
-  await requireUnauth();
-  return <RegisterForm />;
+  return (
+    <GuestsOnly>
+      <RegisterForm />
+    </GuestsOnly>
+  );
 }

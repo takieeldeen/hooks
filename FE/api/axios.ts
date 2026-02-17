@@ -1,8 +1,9 @@
-import Axios from "axios";
-const axios = Axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true,
-});
+const IS_SERVER = typeof window === "undefined";
+const axiosModule = IS_SERVER
+  ? await import("./axios-server")
+  : await import("./axios-client");
+
+const axios = axiosModule.default;
 
 export const endpoints = {
   auth: {
