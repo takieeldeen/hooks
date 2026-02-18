@@ -52,3 +52,8 @@ export type Subscription = Prisma.SubscriptionModel
  * 
  */
 export type Payment = Prisma.PaymentModel
+/**
+ * Model Workflow
+ * 
+ */
+export type Workflow = Prisma.WorkflowModel

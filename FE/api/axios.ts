@@ -17,6 +17,10 @@ export const endpoints = {
     getSubscription: "/payments/my-subscription",
     checkout: "/payments/checkout",
   },
+  workflows: {
+    all: "/workflows",
+    single: (workflowId: string | number) => `/workflows/${workflowId}`,
+  },
 };
 
 export default axios;

@@ -6,8 +6,7 @@ import React, { useCallback } from "react";
 function SubscribeButton() {
   const { data, isLoading } = useGetMySubscription();
   const handleCheckout = useCallback(async () => {
-    const link = await getCheckoutLink();
-    window.location.href = link;
+    await getCheckoutLink();
   }, []);
   if (isLoading || data?.isSubscribed) return null;
   return (
@@ -18,6 +17,7 @@ function SubscribeButton() {
         onClick={handleCheckout}
       >
         <StarIcon className="h-4 w-4" />
+
         <span>Upgrade to Pro</span>
       </SidebarMenuButton>
     </SidebarMenuItem>

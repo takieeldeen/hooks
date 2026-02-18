@@ -18,5 +18,6 @@ export async function getCheckoutLink() {
   const res = await axios.post(URL, {
     planId: "4bceddfb-37ea-4768-bbdb-ef63c86e675d",
   });
-  return res?.data?.redirectionUrl;
+  window.location.href = res.data.redirectionUrl;
+  // return res?.data?.redirectionUrl;
 }
