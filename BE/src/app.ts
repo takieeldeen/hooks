@@ -5,6 +5,8 @@ import { auth } from "./lib/auth";
 import cors from 'cors';
 import { checkAuth } from './lib/errors';
 import aiRouter from './routers/aiRouter';
+import { paymentRouter } from './routers/paymentRouter';
+import ErrorController from './controllers/errorController';
 
 const app = express();
 
@@ -20,7 +22,9 @@ app.use(
 app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(json());
 app.use("/api/ai",aiRouter);
+app.use("/api/payments",paymentRouter);
 app.get("/api", checkAuth,testFn);
+app.use(ErrorController);
 
 
 

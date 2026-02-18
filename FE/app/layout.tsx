@@ -4,6 +4,7 @@ import "./globals.css";
 import SocketProvider from "@/providers/SocketProvider";
 import { ViewTransition } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import TanstackProvider from "@/providers/TanstackProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +31,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SocketProvider>
-          <Toaster />
-          <ViewTransition>{children}</ViewTransition>
-        </SocketProvider>
+        <TanstackProvider>
+          <SocketProvider>
+            <Toaster />
+            <ViewTransition>{children}</ViewTransition>
+          </SocketProvider>
+        </TanstackProvider>
       </body>
     </html>
   );

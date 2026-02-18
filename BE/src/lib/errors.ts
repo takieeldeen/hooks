@@ -3,11 +3,16 @@ import { AppError } from "../controllers/errorController";
 import { NextFunction,Request,RequestHandler,Response } from "express";
 import { auth } from "./auth";
 import { Session } from "better-auth";
+import { User } from "../generated/prisma/client";
 
 declare global {
   namespace Express {
     interface Request {
-      session?: Session;
+      session?: {
+        session: Session,
+        user:User,
+      };
+
     }
   }
 }

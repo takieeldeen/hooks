@@ -23,7 +23,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
-
+  subscriptions Subscription[]
   @@unique([email])
   @@map("user")
 }
@@ -74,4 +74,56 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+
+model Plan {
+  id String @id @default(uuid())
+  name String
+  price_in_cents Int
+  currency String
+  billing_interval String // 'monthly'
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id String @id @default(uuid())
+  userId String
+  planId String
+  status String
+  current_period_start DateTime?
+  current_period_end DateTime?
+  cancel_at_period_end Boolean
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  payments Payment[]
+  // relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId],references: [id],onDelete: Cascade)
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  subscriptionId String
+  amount Int
+  currency String
+
+  status String // initiated | pending | success | failed
+
+  // Paymob fields
+  intention_id String?
+  client_secret String?
+  gateway_transaction_id Int?
+
+  billing_period_start DateTime?
+  billing_period_end DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@unique([gateway_transaction_id])
 }

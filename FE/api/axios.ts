@@ -13,6 +13,10 @@ export const endpoints = {
     getSession: "/auth/get-session",
     isAuthenticated: "/auth/ok",
   },
+  subscription: {
+    getSubscription: "/payments/my-subscription",
+    checkout: "/payments/checkout",
+  },
 };
 
 export default axios;

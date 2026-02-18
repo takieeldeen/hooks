@@ -5,7 +5,6 @@ import {
   HistoryIcon,
   KeyIcon,
   LogOutIcon,
-  StarIcon,
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,6 +23,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { logout } from "@/api/auth";
 import { toast } from "sonner";
+import SubscribeButton from "./features/payments/SubscribeButton";
 
 const menuItems = [
   {
@@ -105,18 +105,7 @@ function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         {/* {!hasActiveSubscription && !isLoading && ( */}
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            tooltip="Upgrade to Pro"
-            className="gap-x-4 h-10 px-4"
-            onClick={() => {
-              // authClient.checkout({ slug: "Flow-Testing" });
-            }}
-          >
-            <StarIcon className="h-4 w-4" />
-            <span>Upgrade to Pro</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
+        <SubscribeButton />
         {/* )} */}
 
         <SidebarMenuItem>

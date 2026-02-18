@@ -54,7 +54,10 @@ export const ModelName = {
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  Plan: 'Plan',
+  Subscription: 'Subscription',
+  Payment: 'Payment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -129,6 +132,50 @@ export const VerificationScalarFieldEnum = {
 } as const
 
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+
+
+export const PlanScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  price_in_cents: 'price_in_cents',
+  currency: 'currency',
+  billing_interval: 'billing_interval'
+} as const
+
+export type PlanScalarFieldEnum = (typeof PlanScalarFieldEnum)[keyof typeof PlanScalarFieldEnum]
+
+
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  planId: 'planId',
+  status: 'status',
+  current_period_start: 'current_period_start',
+  current_period_end: 'current_period_end',
+  cancel_at_period_end: 'cancel_at_period_end',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  subscriptionId: 'subscriptionId',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  intention_id: 'intention_id',
+  client_secret: 'client_secret',
+  gateway_transaction_id: 'gateway_transaction_id',
+  billing_period_start: 'billing_period_start',
+  billing_period_end: 'billing_period_end',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
 export const SortOrder = {

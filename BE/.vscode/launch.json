@@ -1,0 +1,10 @@
+{
+  "type": "node",
+  "request": "launch",
+  "name": "Debug API (tsx loader)",
+  "runtimeExecutable": "node",
+  "runtimeArgs": ["--loader", "tsx", "--env-file", ".env"],
+  "program": "${workspaceFolder}/src/index.ts",
+  "cwd": "${workspaceFolder}",
+  "skipFiles": ["<node_internals>/**"]
+}
