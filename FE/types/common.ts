@@ -5,6 +5,7 @@ export interface APIListResponse<T> {
   hasNextPage: boolean;
   hasPrevPage: boolean;
   isEmpty: boolean;
+  canReset: boolean;
   page: number;
   status: "success" | "fail" | "error";
 }

@@ -43,14 +43,12 @@ export const getWorkflows = catchAsync(async (req, res, next) => {
       },
     }),
   ]);
-  res
-    .status(200)
-    .json({
-      status: "success",
-      content,
-      results,
-      ...generatePaginationObject(results, +page!, +pageSize!),
-    });
+  res.status(200).json({
+    status: "success",
+    content,
+    results,
+    ...generatePaginationObject(results, +page!, +pageSize!, name! as string),
+  });
 });
 
 export const deleteWorkflow = catchAsync(async (req, res, next) => {

@@ -2,6 +2,7 @@ export const generatePaginationObject = (
   count: number,
   currentPage: number,
   pageSize: number,
+  search: string,
 ) => {
   const totalPages = Math.ceil(count / pageSize);
   const hasNextPage = currentPage < pageSize;
@@ -14,5 +15,6 @@ export const generatePaginationObject = (
     hasPrevPage,
     isEmpty,
     page: currentPage,
+    canReset: currentPage !== 1 || search !== "",
   };
 };

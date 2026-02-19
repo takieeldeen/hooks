@@ -47,6 +47,17 @@ export async function deleteWorkflow(workflowId: Workflow["id"]) {
   return response.data;
 }
 
+export function useRemoveWorkflow(queryKey: any[]) {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: deleteWorkflow,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+  return mutation;
+}
+
 export async function prefetchWorkflows({
   page = PAGINATION.DEFAULT_PAGE,
   pageSize = PAGINATION.DEFAULT_PAGE_SIZE,
@@ -69,12 +80,14 @@ export async function prefetchWorkflows({
       },
     },
   ];
+  const queryKey = URL;
   const queryClient = new QueryClient();
   const query = await queryClient.prefetchQuery<APIListResponse<Workflow>>({
-    queryKey: ["workflows", page, pageSize, name],
+    queryKey,
     queryFn: getFetcher(URL),
   });
-  return { queryClient, query };
+  console.log(queryClient);
+  return { queryClient, query, queryKey };
 }
 
 export function useGetWorkflows({
@@ -99,18 +112,23 @@ export function useGetWorkflows({
       },
     },
   ];
+  const queryKey = URL;
   const query = useQuery<APIListResponse<Workflow>>({
-    queryKey: ["workflows", page, pageSize, name],
+    queryKey,
     queryFn: getFetcher(URL),
+    staleTime: 60 * 1000,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
-  return query;
+  return { ...query, queryKey };
 }
 
 export async function prefetchWorkflowDetails(workflowId: string) {
   const URL = endpoints.workflows.single(workflowId);
+  const queryKey = ["workflows", workflowId];
   const queryClient = new QueryClient();
   const query = await queryClient.prefetchQuery<APIDetailsResponse<Workflow>>({
-    queryKey: ["workflows", workflowId],
+    queryKey,
     queryFn: getFetcher(URL),
   });
   return { queryClient, query };
@@ -118,9 +136,10 @@ export async function prefetchWorkflowDetails(workflowId: string) {
 
 export function useGetWorkflowDetails(workflowId: string) {
   const URL = endpoints.workflows.single(workflowId);
+  const queryKey = ["workflows", workflowId];
   const query = useQuery<APIDetailsResponse<Workflow>>({
-    queryKey: ["workflows", workflowId],
+    queryKey,
     queryFn: getFetcher(URL),
   });
-  return query;
+  return { ...query, queryKey };
 }

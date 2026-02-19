@@ -2,7 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Home, RotateCcw } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import ERROR_IMG from "@/public/assets/error-img.svg";
 
 function ErrorPage({
   error,
@@ -15,14 +17,15 @@ function ErrorPage({
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="flex flex-col items-center text-center max-w-md gap-6">
         {/* Icon */}
-        <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10 text-destructive animate-pulse">
+        {/* <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10 text-destructive animate-pulse">
           <AlertTriangle className="w-10 h-10" />
-        </div>
+        </div> */}
+        <Image src={ERROR_IMG} height={300} width={600} alt="error" />
 
         {/* Heading */}
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Something went wrong
+            Opps! Something Went Wrong
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
             {/* {error.message || "An unexpected error occurred. Please try again."} */}
