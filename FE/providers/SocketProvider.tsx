@@ -1,16 +1,41 @@
 "use client";
-import useSocket from "@/hooks/use-socket";
-import { ReactNode } from "react";
 
-function SocketProvider({ children }: { children: ReactNode }) {
-  const socket = useSocket();
-  const handleClick = () => {
-    socket.emit("schedule", {
-      data: "Hello World",
-      expression: "*/5 * * * * *",
+import { createContext, useContext, useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
+
+const SocketContext = createContext<Socket | null>(null);
+
+export function SocketProvider({ children }: { children: React.ReactNode }) {
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  useEffect(() => {
+    const socketInstance = io("http://localhost:8080");
+
+    socketInstance.on("connect", () => {
+      console.log("Connected");
     });
-  };
-  return children;
+
+    socketInstance.on("disconnect", () => {
+      console.log("Disconnected");
+    });
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSocket(socketInstance);
+
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, []);
+
+  return (
+    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+  );
 }
 
-export default SocketProvider;
+export function useSocket() {
+  const socket = useContext(SocketContext);
+  if (!socket) {
+    throw new Error("useSocket must be used inside SocketProvider");
+  }
+  return socket;
+}

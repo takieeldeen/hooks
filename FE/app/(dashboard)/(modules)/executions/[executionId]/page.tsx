@@ -1,4 +1,4 @@
-import { UsersOnly } from "@/components/features/auth/auth-guards";
+import { UsersOnly } from "@/features/auth/auth-guards";
 
 async function Page({ params }: PageProps<"/executions/[executionId]">) {
   const { executionId } = await params;

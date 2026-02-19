@@ -1,6 +1,6 @@
 "use client";
 import { useCreateWorkflow } from "@/api/workflows";
-import { EntityHeader } from "@/components/EntityCard";
+import { EntityHeader } from "@/components/EntityComponent";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import { useRouter } from "next/navigation";
 import React, { useCallback } from "react";

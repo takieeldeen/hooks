@@ -23,7 +23,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { logout } from "@/api/auth";
 import { toast } from "sonner";
-import SubscribeButton from "./features/payments/SubscribeButton";
+import SubscribeButton from "../features/payments/SubscribeButton";
 
 const menuItems = [
   {

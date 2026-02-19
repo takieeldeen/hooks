@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import SocketProvider from "@/providers/SocketProvider";
 import { ViewTransition } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import TanstackProvider from "@/providers/TanstackProvider";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { SocketProvider } from "@/providers/SocketProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +34,10 @@ export default function RootLayout({
       >
         <TanstackProvider>
           <SocketProvider>
-            <Toaster />
-            <ViewTransition>{children}</ViewTransition>
+            <NuqsAdapter>
+              <Toaster />
+              <ViewTransition>{children}</ViewTransition>
+            </NuqsAdapter>
           </SocketProvider>
         </TanstackProvider>
       </body>

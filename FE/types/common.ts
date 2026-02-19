@@ -1,6 +1,11 @@
 export interface APIListResponse<T> {
   content: T[];
   results: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  isEmpty: boolean;
+  page: number;
   status: "success" | "fail" | "error";
 }
 

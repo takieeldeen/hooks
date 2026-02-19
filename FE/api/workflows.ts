@@ -11,6 +11,8 @@ import { getFetcher } from "./api";
 import { APIDetailsResponse, APIListResponse } from "@/types/common";
 import { Workflow } from "@/types/workflows";
 import { toast } from "sonner";
+import { AxiosRequestConfig } from "axios";
+import { PAGINATION } from "@/config/constants";
 
 export async function createWorkflow(workflowPayload: { name: string }) {
   const URL = endpoints.workflows.all;
@@ -45,20 +47,60 @@ export async function deleteWorkflow(workflowId: Workflow["id"]) {
   return response.data;
 }
 
-export async function prefetchWorkflows() {
-  const URL = endpoints.workflows.all;
+export async function prefetchWorkflows({
+  page = PAGINATION.DEFAULT_PAGE,
+  pageSize = PAGINATION.DEFAULT_PAGE_SIZE,
+  name = "",
+  filters = {},
+}: {
+  page: number;
+  pageSize: number;
+  name: string;
+  filters?: Record<string, string | number>;
+}) {
+  const URL: [string, AxiosRequestConfig] = [
+    endpoints.workflows.all,
+    {
+      params: {
+        page,
+        pageSize,
+        name,
+        ...filters,
+      },
+    },
+  ];
   const queryClient = new QueryClient();
   const query = await queryClient.prefetchQuery<APIListResponse<Workflow>>({
-    queryKey: ["workflows"],
+    queryKey: ["workflows", page, pageSize, name],
     queryFn: getFetcher(URL),
   });
   return { queryClient, query };
 }
 
-export function useGetWorkflows() {
-  const URL = endpoints.workflows.all;
+export function useGetWorkflows({
+  page = PAGINATION.DEFAULT_PAGE,
+  pageSize = PAGINATION.DEFAULT_PAGE_SIZE,
+  name = "",
+  filters = {},
+}: {
+  page: number;
+  pageSize: number;
+  name: string;
+  filters?: Record<string, string | number>;
+}) {
+  const URL: [string, AxiosRequestConfig] = [
+    endpoints.workflows.all,
+    {
+      params: {
+        page,
+        pageSize,
+        name,
+        ...filters,
+      },
+    },
+  ];
   const query = useQuery<APIListResponse<Workflow>>({
-    queryKey: ["workflows"],
+    queryKey: ["workflows", page, pageSize, name],
     queryFn: getFetcher(URL),
   });
   return query;

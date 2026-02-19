@@ -1,12 +1,14 @@
 import { prefetchWorkflows } from "@/api/workflows";
-import { UsersOnly } from "@/components/features/auth/auth-guards";
-import WorkflowsListView from "@/components/features/workflows/workflows-list-view";
+import { UsersOnly } from "@/features/auth/auth-guards";
+import WorkflowsListView from "@/features/workflows/components/workflows-list-view";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
-import { WorkflowsContainer } from "@/components/features/workflows/workflows-container";
+import { WorkflowsContainer } from "@/features/workflows/components/workflows-container";
+import { loadSearchParams } from "@/features/workflows/params";
 
-async function Page() {
-  const { queryClient } = await prefetchWorkflows();
+async function Page({ searchParams }: PageProps<"/workflows">) {
+  const workflowParams = await loadSearchParams(searchParams);
+  const { queryClient } = await prefetchWorkflows(workflowParams);
   return (
     <UsersOnly>
       <WorkflowsContainer>

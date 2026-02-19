@@ -1,5 +1,6 @@
 import { catchAsync } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import { generatePaginationObject } from "../utilis/pagination";
 
 export const createWorkflow = catchAsync(async (req, res, next) => {
   const { name } = req.body;
@@ -14,13 +15,42 @@ export const createWorkflow = catchAsync(async (req, res, next) => {
 });
 
 export const getWorkflows = catchAsync(async (req, res, next) => {
+  const { page, pageSize, name } = req.query;
+  console.log(req.query);
   const userId = req.session?.user.id;
-  const workflows = await prisma.workflow.findMany({
-    where: {
-      userId: userId as string,
-    },
-  });
-  res.status(200).json({ status: "success", content: workflows });
+  const [content, results] = await Promise.all([
+    prisma.workflow.findMany({
+      skip: (+page! - 1) * +pageSize!,
+      take: +pageSize!,
+      where: {
+        userId: userId as string,
+        name: {
+          contains: name as string,
+          mode: "insensitive",
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    }),
+    prisma.workflow.count({
+      where: {
+        userId,
+        name: {
+          contains: name as string,
+          mode: "insensitive",
+        },
+      },
+    }),
+  ]);
+  res
+    .status(200)
+    .json({
+      status: "success",
+      content,
+      results,
+      ...generatePaginationObject(results, +page!, +pageSize!),
+    });
 });
 
 export const deleteWorkflow = catchAsync(async (req, res, next) => {
