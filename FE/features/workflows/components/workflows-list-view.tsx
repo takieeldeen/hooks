@@ -1,14 +1,11 @@
 "use client";
 import { useGetWorkflows } from "@/api/workflows";
 import { useWorkflowParams } from "../hooks/useWorkflowsParams";
-import {
-  WorkflowsEmpty,
-  WorkflowsLoading,
-  WorkflowsNotFound,
-} from "./workflows-container";
-import { useEffect } from "react";
 import { EntityList, NotFoundView } from "@/components/EntityComponent";
 import WorkflowItem from "./workflow-item";
+import { WorkflowsLoading } from "./workflow-loading";
+import { WorkflowsEmpty } from "./workflow-empty";
+import { WorkflowsNotFound } from "./workflow-error";
 
 function WorkflowsListView() {
   const [workflowParams] = useWorkflowParams();
@@ -26,7 +23,7 @@ function WorkflowsListView() {
       notFoundView={<NotFoundView />}
       notFound={data?.canReset && data?.isEmpty}
       getKey={(item) => item.id}
-      renderItem={(item, index) => <WorkflowItem workflow={item} />}
+      renderItem={(item) => <WorkflowItem workflow={item} />}
     />
   );
 }

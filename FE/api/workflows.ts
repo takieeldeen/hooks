@@ -53,6 +53,7 @@ export function useRemoveWorkflow(queryKey: any[]) {
     mutationFn: deleteWorkflow,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
+      toast.success("Workflow Deleted Successfully");
     },
   });
   return mutation;

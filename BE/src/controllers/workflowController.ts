@@ -72,6 +72,7 @@ export const getWorkflow = catchAsync(async (req, res, next) => {
       userId: userId as string,
     },
   });
+
   res.status(200).json({ status: "success", content: workflow });
 });
 
