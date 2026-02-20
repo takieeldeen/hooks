@@ -32,18 +32,33 @@ export function useCreateWorkflow() {
   return query;
 }
 
-export async function updateWorkflow(
-  workflowId: string,
-  workflowPayload: Partial<Workflow>,
-) {
-  const URL = endpoints.workflows.single(workflowId);
+export async function updateWorkflow(workflowPayload: Workflow) {
+  const URL = endpoints.workflows.single(workflowPayload.id);
+  toast.loading("Updating Workflow...", { id: workflowPayload.id });
   const response = await axios.patch(URL, workflowPayload);
+  toast.dismiss(workflowPayload.id);
   return response.data;
+}
+
+export function useUpdateWorkflow() {
+  const queryClient = useQueryClient();
+  const query = useMutation({
+    mutationFn: updateWorkflow,
+    onSuccess: (data: APIDetailsResponse<Workflow>) => {
+      toast.success(`Workflow ${data.content.name} Updated Successfully`, {
+        id: data.content.id,
+      });
+      queryClient.invalidateQueries({ queryKey: ["workflows"] });
+    },
+  });
+  return query;
 }
 
 export async function deleteWorkflow(workflowId: Workflow["id"]) {
   const URL = endpoints.workflows.single(workflowId);
+  toast.loading("Deleting Workflow...", { id: workflowId });
   const response = await axios.delete(URL);
+  toast.dismiss(workflowId);
   return response.data;
 }
 
@@ -87,7 +102,6 @@ export async function prefetchWorkflows({
     queryKey,
     queryFn: getFetcher(URL),
   });
-  console.log(queryClient);
   return { queryClient, query, queryKey };
 }
 

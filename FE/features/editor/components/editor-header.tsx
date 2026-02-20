@@ -1,4 +1,3 @@
-import React from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import EditorBreadcrumbs from "./editor-breadcrumbs";
 import EditorSaveButton from "./editor-save-button";
