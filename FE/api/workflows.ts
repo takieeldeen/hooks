@@ -32,11 +32,10 @@ export function useCreateWorkflow() {
   return query;
 }
 
-export async function updateWorkflow(workflowPayload: Workflow) {
-  const URL = endpoints.workflows.single(workflowPayload.id);
+export async function updateWorkflow(workflowPayload: Partial<Workflow>) {
+  const URL = endpoints.workflows.single(workflowPayload.id!);
   toast.loading("Updating Workflow...", { id: workflowPayload.id });
   const response = await axios.patch(URL, workflowPayload);
-  toast.dismiss(workflowPayload.id);
   return response.data;
 }
 
@@ -44,8 +43,36 @@ export function useUpdateWorkflow() {
   const queryClient = useQueryClient();
   const query = useMutation({
     mutationFn: updateWorkflow,
+    onSuccess: (data: APIDetailsResponse<Workflow>, params) => {
+      console.log(data, params);
+      toast.success(`Workflow Updated Successfully`, {
+        id: params.id,
+      });
+      queryClient.invalidateQueries({ queryKey: ["workflows"] });
+    },
+    onError: (error: any, params) => {
+      toast.error(`Workflow Update Failed`, {
+        id: params.id,
+      });
+    },
+  });
+  return query;
+}
+
+export async function updateWorkflowName(workflowPayload: Workflow) {
+  const URL = endpoints.workflows.updateName(workflowPayload.id);
+  toast.loading("Updating Workflow Name...", { id: workflowPayload.id });
+  const response = await axios.patch(URL, workflowPayload);
+  toast.dismiss(workflowPayload.id);
+  return response.data;
+}
+
+export function useUpdateWorkflowName() {
+  const queryClient = useQueryClient();
+  const query = useMutation({
+    mutationFn: updateWorkflowName,
     onSuccess: (data: APIDetailsResponse<Workflow>) => {
-      toast.success(`Workflow ${data.content.name} Updated Successfully`, {
+      toast.success(`Workflow ${data.content.name} Name Updated Successfully`, {
         id: data.content.id,
       });
       queryClient.invalidateQueries({ queryKey: ["workflows"] });

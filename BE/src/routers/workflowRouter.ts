@@ -6,6 +6,7 @@ import {
   deleteWorkflow,
   getWorkflow,
   updateWorkflow,
+  updateWorkflowName,
 } from "../controllers/workflowController";
 
 export const workflowRouter = Router();
@@ -17,3 +18,5 @@ workflowRouter
   .delete(deleteWorkflow)
   .get(getWorkflow)
   .patch(updateWorkflow);
+
+workflowRouter.route("/:workflowId/name").patch(updateWorkflowName);

@@ -21,13 +21,14 @@ import { ParamsOf } from "@/.next/dev/types/routes";
 import { useGetWorkflowDetails } from "@/api/workflows";
 import { nodeComponents } from "@/config/node-components";
 import EditorAddNodeButton from "./editor-add-node-button";
+import { useEditor } from "./editor-provider";
 
 export default function Editor() {
   const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
   const { data: workflow } = useGetWorkflowDetails(workflowId);
   const [nodes, setNodes] = useState<Node[]>(workflow?.content.nodes ?? []);
   const [edges, setEdges] = useState<Edge[]>(workflow?.content.edges ?? []);
-
+  const { setEditorInstance } = useEditor();
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -55,6 +56,13 @@ export default function Editor() {
         onConnect={onConnect}
         fitView
         nodeTypes={nodeComponents}
+        onInit={setEditorInstance}
+        snapGrid={[30, 30]}
+        snapToGrid
+        panOnScroll
+        // panOnDrag={false}
+        // selectionOnDrag
+
         // proOptions={{
         //   hideAttribution: true,
         // }}

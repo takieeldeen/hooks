@@ -1,5 +1,5 @@
 "use client";
-import { useGetWorkflowDetails, useUpdateWorkflow } from "@/api/workflows";
+import { useGetWorkflowDetails, useUpdateWorkflowName } from "@/api/workflows";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,7 +12,6 @@ import Link from "next/link";
 import React, { KeyboardEvent, useEffect, useRef, useState } from "react";
 
 function EditorBreadcrumbs({ workflowId }: { workflowId: string }) {
-  const { data } = useGetWorkflowDetails(workflowId);
   return (
     <Breadcrumb>
       <BreadcrumbList>
@@ -37,7 +36,7 @@ function EditorNameInput({ workflowId }: { workflowId: string }) {
   const { data } = useGetWorkflowDetails(workflowId);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const { mutateAsync: updateWorkflow, isPending } = useUpdateWorkflow();
+  const { mutateAsync: updateWorkflow, isPending } = useUpdateWorkflowName();
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setWorkflowName(data?.content?.name ?? "");

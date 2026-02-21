@@ -6,7 +6,6 @@ import React, { useState } from "react";
 function EditorAddNodeButton() {
   const [selectorOpen, setSelectorOpen] = useState<boolean>(false);
   return (
-    // <ViewportPortal>
     <NodeSelector open={selectorOpen} onOpenChange={setSelectorOpen}>
       <Button size="icon" variant="outline" className="bg-background">
         <PlusIcon className="size-4" />

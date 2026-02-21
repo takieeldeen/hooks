@@ -1,4 +1,4 @@
-import { Workflow } from "../generated/prisma/client";
+import { Node, Workflow } from "../generated/prisma/client";
 import { NodeType } from "../generated/prisma/enums";
 import { catchAsync } from "../lib/errors";
 import { prisma } from "../lib/prisma";
@@ -103,7 +103,7 @@ export const getWorkflow = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: "success", content: finalObj });
 });
 
-export const updateWorkflow = catchAsync(async (req, res, next) => {
+export const updateWorkflowName = catchAsync(async (req, res, next) => {
   const { workflowId } = req.params;
   const userId = req.session?.user.id;
   const workflow = await prisma.workflow.update({
@@ -116,4 +116,52 @@ export const updateWorkflow = catchAsync(async (req, res, next) => {
     },
   });
   res.status(200).json({ status: "success", content: workflow });
+});
+
+export const updateWorkflow = catchAsync(async (req, res, next) => {
+  const { workflowId } = req.params;
+  const { nodes, edges } = req.body;
+  const userId = req.session?.user.id;
+
+  await prisma.$transaction(async (transaction) => {
+    await transaction.node.deleteMany({
+      where: {
+        workflowId: workflowId as string,
+      },
+    });
+
+    await transaction.node.createMany({
+      data: nodes.map((node: any) => ({
+        id: node.id,
+        workflowId,
+        name: node.type || "unkown",
+        type: node.type as NodeType,
+        position: node.position,
+        data: node.data || {},
+      })),
+    });
+
+    await transaction.connection.createMany({
+      data: edges.map((edge: any) => ({
+        workflowId,
+        sourceNodeId: edge.source,
+        targetNodeId: edge.target,
+        sourceInput: edge.sourceHandle || "main",
+        targetInput: edge.targetHandle || "main",
+      })),
+    });
+
+    await transaction.workflow.update({
+      where: {
+        id: workflowId as string,
+      },
+      data: {
+        updatedAt: new Date(),
+      },
+    });
+  });
+
+  res.status(200).json({
+    status: "success",
+  });
 });

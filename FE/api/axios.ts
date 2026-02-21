@@ -20,6 +20,7 @@ export const endpoints = {
   workflows: {
     all: "/workflows",
     single: (workflowId: string | number) => `/workflows/${workflowId}`,
+    updateName: (workflowId: string) => `/workflows/${workflowId}/name`,
   },
 };
 
