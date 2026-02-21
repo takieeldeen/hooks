@@ -1,7 +1,8 @@
 import { NodeType } from "@/config/node-components";
+import { createId } from "@paralleldrive/cuid2";
 import { GlobeIcon, MousePointerIcon } from "lucide-react";
 import { ComponentType, ReactNode, useCallback } from "react";
-import { useReactFlow } from "@xyflow/react";
+import { Node, useReactFlow } from "@xyflow/react";
 import {
   Sheet,
   SheetContent,
@@ -11,6 +12,7 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { Separator } from "./ui/separator";
+import { toast } from "sonner";
 
 export type NodeTypeOption = {
   type: NodeType;
@@ -51,7 +53,42 @@ export function NodeSelector({
 }: NodeSelectorProps) {
   const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
 
-  const handleNodeSelection = useCallback((nodeType: NodeType) => {}, []);
+  const handleNodeSelection = useCallback(
+    (node: NodeTypeOption) => {
+      if (node.type === "MANUAL_TRIGGER") {
+        const nodes = getNodes();
+        const HAS_MANUAL_TRIGGER = nodes.some(
+          (node) => node.type === "MANUAL_TRIGGER",
+        );
+        if (HAS_MANUAL_TRIGGER) {
+          return toast.error("Only one manual trigger is allowed per workflow");
+        }
+      }
+      setNodes((nodes) => {
+        const HAS_INITIAL_NODE = !!nodes.find(
+          (node) => node.type === "INITIAL",
+        );
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const position = screenToFlowPosition({
+          x: centerX + (Math.random() - 0.5) * 200,
+          y: centerY + (Math.random() - 0.5) * 200,
+        });
+        const newNode = {
+          id: createId(),
+          data: {},
+          position,
+          type: node.type,
+        };
+
+        if (HAS_INITIAL_NODE) return [newNode];
+        console.log("HAS_INITIAL_NODE", HAS_INITIAL_NODE, [...nodes, newNode]);
+        onOpenChange(false);
+        return [...nodes, newNode];
+      });
+    },
+    [getNodes, onOpenChange, screenToFlowPosition, setNodes],
+  );
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>{children}</SheetTrigger>
@@ -68,9 +105,9 @@ export function NodeSelector({
             return (
               <div
                 key={node.type}
+                onClick={() => handleNodeSelection(node)}
                 className="w-full justify-start h-auto py-5 px-4 rounded-none cursor-pointer border-l-2
             border-transparent hover:border-l-primary"
-                onClick={() => {}}
               >
                 <div className="flex items-center gap-6 w-full overflow-hidden">
                   {typeof Icon === "string" ? (
@@ -100,9 +137,9 @@ export function NodeSelector({
             return (
               <div
                 key={node.type}
+                onClick={() => handleNodeSelection(node)}
                 className="w-full justify-start h-auto py-5 px-4 rounded-none cursor-pointer border-l-2
             border-transparent hover:border-l-primary"
-                onClick={() => {}}
               >
                 <div className="flex items-center gap-6 w-full overflow-hidden">
                   {typeof Icon === "string" ? (
