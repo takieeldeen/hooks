@@ -19,9 +19,10 @@ import "@xyflow/react/dist/style.css";
 import { useParams } from "next/navigation";
 import { ParamsOf } from "@/.next/dev/types/routes";
 import { useGetWorkflowDetails } from "@/api/workflows";
-import { nodeComponents } from "@/config/node-components";
+import { nodeComponents, NodeType } from "@/config/node-components";
 import EditorAddNodeButton from "./editor-add-node-button";
 import { useEditor } from "./editor-provider";
+import EditorExecuteButton from "./editor-execute-button";
 
 export default function Editor() {
   const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
@@ -45,7 +46,9 @@ export default function Editor() {
       setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     [],
   );
-
+  const hasManualTrigger = nodes.some(
+    (node) => (node.type as NodeType) === "MANUAL_TRIGGER",
+  );
   return (
     <div className="size-full">
       <ReactFlow
@@ -60,16 +63,15 @@ export default function Editor() {
         snapGrid={[30, 30]}
         snapToGrid
         panOnScroll
-        // panOnDrag={false}
-        // selectionOnDrag
-
-        // proOptions={{
-        //   hideAttribution: true,
-        // }}
       >
         <Panel position="top-right">
           <EditorAddNodeButton />
         </Panel>
+        {hasManualTrigger && (
+          <Panel position="bottom-center">
+            <EditorExecuteButton />
+          </Panel>
+        )}
         <Background />
         <Controls />
         <MiniMap />

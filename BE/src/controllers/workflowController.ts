@@ -2,7 +2,11 @@ import { Node, Workflow } from "../generated/prisma/client";
 import { NodeType } from "../generated/prisma/enums";
 import { catchAsync } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import { registerJob } from "../utilis/backgroundJobs/backgroundJobs";
+import { EXECUTOR_REGISTRY } from "../utilis/executions/executorRegistry";
+import { topologicalSort } from "../utilis/topoSort";
 import { generatePaginationObject } from "../utilis/pagination";
+import { AppError } from "./errorController";
 
 export const createWorkflow = catchAsync(async (req, res, next) => {
   const { name } = req.body;
@@ -163,5 +167,54 @@ export const updateWorkflow = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
+  });
+});
+
+export const executeWorkflow = catchAsync(async (req, res, next) => {
+  // 0. Get the workflowId from params
+  const { workflowId } = req.params;
+  const { initialData } = req.body ?? {};
+
+  // 1. Get the workflow using workflowId (Including Nodes and Connections)
+  const workflow = await prisma.workflow.findUniqueOrThrow({
+    where: { id: workflowId as string },
+    include: { nodes: true, connections: true },
+  });
+
+  // 2. Sort the nodes topologically
+  const { sortedArr, hasCycle } = topologicalSort(
+    workflow.nodes,
+    workflow.connections,
+  );
+
+  // 3. Protect against cyclic workflows
+  if (hasCycle) return next(new AppError(400, "WORKFLOW_CONTAINS_CYCLE"));
+
+  // 4. Validate that every node has a known executor before queuing
+  for (const node of sortedArr) {
+    if (!EXECUTOR_REGISTRY[node.type]) {
+      return next(new AppError(400, "UNKOWN_NODE_TYPE"));
+    }
+  }
+
+  const context: Record<string, any> = initialData || {};
+
+  for (const node of sortedArr) {
+    const executor = EXECUTOR_REGISTRY[node.type];
+
+    registerJob(
+      workflowId as string,
+      `node:${node.type}:${node.id}`,
+      executor,
+      { nodeId: node.id, context, data: node.data },
+    );
+  }
+
+  // 7. Return immediately so the client is not kept waiting
+  res.status(202).json({
+    status: "success",
+    message: "Workflow execution has been queued.",
+    workflowId,
+    context,
   });
 });

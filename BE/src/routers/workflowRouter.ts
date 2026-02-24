@@ -7,6 +7,7 @@ import {
   getWorkflow,
   updateWorkflow,
   updateWorkflowName,
+  executeWorkflow,
 } from "../controllers/workflowController";
 
 export const workflowRouter = Router();
@@ -20,3 +21,4 @@ workflowRouter
   .patch(updateWorkflow);
 
 workflowRouter.route("/:workflowId/name").patch(updateWorkflowName);
+workflowRouter.post("/:workflowId/execute", executeWorkflow);

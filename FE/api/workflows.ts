@@ -44,7 +44,6 @@ export function useUpdateWorkflow() {
   const query = useMutation({
     mutationFn: updateWorkflow,
     onSuccess: (data: APIDetailsResponse<Workflow>, params) => {
-      console.log(data, params);
       toast.success(`Workflow Updated Successfully`, {
         id: params.id,
       });
@@ -184,4 +183,25 @@ export function useGetWorkflowDetails(workflowId: string) {
     queryFn: getFetcher(URL),
   });
   return { ...query, queryKey };
+}
+
+export async function triggerWorkflow(workflowId: string) {
+  const URL = endpoints.workflows.execute(workflowId);
+  const response = await axios.post(URL);
+  return response.data;
+}
+
+export function useTriggerWorkflow() {
+  const queryClient = useQueryClient();
+  const query = useMutation({
+    mutationFn: triggerWorkflow,
+    onSuccess: (data: APIDetailsResponse<Workflow>) => {
+      toast.success(`Workflow Triggered Successfully`);
+      queryClient.invalidateQueries({ queryKey: ["workflows"] });
+    },
+    onError: (error: any) => {
+      toast.error(`Workflow Trigger Failed`);
+    },
+  });
+  return query;
 }
