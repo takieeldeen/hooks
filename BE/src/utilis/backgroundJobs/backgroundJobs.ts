@@ -116,7 +116,7 @@ class BackgroundJobQueue {
     } catch (err: any) {
       await prisma.job.update({
         where: { id: job.id },
-        data: { status: "FAILED", error: err?.message ?? "Unknown error" },
+        data: { status: "FAILED", error: JSON.stringify(err) },
       });
     }
   }

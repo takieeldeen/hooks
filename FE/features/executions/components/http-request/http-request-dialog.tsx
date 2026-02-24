@@ -36,6 +36,13 @@ const formSchema = z.object({
   method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]),
   endpoint: z.url({ message: "Please enter a valid URL" }),
   body: z.string().optional(),
+  variableName: z
+    .string()
+    .min(1, "Variable name is required")
+    .regex(
+      /^[a-zA-Z_$][a-zA-Z0-9_$]*$/,
+      "Variable name must start with a letter or underscore and can only contain letters, numbers, and underscores",
+    ),
 });
 
 function HttpRequestDialog({
@@ -55,8 +62,14 @@ function HttpRequestDialog({
       method: nodeData?.method || "GET",
       endpoint: nodeData?.endpoint || "",
       body: nodeData?.body || "",
+      variableName: nodeData?.variableName || "",
     }),
-    [nodeData?.body, nodeData?.endpoint, nodeData?.method],
+    [
+      nodeData?.body,
+      nodeData?.endpoint,
+      nodeData?.method,
+      nodeData?.variableName,
+    ],
   );
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -91,6 +104,23 @@ function HttpRequestDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-4">
+            <FormField
+              control={form.control}
+              name="variableName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Variable Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="myApiCall" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Use this name to reference the result in other nodes:{" "}
+                    {`{{${field.value || "myApiCall"}.httpResponse.data}}`}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="method"

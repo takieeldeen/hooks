@@ -7,6 +7,7 @@ import { EXECUTOR_REGISTRY } from "../utilis/executions/executorRegistry";
 import { topologicalSort } from "../utilis/topoSort";
 import { generatePaginationObject } from "../utilis/pagination";
 import { AppError } from "./errorController";
+import { NodeInputs } from "../utilis/backgroundJobs/types";
 
 export const createWorkflow = catchAsync(async (req, res, next) => {
   const { name } = req.body;
@@ -206,7 +207,7 @@ export const executeWorkflow = catchAsync(async (req, res, next) => {
       workflowId as string,
       `node:${node.type}:${node.id}`,
       executor,
-      { nodeId: node.id, context, data: node.data },
+      { nodeId: node.id, context, data: node.data as any },
     );
   }
 
