@@ -1,6 +1,6 @@
 import { DatabaseError } from "pg";
 import { AppError } from "../controllers/errorController";
-import { NextFunction,Request,RequestHandler,Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { auth } from "./auth";
 import { Session } from "better-auth";
 import { User } from "../generated/prisma/client";
@@ -9,10 +9,9 @@ declare global {
   namespace Express {
     interface Request {
       session?: {
-        session: Session,
-        user:User,
+        session: Session;
+        user: User;
       };
-
     }
   }
 }
@@ -169,24 +168,22 @@ export function debugModeErrorHandler(error: any) {
   return handledError;
 }
 
-
 export async function checkAuth(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const session = await auth.api.getSession({
-    headers:req.headers
-  })
-  console.log(session);
-  if(!session) res.status(401).json({
-    status: 'fail',
-    message: 'Please Log in to continue'
-  })
+    headers: req.headers,
+  });
+  if (!session)
+    res.status(401).json({
+      status: "fail",
+      message: "Please Log in to continue",
+    });
   req.session = session as any;
   next();
 }
-
 
 export function catchAsync(reqHandler: RequestHandler): RequestHandler {
   return async (req: Request, res: Response, next: NextFunction) => {

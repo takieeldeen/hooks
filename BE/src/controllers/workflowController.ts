@@ -8,6 +8,7 @@ import { topologicalSort } from "../utilis/topoSort";
 import { generatePaginationObject } from "../utilis/pagination";
 import { AppError } from "./errorController";
 import { NodeInputs } from "../utilis/backgroundJobs/types";
+import WorkflowService from "../srv/workflowsService";
 
 export const createWorkflow = catchAsync(async (req, res, next) => {
   const { name } = req.body;
@@ -67,12 +68,10 @@ export const getWorkflows = catchAsync(async (req, res, next) => {
 export const deleteWorkflow = catchAsync(async (req, res, next) => {
   const { workflowId } = req.params;
   const userId = req.session?.user.id;
-  const workflow = await prisma.workflow.delete({
-    where: {
-      id: workflowId as string,
-      userId: userId as string,
-    },
-  });
+  const workflow = await WorkflowService.delete(
+    workflowId as string,
+    userId as string,
+  );
   res.status(200).json({ status: "success", content: workflow });
 });
 
@@ -176,42 +175,14 @@ export const executeWorkflow = catchAsync(async (req, res, next) => {
   const { workflowId } = req.params;
   const { initialData } = req.body ?? {};
 
-  // 1. Get the workflow using workflowId (Including Nodes and Connections)
-  const workflow = await prisma.workflow.findUniqueOrThrow({
-    where: { id: workflowId as string },
-    include: { nodes: true, connections: true },
-  });
-
-  // 2. Sort the nodes topologically
-  const { sortedArr, hasCycle } = topologicalSort(
-    workflow.nodes,
-    workflow.connections,
+  // 1. Execute Workflow
+  const context = await WorkflowService.execute(
+    workflowId as string,
+    initialData,
+    req.session?.user.id!,
   );
 
-  // 3. Protect against cyclic workflows
-  if (hasCycle) return next(new AppError(400, "WORKFLOW_CONTAINS_CYCLE"));
-
-  // 4. Validate that every node has a known executor before queuing
-  for (const node of sortedArr) {
-    if (!EXECUTOR_REGISTRY[node.type]) {
-      return next(new AppError(400, "UNKOWN_NODE_TYPE"));
-    }
-  }
-
-  const context: Record<string, any> = initialData || {};
-
-  for (const node of sortedArr) {
-    const executor = EXECUTOR_REGISTRY[node.type];
-
-    registerJob(
-      workflowId as string,
-      `node:${node.type}:${node.id}`,
-      executor,
-      { nodeId: node.id, context, data: node.data as any },
-    );
-  }
-
-  // 7. Return immediately so the client is not kept waiting
+  // 2. Return immediately so the client is not kept waiting
   res.status(202).json({
     status: "success",
     message: "Workflow execution has been queued.",

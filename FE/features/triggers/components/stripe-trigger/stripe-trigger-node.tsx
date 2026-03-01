@@ -2,11 +2,11 @@
 import { NodeProps } from "@xyflow/react";
 import React, { useCallback, useState } from "react";
 import BaseTriggerNode from "../base-trigger-node";
-import ManualTriggerDialog from "./manual-trigger-dialog";
+import StripeTriggerDialog from "./stripe-trigger-dialog";
 import { useNodeStatus } from "@/features/executions/hooks/use-node-status";
 import { Icon } from "@iconify/react";
 
-function ManualTriggerNode(props: NodeProps) {
+function StripeTriggerNode(props: NodeProps) {
   const [open, setOpen] = useState(false);
   const { status } = useNodeStatus(props.id);
 
@@ -15,12 +15,17 @@ function ManualTriggerNode(props: NodeProps) {
   }, []);
   return (
     <>
-      <ManualTriggerDialog open={open} onOpenChange={setOpen} />
+      <StripeTriggerDialog open={open} onOpenChange={setOpen} />
       <BaseTriggerNode
         {...props}
-        icon={<Icon icon="lucide:mouse-pointer" className="size-6" />}
-        name="Manual Trigger"
-        description="When clicking 'Execute Workflow'"
+        icon={
+          <Icon
+            icon="mingcute:stripe-fill"
+            className="size-6 text-indigo-700"
+          />
+        }
+        name="Stripe Action"
+        description="On a Certain Stripe Action"
         status={status}
         onSettings={handleOpenSettings}
         onDoubleClick={handleOpenSettings}
@@ -29,4 +34,4 @@ function ManualTriggerNode(props: NodeProps) {
   );
 }
 
-export default ManualTriggerNode;
+export default StripeTriggerNode;

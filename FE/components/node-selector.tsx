@@ -1,8 +1,7 @@
 import { NodeType } from "@/config/node-components";
 import { createId } from "@paralleldrive/cuid2";
-import { GlobeIcon, MousePointerIcon } from "lucide-react";
-import { ComponentType, ReactNode, useCallback } from "react";
-import { Node, useReactFlow } from "@xyflow/react";
+import { ReactNode, useCallback } from "react";
+import { useReactFlow } from "@xyflow/react";
 import {
   Sheet,
   SheetContent,
@@ -13,12 +12,13 @@ import {
 } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { toast } from "sonner";
+import { Icon } from "@iconify/react";
 
 export type NodeTypeOption = {
   type: NodeType;
   label: string;
   description: string;
-  icon: ComponentType<{ className?: string }> | string;
+  icon: ReactNode;
 };
 
 const triggerNodes: NodeTypeOption[] = [
@@ -27,8 +27,27 @@ const triggerNodes: NodeTypeOption[] = [
     label: "Trigger Manually",
     description:
       "Runs the flow on clicking a button, Good for getting started quickly",
-    icon: MousePointerIcon,
+    icon: <Icon icon="lucide:mouse-pointer" className="size-6" />,
   },
+  {
+    type: "GOOGLE_FORM_TRIGGER",
+    label: "Trigger on Submission of Google Form",
+    description: "Runs the flow on submitting of a specific google form.",
+    icon: (
+      <Icon
+        icon="simple-icons:googleforms"
+        className="size-6 text-indigo-700"
+      />
+    ),
+  },
+  // {
+  //   type: "STRIPE_TRIGGER",
+  //   label: "Stripe Action Trigger",
+  //   description: "Runs the flow on a certain action in stripe.",
+  //   icon: (
+  //     <Icon icon="mingcute:stripe-fill" className="size-6 text-indigo-700" />
+  //   ),
+  // },
 ];
 
 const executionNodes: NodeTypeOption[] = [
@@ -36,7 +55,25 @@ const executionNodes: NodeTypeOption[] = [
     type: "HTTP_REQUEST",
     label: "HTTP Request",
     description: "Make a HTTP request to an external API",
-    icon: GlobeIcon,
+    icon: <Icon icon="mynaui:globe" className="size-6" />,
+  },
+  {
+    type: "GEMINI",
+    label: "Gemini",
+    description: "Uses Google Gemini to Generate Text",
+    icon: <Icon icon="material-icon-theme:gemini-ai" className="size-6" />,
+  },
+  {
+    type: "OPENAI",
+    label: "OpenAI",
+    description: "Uses OpenAI to Generate Text",
+    icon: <Icon icon="simple-icons:openai" className="size-6" />,
+  },
+  {
+    type: "ANTHROPIC",
+    label: "Anthropic",
+    description: "Uses Anthropic to Generate Text",
+    icon: <Icon icon="simple-icons:anthropic" className="size-6" />,
   },
 ];
 
@@ -82,7 +119,6 @@ export function NodeSelector({
         };
 
         if (HAS_INITIAL_NODE) return [newNode];
-        console.log("HAS_INITIAL_NODE", HAS_INITIAL_NODE, [...nodes, newNode]);
         onOpenChange(false);
         return [...nodes, newNode];
       });
@@ -110,7 +146,7 @@ export function NodeSelector({
             border-transparent hover:border-l-primary"
               >
                 <div className="flex items-center gap-6 w-full overflow-hidden">
-                  {typeof Icon === "string" ? (
+                  {/* {typeof Icon === "string" ? (
                     <img
                       src={Icon}
                       alt={node.label}
@@ -118,7 +154,8 @@ export function NodeSelector({
                     />
                   ) : (
                     <Icon className="size-5" />
-                  )}
+                  )} */}
+                  {Icon}
                   <div className="flex flex-col items-start text-left">
                     <span className="font-medium text-sm">{node.label}</span>
                     <span className="text-sm text-muted-foreground">
@@ -142,7 +179,7 @@ export function NodeSelector({
             border-transparent hover:border-l-primary"
               >
                 <div className="flex items-center gap-6 w-full overflow-hidden">
-                  {typeof Icon === "string" ? (
+                  {/* {typeof Icon === "string" ? (
                     <img
                       src={Icon}
                       alt={node.label}
@@ -150,7 +187,9 @@ export function NodeSelector({
                     />
                   ) : (
                     <Icon className="size-5" />
-                  )}
+                  )} */}
+                  {Icon}
+
                   <div className="flex flex-col items-start text-left">
                     <span className="font-medium text-sm">{node.label}</span>
                     <span className="text-sm text-muted-foreground">

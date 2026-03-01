@@ -2,26 +2,27 @@
 import { Node, NodeProps } from "@xyflow/react";
 import React, { useCallback, useState } from "react";
 import BaseExecutionNode from "../base-execution-node";
-import HttpRequestDialog from "./http-request-dialog";
+import GeminiDialog, { GEMINI_AVAILABLE_MODELS } from "./gemini-dialog";
 import { useNodeStatus } from "../../hooks/use-node-status";
 import { Icon } from "@iconify/react";
 
-export type HttpRequestNodeData = {
+export type GeminiNodeData = {
   variableName?: string;
-  endpoint?: string;
-  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  model?: (typeof GEMINI_AVAILABLE_MODELS)[number];
+  userPrompt: string;
+  systemPrompt: string;
   body?: string;
   [key: string]: unknown;
 };
 
-type HttpRequestNodeType = Node<HttpRequestNodeData>;
+type GeminiNodeType = Node<GeminiNodeData>;
 
-function HttpRequestNode(props: NodeProps<HttpRequestNodeType>) {
+function GeminiNode(props: NodeProps<GeminiNodeType>) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { status } = useNodeStatus(props.id);
   const nodeData = props.data;
-  const description = nodeData?.endpoint
-    ? `${nodeData.method || "GET"}: ${nodeData.endpoint}`
+  const description = nodeData?.userPrompt
+    ? `${nodeData.model || GEMINI_AVAILABLE_MODELS[0]}: ${nodeData.userPrompt.slice(0, 50)}...`
     : "Not Configured";
   const handleOpenSettings = useCallback(() => {
     setDialogOpen(true);
@@ -29,7 +30,7 @@ function HttpRequestNode(props: NodeProps<HttpRequestNodeType>) {
 
   return (
     <>
-      <HttpRequestDialog
+      <GeminiDialog
         nodeData={nodeData}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -38,8 +39,8 @@ function HttpRequestNode(props: NodeProps<HttpRequestNodeType>) {
       <BaseExecutionNode
         {...props}
         status={status}
-        icon={<Icon icon="mynaui:globe" className="size-6" />}
-        name="HTTP Request"
+        icon={<Icon icon="material-icon-theme:gemini-ai" className="size-6" />}
+        name="Gemini"
         description={description}
         onSettings={handleOpenSettings}
         onDoubleClick={handleOpenSettings}
@@ -48,4 +49,4 @@ function HttpRequestNode(props: NodeProps<HttpRequestNodeType>) {
   );
 }
 
-export default HttpRequestNode;
+export default GeminiNode;

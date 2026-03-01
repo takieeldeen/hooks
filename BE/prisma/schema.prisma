@@ -149,7 +149,12 @@ model Workflow {
 enum NodeType {
   INITIAL
   MANUAL_TRIGGER
+  GOOGLE_FORM_TRIGGER
+  STRIPE_TRIGGER
   HTTP_REQUEST
+  ANTHROPIC
+  GEMINI
+  OPENAI
 }
 model Node {
   id String @id @default(uuid())

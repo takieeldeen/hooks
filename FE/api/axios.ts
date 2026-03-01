@@ -23,6 +23,10 @@ export const endpoints = {
     updateName: (workflowId: string) => `/workflows/${workflowId}/name`,
     execute: (workflowId: string) => `/workflows/${workflowId}/execute`,
   },
+  ai: {
+    geminiAvailableModels: "/ai/my-google-models",
+    openAiAvailableModels: "/ai/my-openai-models",
+  },
 };
 
 export default axios;

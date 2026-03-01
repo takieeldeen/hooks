@@ -12,7 +12,12 @@
 export const NodeType = {
   INITIAL: 'INITIAL',
   MANUAL_TRIGGER: 'MANUAL_TRIGGER',
-  HTTP_REQUEST: 'HTTP_REQUEST'
+  GOOGLE_FORM_TRIGGER: 'GOOGLE_FORM_TRIGGER',
+  STRIPE_TRIGGER: 'STRIPE_TRIGGER',
+  HTTP_REQUEST: 'HTTP_REQUEST',
+  ANTHROPIC: 'ANTHROPIC',
+  GEMINI: 'GEMINI',
+  OPENAI: 'OPENAI'
 } as const
 
 export type NodeType = (typeof NodeType)[keyof typeof NodeType]

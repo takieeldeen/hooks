@@ -1,9 +1,14 @@
 import { Router } from "express";
-import { testAi } from "../controllers/aiController";
+import {
+  getAvailableGoogleModels,
+  getAvailableOpenAiModels,
+  testAi,
+} from "../controllers/aiController";
 import { checkAuth } from "../lib/errors";
 
 const aiRouter = Router();
 
-aiRouter.route('/test').get(checkAuth,testAi)
+aiRouter.route("/my-google-models").get(checkAuth, getAvailableGoogleModels);
+aiRouter.route("/my-openai-models").get(checkAuth, getAvailableOpenAiModels);
 
 export default aiRouter;

@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { sendNotificationToUser } from "../../service/notifications/notifications";
 
 // --------------------------------------------------------------------------
 // Types
@@ -25,7 +26,7 @@ class BackgroundJobQueue {
   private queues = new Map<string, QueueEntry[]>();
   /** workflowId → whether a job is currently being processed */
   private running = new Map<string, boolean>();
-
+  private userId: string | undefined;
   /**
    * Enqueue a job.
    * @param workflowId  Used to group jobs that must run sequentially.
@@ -34,12 +35,14 @@ class BackgroundJobQueue {
    * @param payload     Optional data forwarded to jobFn.
    */
   enqueue<T = any>(
+    userId: string,
     workflowId: string,
     jobName: string,
     jobFn: JobFn<T>,
     payload?: T,
   ): void {
     // Initialise queue for this workflow if needed
+    if (!this.userId) this.userId = userId;
     if (!this.queues.has(workflowId)) {
       this.queues.set(workflowId, []);
     }
@@ -101,22 +104,37 @@ class BackgroundJobQueue {
     });
 
     // 2. Mark as RUNNING
+    const runningPayload = { status: "RUNNING" };
     await prisma.job.update({
       where: { id: job.id },
-      data: { status: "RUNNING" },
+      data: runningPayload,
+    });
+    sendNotificationToUser(this.userId!, "NODE-UPDATE", {
+      nodeId: payload?.nodeId,
+      status: "RUNNING",
     });
 
     // 3. Execute and store result / error
     try {
       const result = await jobFn(payload);
+      const succcessPayload = { status: "SUCCESS", result };
       await prisma.job.update({
         where: { id: job.id },
         data: { status: "SUCCESS", result },
       });
+      sendNotificationToUser(this.userId!, "NODE-UPDATE", {
+        nodeId: payload?.nodeId,
+        status: "SUCCESS",
+      });
     } catch (err: any) {
+      const failurePayload = { status: "FAILED", error: JSON.stringify(err) };
       await prisma.job.update({
         where: { id: job.id },
-        data: { status: "FAILED", error: JSON.stringify(err) },
+        data: failurePayload,
+      });
+      sendNotificationToUser(this.userId!, "NODE-UPDATE", {
+        nodeId: payload?.nodeId,
+        status: "FAILED",
       });
     }
   }
@@ -143,10 +161,11 @@ const jobQueue = new BackgroundJobQueue();
  * the HTTP response.
  */
 export function registerJob<T = any>(
+  userId: string,
   workflowId: string,
   jobName: string,
   jobFn: JobFn<T>,
   payload?: T,
 ): void {
-  jobQueue.enqueue(workflowId, jobName, jobFn, payload);
+  jobQueue.enqueue(userId, workflowId, jobName, jobFn, payload);
 }

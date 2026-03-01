@@ -205,3 +205,22 @@ export function useTriggerWorkflow() {
   });
   return query;
 }
+
+export function useGetMyAvailableGeminiModels() {
+  const URL = endpoints.ai.geminiAvailableModels;
+  const queryKey = ["gemini", "models"];
+  const query = useQuery<APIListResponse<string>>({
+    queryKey,
+    queryFn: getFetcher(URL),
+  });
+  return { ...query, queryKey };
+}
+export function useGetMyAvailableOpenAiModels() {
+  const URL = endpoints.ai.openAiAvailableModels;
+  const queryKey = ["openai", "models"];
+  const query = useQuery<APIListResponse<string>>({
+    queryKey,
+    queryFn: getFetcher(URL),
+  });
+  return { ...query, queryKey };
+}

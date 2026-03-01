@@ -2,34 +2,36 @@
 import { Node, NodeProps } from "@xyflow/react";
 import React, { useCallback, useState } from "react";
 import BaseExecutionNode from "../base-execution-node";
-import HttpRequestDialog from "./http-request-dialog";
+import OpenAIDialog, { OPENAI_AVAILABLE_MODELS } from "./openai-dialog";
 import { useNodeStatus } from "../../hooks/use-node-status";
 import { Icon } from "@iconify/react";
 
-export type HttpRequestNodeData = {
+export type OpenAINodeData = {
   variableName?: string;
-  endpoint?: string;
-  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  model?: (typeof OPENAI_AVAILABLE_MODELS)[number];
+  userPrompt: string;
+  systemPrompt: string;
   body?: string;
   [key: string]: unknown;
 };
 
-type HttpRequestNodeType = Node<HttpRequestNodeData>;
+type OpenAINodeType = Node<OpenAINodeData>;
 
-function HttpRequestNode(props: NodeProps<HttpRequestNodeType>) {
+function OpenAINode(props: NodeProps<OpenAINodeType>) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { status } = useNodeStatus(props.id);
   const nodeData = props.data;
-  const description = nodeData?.endpoint
-    ? `${nodeData.method || "GET"}: ${nodeData.endpoint}`
+  const description = nodeData?.userPrompt
+    ? `${nodeData.model || OPENAI_AVAILABLE_MODELS[0]}: ${nodeData.userPrompt.slice(0, 50)}...`
     : "Not Configured";
+
   const handleOpenSettings = useCallback(() => {
     setDialogOpen(true);
   }, []);
 
   return (
     <>
-      <HttpRequestDialog
+      <OpenAIDialog
         nodeData={nodeData}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -38,8 +40,8 @@ function HttpRequestNode(props: NodeProps<HttpRequestNodeType>) {
       <BaseExecutionNode
         {...props}
         status={status}
-        icon={<Icon icon="mynaui:globe" className="size-6" />}
-        name="HTTP Request"
+        icon={<Icon icon="simple-icons:openai" className="size-6" />}
+        name="OpenAI"
         description={description}
         onSettings={handleOpenSettings}
         onDoubleClick={handleOpenSettings}
@@ -48,4 +50,4 @@ function HttpRequestNode(props: NodeProps<HttpRequestNodeType>) {
   );
 }
 
-export default HttpRequestNode;
+export default OpenAINode;

@@ -6,6 +6,8 @@ import aiRouter from "./routers/aiRouter";
 import { paymentRouter } from "./routers/paymentRouter";
 import ErrorController from "./controllers/errorController";
 import { workflowRouter } from "./routers/workflowRouter";
+import WebhooksRouter from "./routers/webhooksRouter";
+import morgan from "morgan";
 
 const app = express();
 
@@ -18,8 +20,15 @@ app.use(
 
 // cron.schedule("* * * * *",task)
 app.use(json());
+app.use(morgan("dev"));
+app.get("/", (req, res) => {
+  res.status(200).json({
+    content: process.env.DATABASE_URL,
+  });
+});
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
+app.use("/api/webhooks", WebhooksRouter);
 app.use("/api/workflows", workflowRouter);
 app.use("/api/payments", paymentRouter);
 app.use("/api/ai", aiRouter);
