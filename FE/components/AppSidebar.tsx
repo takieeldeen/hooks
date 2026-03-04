@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 import {
   CreditCardIcon,
   FolderOpenIcon,
@@ -16,6 +17,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSubItem,
+  SidebarToggle,
 } from "./ui/sidebar";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,6 +26,9 @@ import { useCallback } from "react";
 import { logout } from "@/api/auth";
 import { toast } from "sonner";
 import SubscribeButton from "../features/payments/SubscribeButton";
+import { useSidebar } from "./ui/sidebar";
+import { useTheme } from "next-themes";
+import { useMemo } from "react";
 
 const menuItems = [
   {
@@ -51,6 +56,27 @@ const menuItems = [
 function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { state } = useSidebar();
+  const { resolvedTheme } = useTheme();
+
+  const { logoUrl, logoWidth, logoHeight, buttonHeight } = useMemo(() => {
+    const isDark = resolvedTheme === "dark";
+    if (state === "collapsed") {
+      return {
+        logoUrl: isDark ? "/logo/mini-dark.png" : "/logo/mini-light.png",
+        logoWidth: 32,
+        logoHeight: 32,
+        buttonHeight: "h-12",
+      };
+    }
+    // Normal (expanded) state
+    return {
+      logoUrl: isDark ? "/logo/dark.png" : "/logo/light.png",
+      logoWidth: 110,
+      logoHeight: 32,
+      buttonHeight: "h-16",
+    };
+  }, [state, resolvedTheme]);
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -61,13 +87,22 @@ function AppSidebar() {
     }
   }, [router]);
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="relative">
+      <SidebarToggle />
       <SidebarHeader>
         <SidebarMenuSubItem>
-          <SidebarMenuButton asChild className="gap-x-4 h-10 px-4">
+          <SidebarMenuButton
+            asChild
+            className={cn("gap-x-4 px-4", buttonHeight)}
+          >
             <Link href="/workflows" prefetch>
-              <Image src="/logo/logo.svg" height={36} width={36} alt="Nodes" />
-              <span className="font-semibold text-sm">Nodes</span>
+              <Image
+                src={logoUrl}
+                height={logoHeight}
+                width={logoWidth}
+                alt="Nodes"
+                className="object-contain"
+              />
             </Link>
           </SidebarMenuButton>
         </SidebarMenuSubItem>

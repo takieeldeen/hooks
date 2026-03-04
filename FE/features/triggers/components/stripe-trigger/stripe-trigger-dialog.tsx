@@ -1,11 +1,11 @@
-import React from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import React from "react";
 import { useParams } from "next/navigation";
 import { ParamsOf } from "@/.next/dev/types/routes";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
-function GoogleFormTriggerDialog({ open, onOpenChange }: Props) {
+function StripeTriggerDialog({ open, onOpenChange }: Props) {
   const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const webhookUrl = `${baseUrl}/api/webhooks/stripe-trigger?workflowId=${workflowId}`;
@@ -33,16 +33,16 @@ function GoogleFormTriggerDialog({ open, onOpenChange }: Props) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Stripe Trigger Configuration</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="left" className="overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>Stripe Trigger Configuration</SheetTitle>
+          <SheetDescription>
             Use this webhook URL in your Stripe dashboard to trigger this
             workflow on payment events.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
+          </SheetDescription>
+        </SheetHeader>
+        <div className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label htmlFor="webhook-url">Webhook URL</Label>
             <div className="flex gap-2">
@@ -67,7 +67,7 @@ function GoogleFormTriggerDialog({ open, onOpenChange }: Props) {
               <li>
                 Select events to listen for (e.g., payment_intent.succeeded)
               </li>
-              <li>Save and copy the signing secret</li>
+              <li>Save and click Triggers &rarr; Add Trigger</li>
             </ol>
           </div>
 
@@ -108,9 +108,9 @@ function GoogleFormTriggerDialog({ open, onOpenChange }: Props) {
             </ul>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 
-export default GoogleFormTriggerDialog;
+export default StripeTriggerDialog;

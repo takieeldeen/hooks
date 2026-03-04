@@ -25,6 +25,7 @@ model User {
   accounts      Account[]
   subscriptions Subscription[]
   workflows     Workflow[]
+  credentials Credential[]
   @@unique([email])
   @@map("user")
 }
@@ -168,6 +169,9 @@ model Node {
 
   inputConnections Connection[] @relation("TargetNode")
   outputConnections Connection[] @relation("SourceNode")
+
+  credentialId String?
+  credential Credential? @relation(fields: [credentialId],references: [id])
   
 
   createdAt DateTime @default(now())
@@ -205,3 +209,23 @@ model Job {
 
   @@map("job")
 }
+
+enum CredentialType {
+  OPENAI
+  ANTHROPIC
+  GEMINI
+}
+
+model Credential {
+  id String @id @default(uuid())
+  name String
+  value String
+  type CredentialType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+  nodes Node[]
+}
+

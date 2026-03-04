@@ -3,13 +3,14 @@
 import { NodeToolbar, Position } from "@xyflow/react";
 import { ReactNode } from "react";
 import { Button } from "./ui/button";
-import { SettingsIcon, TrashIcon } from "lucide-react";
+import { CopyIcon, SettingsIcon, TrashIcon } from "lucide-react";
 
 interface WorkflowNodeProps {
   children: ReactNode;
   showToolbar?: boolean;
   onDelete?: VoidFunction;
   onSettings?: VoidFunction;
+  onDuplicate?: VoidFunction;
   name?: string;
   description?: string;
 }
@@ -19,6 +20,7 @@ function WorkflowNode({
   showToolbar = true,
   onDelete,
   onSettings,
+  onDuplicate,
   name,
   description,
 }: WorkflowNodeProps) {
@@ -28,6 +30,9 @@ function WorkflowNode({
         <NodeToolbar>
           <Button size="sm" variant="ghost" onClick={onSettings}>
             <SettingsIcon className="size-4" />
+          </Button>
+          <Button size="sm" variant="ghost" onClick={onDuplicate}>
+            <CopyIcon className="size-4" />
           </Button>
           <Button size="sm" variant="ghost" onClick={onDelete}>
             <TrashIcon className="size-4" />

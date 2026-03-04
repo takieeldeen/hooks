@@ -27,6 +27,11 @@ export const endpoints = {
     geminiAvailableModels: "/ai/my-google-models",
     openAiAvailableModels: "/ai/my-openai-models",
   },
+  credentials: {
+    all: "/credentials",
+    listAll: "/credentials/all",
+    single: (credentialId: string | number) => `/credentials/${credentialId}`,
+  },
 };
 
 export default axios;

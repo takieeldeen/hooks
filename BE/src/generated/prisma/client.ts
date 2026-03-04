@@ -94,3 +94,8 @@ export type Connection = Prisma.ConnectionModel
  * 
  */
 export type Job = Prisma.JobModel
+/**
+ * Model Credential
+ * 
+ */
+export type Credential = Prisma.CredentialModel

@@ -1,11 +1,11 @@
-import React from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import React from "react";
 
 interface Props {
   open: boolean;
@@ -14,21 +14,21 @@ interface Props {
 
 function ManualTriggerDialog({ open, onOpenChange }: Props) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Manual Trigger</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="left">
+        <SheetHeader>
+          <SheetTitle>Manual Trigger</SheetTitle>
+          <SheetDescription>
             Configure settings for the manual trigger node
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
         <div className="py-4">
           <p className="text-sm text-muted-foreground">
             This trigger will start the workflow when you click the button.
           </p>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 

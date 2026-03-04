@@ -1,11 +1,11 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import React, { useEffect, useMemo } from "react";
 import z from "zod";
 import { GeminiNodeData } from "./gemini-node";
@@ -31,7 +31,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useReactFlow } from "@xyflow/react";
-import { useGetMyAvailableGeminiModels } from "@/api/workflows";
+import {
+  useGetMyAvailableGeminiModels,
+  useUpdateWorkflow,
+} from "@/api/workflows";
+import { useParams } from "next/navigation";
+import { ParamsOf } from "@/.next/dev/types/routes";
+import { Loader2 } from "lucide-react";
 
 export const GEMINI_AVAILABLE_MODELS = [
   "gemini-2.0-flash",
@@ -66,8 +72,11 @@ function GeminiDialog({
   nodeData: GeminiNodeData;
   nodeId: string;
 }) {
+  const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
   const { data: models } = useGetMyAvailableGeminiModels();
-  const { updateNodeData } = useReactFlow();
+  const { updateNodeData, getNodes, getEdges } = useReactFlow();
+  const { mutateAsync: updateWorkflow, isPending: isUpdating } =
+    useUpdateWorkflow();
   const defaultValues = useMemo(
     () => ({
       model: nodeData?.model || models?.content?.[0] || "",
@@ -93,9 +102,21 @@ function GeminiDialog({
     handleSubmit,
     formState: { isSubmitting },
   } = form;
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     updateNodeData(nodeId, data);
-    onOpenChange(false);
+
+    const nodes = getNodes();
+    const edges = getEdges();
+
+    const updatedNodes = nodes.map((node) =>
+      node.id === nodeId ? { ...node, data: { ...node.data, ...data } } : node,
+    );
+    try {
+      await updateWorkflow({ id: workflowId, nodes: updatedNodes, edges });
+      onOpenChange(false);
+    } catch (error) {
+      console.error(error);
+    }
   };
   useEffect(() => {
     if (open) {
@@ -103,16 +124,20 @@ function GeminiDialog({
     }
   }, [defaultValues, form, open]);
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Gemini Configuration</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="left" className="dark:bg-neutral-900">
+        <SheetHeader>
+          <SheetTitle>Gemini Configuration</SheetTitle>
+          <SheetDescription>
             Configure the AI model and prompts for this node.
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
+
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 mt-4 px-3"
+          >
             <FormField
               control={form.control}
               name="variableName"
@@ -206,7 +231,7 @@ function GeminiDialog({
                 </FormItem>
               )}
             />
-            <DialogFooter className="mt-4">
+            <SheetFooter className="mt-4 px-0">
               <Button
                 type="button"
                 variant="outline"
@@ -214,14 +239,21 @@ function GeminiDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+              <Button type="submit" disabled={isSubmitting || isUpdating}>
+                {isSubmitting || isUpdating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
               </Button>
-            </DialogFooter>
+            </SheetFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 

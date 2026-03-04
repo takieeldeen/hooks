@@ -1,11 +1,11 @@
-import React from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import React from "react";
 import { useParams } from "next/navigation";
 import { ParamsOf } from "@/.next/dev/types/routes";
 import { toast } from "sonner";
@@ -44,16 +44,16 @@ function GoogleFormTriggerDialog({ open, onOpenChange }: Props) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Google Form Trigger Configuration</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="left" className="overflow-y-auto dark:bg-neutral-900">
+        <SheetHeader>
+          <SheetTitle>Google Form Trigger Configuration</SheetTitle>
+          <SheetDescription>
             Use this webhook URL in your Google Form Apps Script to trigger this
             workflow when the form is submitted.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
+          </SheetDescription>
+        </SheetHeader>
+        <div className="space-y-4 mt-4 px-3">
           <div className="space-y-2">
             <Label htmlFor="webhook-url">Webhook URL</Label>
             <div className="flex gap-2">
@@ -113,8 +113,8 @@ function GoogleFormTriggerDialog({ open, onOpenChange }: Props) {
             </ul>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 

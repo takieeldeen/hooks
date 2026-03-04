@@ -61,7 +61,8 @@ export const ModelName = {
   Workflow: 'Workflow',
   Node: 'Node',
   Connection: 'Connection',
-  Job: 'Job'
+  Job: 'Job',
+  Credential: 'Credential'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -200,6 +201,7 @@ export const NodeScalarFieldEnum = {
   type: 'type',
   position: 'position',
   data: 'data',
+  credentialId: 'credentialId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -233,6 +235,19 @@ export const JobScalarFieldEnum = {
 } as const
 
 export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
+
+
+export const CredentialScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  value: 'value',
+  type: 'type',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type CredentialScalarFieldEnum = (typeof CredentialScalarFieldEnum)[keyof typeof CredentialScalarFieldEnum]
 
 
 export const SortOrder = {

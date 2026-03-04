@@ -394,7 +394,8 @@ export const ModelName = {
   Workflow: 'Workflow',
   Node: 'Node',
   Connection: 'Connection',
-  Job: 'Job'
+  Job: 'Job',
+  Credential: 'Credential'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -410,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "plan" | "subscription" | "payment" | "workflow" | "node" | "connection" | "job"
+    modelProps: "user" | "session" | "account" | "verification" | "plan" | "subscription" | "payment" | "workflow" | "node" | "connection" | "job" | "credential"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1228,6 +1229,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Credential: {
+      payload: Prisma.$CredentialPayload<ExtArgs>
+      fields: Prisma.CredentialFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CredentialFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CredentialFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload>
+        }
+        findFirst: {
+          args: Prisma.CredentialFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CredentialFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload>
+        }
+        findMany: {
+          args: Prisma.CredentialFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload>[]
+        }
+        create: {
+          args: Prisma.CredentialCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload>
+        }
+        createMany: {
+          args: Prisma.CredentialCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CredentialCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload>[]
+        }
+        delete: {
+          args: Prisma.CredentialDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload>
+        }
+        update: {
+          args: Prisma.CredentialUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload>
+        }
+        deleteMany: {
+          args: Prisma.CredentialDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CredentialUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CredentialUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload>[]
+        }
+        upsert: {
+          args: Prisma.CredentialUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CredentialPayload>
+        }
+        aggregate: {
+          args: Prisma.CredentialAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCredential>
+        }
+        groupBy: {
+          args: Prisma.CredentialGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CredentialGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CredentialCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CredentialCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1387,6 +1462,7 @@ export const NodeScalarFieldEnum = {
   type: 'type',
   position: 'position',
   data: 'data',
+  credentialId: 'credentialId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1420,6 +1496,19 @@ export const JobScalarFieldEnum = {
 } as const
 
 export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
+
+
+export const CredentialScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  value: 'value',
+  type: 'type',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type CredentialScalarFieldEnum = (typeof CredentialScalarFieldEnum)[keyof typeof CredentialScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1554,6 +1643,20 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
+ * Reference to a field of type 'CredentialType'
+ */
+export type EnumCredentialTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CredentialType'>
+    
+
+
+/**
+ * Reference to a field of type 'CredentialType[]'
+ */
+export type ListEnumCredentialTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CredentialType[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1672,6 +1775,7 @@ export type GlobalOmitConfig = {
   node?: Prisma.NodeOmit
   connection?: Prisma.ConnectionOmit
   job?: Prisma.JobOmit
+  credential?: Prisma.CredentialOmit
 }
 
 /* Types for Logging */

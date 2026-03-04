@@ -4,6 +4,7 @@ import React, { ReactNode } from "react";
 import WorkflowNode from "../../../components/workflow-node";
 import { NodeProps, Position, useReactFlow } from "@xyflow/react";
 import { LucideIcon } from "lucide-react";
+import { createId } from "@paralleldrive/cuid2";
 import {
   BaseNode,
   BaseNodeContent,
@@ -34,9 +35,28 @@ function BaseExecutionNode({
   status,
   onDoubleClick,
 }: BaseExecutionNodeProps) {
-  const { deleteElements } = useReactFlow();
+  const { deleteElements, getNodes, setNodes } = useReactFlow();
   const handleDelete = () => {
     deleteElements({ nodes: [{ id }] });
+  };
+  const handleDuplicate = () => {
+    const nodes = getNodes();
+    const node = nodes.find((n) => n.id === id);
+    if (!node) return;
+
+    const newNode = {
+      ...node,
+      id: createId(),
+      position: {
+        x: node.position.x + 20,
+        y: node.position.y + 20,
+      },
+      selected: true,
+    };
+
+    setNodes((nds) =>
+      nds.map((n) => ({ ...n, selected: false })).concat(newNode),
+    );
   };
   return (
     <WorkflowNode
@@ -44,6 +64,7 @@ function BaseExecutionNode({
       description={description}
       onSettings={onSettings}
       onDelete={handleDelete}
+      onDuplicate={handleDuplicate}
     >
       <NodeStatusIndicator
         status={status}

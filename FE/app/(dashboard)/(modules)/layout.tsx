@@ -2,12 +2,7 @@ import AppHeader from "@/components/AppHeader";
 import React from "react";
 
 function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <AppHeader />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
 
 export default Layout;

@@ -23,6 +23,7 @@ import { nodeComponents, NodeType } from "@/config/node-components";
 import EditorAddNodeButton from "./editor-add-node-button";
 import { useEditor } from "./editor-provider";
 import EditorExecuteButton from "./editor-execute-button";
+import { useTheme } from "next-themes";
 
 export default function Editor() {
   const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
@@ -30,6 +31,7 @@ export default function Editor() {
   const [nodes, setNodes] = useState<Node[]>(workflow?.content.nodes ?? []);
   const [edges, setEdges] = useState<Edge[]>(workflow?.content.edges ?? []);
   const { setEditorInstance } = useEditor();
+  const theme = useTheme();
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -73,7 +75,13 @@ export default function Editor() {
             <EditorExecuteButton />
           </Panel>
         )}
-        <Background />
+        <Background
+          style={{
+            backgroundColor:
+              theme.resolvedTheme === "dark" ? "#171717" : "white",
+          }}
+          color={theme.resolvedTheme === "dark" ? "#525252" : "#d4d4d4"}
+        />
         <Controls />
         <MiniMap />
       </ReactFlow>

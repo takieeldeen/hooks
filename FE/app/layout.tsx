@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import TanstackProvider from "@/providers/TanstackProvider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { SocketProvider } from "@/providers/SocketProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,12 +34,19 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <TanstackProvider>
-          <SocketProvider>
-            <NuqsAdapter>
-              <Toaster />
-              <ViewTransition>{children}</ViewTransition>
-            </NuqsAdapter>
-          </SocketProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SocketProvider>
+              <NuqsAdapter>
+                <Toaster />
+                <ViewTransition>{children}</ViewTransition>
+              </NuqsAdapter>
+            </SocketProvider>
+          </ThemeProvider>
         </TanstackProvider>
       </body>
     </html>

@@ -1,11 +1,11 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import React, { useEffect, useMemo } from "react";
 import z from "zod";
 import { OpenAINodeData } from "./openai-node";
@@ -31,7 +31,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useReactFlow } from "@xyflow/react";
-import { useGetMyAvailableOpenAiModels } from "@/api/workflows";
+import {
+  useGetMyAvailableOpenAiModels,
+  useUpdateWorkflow,
+} from "@/api/workflows";
+import { useParams } from "next/navigation";
+import { ParamsOf } from "@/.next/dev/types/routes";
+import { Loader2 } from "lucide-react";
 
 export const OPENAI_AVAILABLE_MODELS = [
   "gpt-4o",
@@ -65,7 +71,10 @@ function OpenAIDialog({
   nodeData: OpenAINodeData;
   nodeId: string;
 }) {
-  const { updateNodeData } = useReactFlow();
+  const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
+  const { updateNodeData, getNodes, getEdges } = useReactFlow();
+  const { mutateAsync: updateWorkflow, isPending: isUpdating } =
+    useUpdateWorkflow();
   const { data: models } = useGetMyAvailableOpenAiModels();
 
   const defaultValues = useMemo(
@@ -94,9 +103,22 @@ function OpenAIDialog({
     formState: { isSubmitting },
   } = form;
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     updateNodeData(nodeId, data);
-    onOpenChange(false);
+
+    const nodes = getNodes();
+    const edges = getEdges();
+
+    const updatedNodes = nodes.map((node) =>
+      node.id === nodeId ? { ...node, data: { ...node.data, ...data } } : node,
+    );
+
+    try {
+      await updateWorkflow({ id: workflowId, nodes: updatedNodes, edges });
+      onOpenChange(false);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -106,16 +128,19 @@ function OpenAIDialog({
   }, [defaultValues, form, open]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>OpenAI Configuration</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="left" className="dark:bg-neutral-900">
+        <SheetHeader>
+          <SheetTitle>OpenAI Configuration</SheetTitle>
+          <SheetDescription>
             Configure the AI model and prompts for this node.
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 mt-4 px-3"
+          >
             <FormField
               control={form.control}
               name="variableName"
@@ -209,7 +234,7 @@ function OpenAIDialog({
                 </FormItem>
               )}
             />
-            <DialogFooter className="mt-4">
+            <SheetFooter className="mt-4 px-0">
               <Button
                 type="button"
                 variant="outline"
@@ -217,14 +242,21 @@ function OpenAIDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+              <Button type="submit" disabled={isSubmitting || isUpdating}>
+                {isSubmitting || isUpdating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
               </Button>
-            </DialogFooter>
+            </SheetFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 
