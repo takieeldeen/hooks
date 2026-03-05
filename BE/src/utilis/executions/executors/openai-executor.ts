@@ -2,6 +2,8 @@ import Handlebars from "handlebars";
 import { NodeExecutor } from "../../backgroundJobs/types";
 import AiService from "../../../srv/aiService";
 import { createOpenAI } from "@ai-sdk/openai";
+import { AppError } from "../../../controllers/errorController";
+import { prisma } from "../../../lib/prisma";
 
 Handlebars.registerHelper("json", (context) => {
   const stringified = JSON.stringify(context, null, 2);
@@ -15,21 +17,34 @@ export const OpenAiExecutor: NodeExecutor<"OPENAI"> = async ({
   nodeId,
 }) => {
   if (!data.variableName) {
-    throw new Error("Variable Name not configured");
+    throw new AppError(400, "Variable Name not configured");
   }
   if (!data.model) {
-    throw new Error(`OpenAI Request Node ${nodeId}: no model configured`);
+    throw new AppError(
+      400,
+      `OpenAI Request Node ${nodeId}: no model configured`,
+    );
   }
   if (!data.userPrompt) {
-    throw new Error(`OpenAI Request Node ${nodeId}: no userPrompt configured`);
+    throw new AppError(
+      400,
+      `OpenAI Request Node ${nodeId}: no userPrompt configured`,
+    );
+  }
+  if (!data.credentialId) {
+    throw new AppError(400, `Gemini Node ${nodeId}: no api key configured`);
   }
   const systemPrompt = data.systemPrompt
     ? Handlebars.compile(data.systemPrompt)(context)
     : "You are a helpful assistant";
   const userPrompt = Handlebars.compile(data.userPrompt)(context);
 
-  // TODO: Fetch Credential that user selected.
-  const credentialValue = process.env.OPENAI_API_KEY;
+  const apiKey = await prisma.credential.findUniqueOrThrow({
+    where: {
+      id: data.credentialId,
+    },
+  });
+  const credentialValue = apiKey.value;
 
   const openai = createOpenAI({ apiKey: credentialValue });
   const model = openai(data.model);

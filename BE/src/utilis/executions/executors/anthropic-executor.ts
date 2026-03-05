@@ -2,6 +2,8 @@ import Handlebars from "handlebars";
 import { NodeExecutor } from "../../backgroundJobs/types";
 import AiService from "../../../srv/aiService";
 import { createAnthropic } from "@ai-sdk/anthropic";
+import { AppError } from "../../../controllers/errorController";
+import { prisma } from "../../../lib/prisma";
 
 Handlebars.registerHelper("json", (context) => {
   const stringified = JSON.stringify(context, null, 2);
@@ -18,12 +20,13 @@ export const AnthropicExecutor: NodeExecutor<"ANTHROPIC"> = async ({
     throw new Error("Variable Name not configured");
   }
   if (!data.model) {
-    throw new Error(`Anthropic Request Node ${nodeId}: no model configured`);
+    throw new Error(`Anthropic Node ${nodeId}: no model configured`);
   }
   if (!data.userPrompt) {
-    throw new Error(
-      `Anthropic Request Node ${nodeId}: no userPrompt configured`,
-    );
+    throw new Error(`Anthropic Node ${nodeId}: no userPrompt configured`);
+  }
+  if (!data.credentialId) {
+    throw new AppError(400, `Anthropic Node ${nodeId}: no api key configured`);
   }
   const systemPrompt = data.systemPrompt
     ? Handlebars.compile(data.systemPrompt)(context)
@@ -31,7 +34,12 @@ export const AnthropicExecutor: NodeExecutor<"ANTHROPIC"> = async ({
   const userPrompt = Handlebars.compile(data.userPrompt)(context);
 
   // TODO: Fetch Credential that user selected.
-  const credentialValue = process.env.AI_GATEWAY_API_KEY;
+  const apiKey = await prisma.credential.findUniqueOrThrow({
+    where: {
+      id: data.credentialId,
+    },
+  });
+  const credentialValue = apiKey.value;
 
   const anthropic = createAnthropic({ apiKey: credentialValue });
   const model = anthropic(data.model);

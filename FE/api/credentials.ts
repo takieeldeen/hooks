@@ -7,7 +7,7 @@ import {
 import axios, { endpoints } from "./axios";
 import { getFetcher } from "./api";
 import { APIDetailsResponse, APIListResponse } from "@/types/common";
-import { Credential } from "@/types/credentials";
+import { Credential, CredentialType } from "@/types/credentials";
 import { toast } from "sonner";
 import { AxiosRequestConfig } from "axios";
 import { PAGINATION } from "@/config/constants";
@@ -180,6 +180,25 @@ export function useGetCredentialDetails(credentialId: string) {
     queryKey,
     queryFn: getFetcher(URL),
     enabled: !!credentialId,
+  });
+  return { ...query, queryKey };
+}
+
+export function useGetCredentialsByType(type: CredentialType) {
+  const URL: [string, AxiosRequestConfig] = [
+    endpoints.credentials.listAll,
+    {
+      params: { type },
+    },
+  ];
+  const queryKey = ["credentials", "listAll", type];
+  const query = useQuery<APIDetailsResponse<Credential[]>>({
+    queryKey,
+    queryFn: getFetcher(URL),
+    enabled: !!type,
+    staleTime: 60 * 1000,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
   return { ...query, queryKey };
 }

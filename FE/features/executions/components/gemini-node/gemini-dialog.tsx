@@ -38,6 +38,7 @@ import {
 import { useParams } from "next/navigation";
 import { ParamsOf } from "@/.next/dev/types/routes";
 import { Loader2 } from "lucide-react";
+import { useGetCredentialsByType } from "@/api/credentials";
 
 export const GEMINI_AVAILABLE_MODELS = [
   "gemini-2.0-flash",
@@ -52,6 +53,7 @@ const formSchema = z.object({
   model: z.string().min(1, "Please choose your agent model"),
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, "User Prompt is Required"),
+  credentialId: z.string().min(1, "Credential is Required"),
   variableName: z
     .string()
     .min(1, "Variable name is required")
@@ -82,10 +84,12 @@ function GeminiDialog({
       model: nodeData?.model || models?.content?.[0] || "",
       systemPrompt: nodeData?.systemPrompt || "",
       userPrompt: nodeData?.userPrompt || "",
+      credentialId: nodeData?.credentialId || "",
       variableName: nodeData?.variableName || "",
     }),
     [
       models?.content,
+      nodeData?.credentialId,
       nodeData?.model,
       nodeData?.systemPrompt,
       nodeData?.userPrompt,
@@ -118,6 +122,9 @@ function GeminiDialog({
       console.error(error);
     }
   };
+  const { data: credentials, isPending: isLoadingCredentials } =
+    useGetCredentialsByType("GEMINI");
+  // Life Cycle hooks
   useEffect(() => {
     if (open) {
       form.reset(defaultValues);
@@ -150,6 +157,44 @@ function GeminiDialog({
                   <FormDescription>
                     Use this name to reference the result in other nodes:{" "}
                     {`{{${field.value || "gemini"}.text}}`}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="credentialId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Api Key</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger
+                        isLoading={isLoadingCredentials}
+                        isEmpty={
+                          !isLoadingCredentials &&
+                          (credentials?.content?.length ?? 0) === 0
+                        }
+                        className="w-full"
+                      >
+                        <SelectValue placeholder="Select an API Key" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {(credentials?.content ?? []).map((credential) => (
+                        <SelectItem key={credential.id} value={credential.id}>
+                          {credential.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Select the api key for your agent.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

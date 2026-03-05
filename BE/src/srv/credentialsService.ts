@@ -40,6 +40,9 @@ async function getAllCredentials(
           }
         : undefined,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 }
 

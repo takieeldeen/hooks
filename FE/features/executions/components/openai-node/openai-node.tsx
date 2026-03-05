@@ -8,6 +8,7 @@ import { Icon } from "@iconify/react";
 
 export type OpenAINodeData = {
   variableName?: string;
+  credentialId: string;
   model?: (typeof OPENAI_AVAILABLE_MODELS)[number];
   userPrompt: string;
   systemPrompt: string;

@@ -35,6 +35,7 @@ import { useUpdateWorkflow } from "@/api/workflows";
 import { useParams } from "next/navigation";
 import { ParamsOf } from "@/.next/dev/types/routes";
 import { Loader2 } from "lucide-react";
+import { useGetCredentialsByType } from "@/api/credentials";
 
 export const ANTHROPIC_AVAILABLE_MODELS = [
   "claude-3-5-sonnet-20240620",
@@ -44,9 +45,11 @@ export const ANTHROPIC_AVAILABLE_MODELS = [
 ] as const;
 
 const formSchema = z.object({
+  credentialId: z.string().min(1, "Please choose an API key"),
   model: z.enum(ANTHROPIC_AVAILABLE_MODELS),
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, "User Prompt is Required"),
+
   variableName: z
     .string()
     .min(1, "Variable name is required")
@@ -72,14 +75,20 @@ function AnthropicDialog({
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =
     useUpdateWorkflow();
 
+  const { data: credentials, isPending: isLoadingCredentials } =
+    useGetCredentialsByType("ANTHROPIC");
+
   const defaultValues = useMemo(
     () => ({
+      credentialId: nodeData?.credentialId || "",
+
       model: nodeData?.model || ANTHROPIC_AVAILABLE_MODELS[0],
       systemPrompt: nodeData?.systemPrompt || "",
       userPrompt: nodeData?.userPrompt || "",
       variableName: nodeData?.variableName || "",
     }),
     [
+      nodeData?.credentialId,
       nodeData?.model,
       nodeData?.systemPrompt,
       nodeData?.userPrompt,
@@ -147,6 +156,44 @@ function AnthropicDialog({
                   <FormDescription>
                     Use this name to reference the result in other nodes:{" "}
                     {`{{${field.value || "anthropic_result"}.text}}`}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="credentialId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Api Key</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger
+                        isLoading={isLoadingCredentials}
+                        isEmpty={
+                          !isLoadingCredentials &&
+                          (credentials?.content?.length ?? 0) === 0
+                        }
+                        className="w-full"
+                      >
+                        <SelectValue placeholder="Select an API Key" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {(credentials?.content ?? []).map((credential) => (
+                        <SelectItem key={credential.id} value={credential.id}>
+                          {credential.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Select the api key for your agent.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

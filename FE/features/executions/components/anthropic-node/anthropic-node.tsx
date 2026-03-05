@@ -10,6 +10,7 @@ import { Icon } from "@iconify/react";
 
 export type AnthropicNodeData = {
   variableName?: string;
+  credentialId: string;
   model?: (typeof ANTHROPIC_AVAILABLE_MODELS)[number];
   userPrompt: string;
   systemPrompt: string;

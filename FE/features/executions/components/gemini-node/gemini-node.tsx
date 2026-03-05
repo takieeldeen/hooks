@@ -8,6 +8,7 @@ import { Icon } from "@iconify/react";
 
 export type GeminiNodeData = {
   variableName?: string;
+  credentialId: string;
   model?: (typeof GEMINI_AVAILABLE_MODELS)[number];
   userPrompt: string;
   systemPrompt: string;

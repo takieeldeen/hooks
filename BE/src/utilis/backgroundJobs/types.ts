@@ -41,18 +41,21 @@ export type NodeInputs = {
     variableName: string;
     model: (typeof GEMINI_AVAILABLE_MODELS)[number];
     userPrompt: string;
+    credentialId: string;
     systemPrompt?: string;
   };
   OPENAI: {
     variableName: string;
     model: (typeof GEMINI_AVAILABLE_MODELS)[number];
     userPrompt: string;
+    credentialId: string;
     systemPrompt?: string;
   };
   ANTHROPIC: {
     variableName: string;
     model: (typeof GEMINI_AVAILABLE_MODELS)[number];
     userPrompt: string;
+    credentialId: string;
     systemPrompt?: string;
   };
 };
