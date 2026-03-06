@@ -11,11 +11,10 @@ Handlebars.registerHelper("json", (context) => {
   return safeString;
 });
 
-export const AnthropicExecutor: NodeExecutor<"ANTHROPIC"> = async ({
-  context,
-  data,
-  nodeId,
-}) => {
+export const AnthropicExecutor: NodeExecutor<"ANTHROPIC"> = async (
+  { context, data, nodeId },
+  userId,
+) => {
   if (!data.variableName) {
     throw new Error("Variable Name not configured");
   }
@@ -37,6 +36,7 @@ export const AnthropicExecutor: NodeExecutor<"ANTHROPIC"> = async ({
   const apiKey = await prisma.credential.findUniqueOrThrow({
     where: {
       id: data.credentialId,
+      userId,
     },
   });
   const credentialValue = apiKey.value;
@@ -45,7 +45,6 @@ export const AnthropicExecutor: NodeExecutor<"ANTHROPIC"> = async ({
   const model = anthropic(data.model);
 
   const result = await AiService.prompt(model, userPrompt, systemPrompt);
-  console.log(result.output, "THIS IS THE MODEL RESULT");
   context[data.variableName] = {
     aiResponse: result.output,
   };

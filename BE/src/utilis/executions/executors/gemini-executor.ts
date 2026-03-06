@@ -11,11 +11,10 @@ Handlebars.registerHelper("json", (context) => {
   return safeString;
 });
 
-export const GeminiExecutor: NodeExecutor<"GEMINI"> = async ({
-  context,
-  data,
-  nodeId,
-}) => {
+export const GeminiExecutor: NodeExecutor<"GEMINI"> = async (
+  { context, data, nodeId },
+  userId,
+) => {
   if (!data.variableName) {
     throw new AppError(400, "Variable Name not configured");
   }
@@ -36,6 +35,7 @@ export const GeminiExecutor: NodeExecutor<"GEMINI"> = async ({
   const apiKey = await prisma.credential.findUniqueOrThrow({
     where: {
       id: data.credentialId,
+      userId,
     },
   });
   const credentialValue = apiKey.value;
@@ -44,7 +44,6 @@ export const GeminiExecutor: NodeExecutor<"GEMINI"> = async ({
   const model = google(data.model);
 
   const result = await AiService.prompt(model, userPrompt, systemPrompt);
-  console.log(result.output, "THIS IS THE MODEL RESULT");
   context[data.variableName] = {
     aiResponse: result.output,
   };

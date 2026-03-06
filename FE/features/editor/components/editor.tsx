@@ -24,7 +24,11 @@ import EditorAddNodeButton from "./editor-add-node-button";
 import { useEditor } from "./editor-provider";
 import EditorExecuteButton from "./editor-execute-button";
 import { useTheme } from "next-themes";
+import DeletableEdge from "./editor-edge";
 
+const edgeTypes = {
+  default: DeletableEdge,
+};
 export default function Editor() {
   const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
   const { data: workflow } = useGetWorkflowDetails(workflowId);
@@ -45,7 +49,9 @@ export default function Editor() {
   );
   const onConnect = useCallback(
     (params: Connection) =>
-      setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
+      setEdges((edgesSnapshot) =>
+        addEdge({ ...params, animated: true }, edgesSnapshot),
+      ),
     [],
   );
   const hasManualTrigger = nodes.some(
@@ -62,6 +68,7 @@ export default function Editor() {
         onConnect={onConnect}
         fitView
         nodeTypes={nodeComponents}
+        edgeTypes={edgeTypes}
         onInit={setEditorInstance}
         snapGrid={[30, 30]}
         snapToGrid

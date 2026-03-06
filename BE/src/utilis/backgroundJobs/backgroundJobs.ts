@@ -5,7 +5,7 @@ import { sendNotificationToUser } from "../../service/notifications/notification
 // Types
 // --------------------------------------------------------------------------
 
-type JobFn<T = any> = (payload: T) => Promise<any>;
+type JobFn<T = any> = (payload: T, userId?: string) => Promise<any>;
 
 interface QueueEntry<T = any> {
   jobName: string;
@@ -116,7 +116,7 @@ class BackgroundJobQueue {
 
     // 3. Execute and store result / error
     try {
-      const result = await jobFn(payload);
+      const result = await jobFn(payload, this.userId);
       const succcessPayload = { status: "SUCCESS", result };
       await prisma.job.update({
         where: { id: job.id },

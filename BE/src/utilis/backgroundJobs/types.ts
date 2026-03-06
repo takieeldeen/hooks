@@ -14,6 +14,7 @@ export interface ExecutorPayload<T = Record<string, unknown>> {
 
 export type NodeExecutor<T extends NodeType> = (
   params: ExecutorPayload<NodeInputs[T]>,
+  userId?: string,
 ) => Promise<WorkflowContext>;
 
 export type ExecutorRegistry = { [K in NodeType]: NodeExecutor<K> };
@@ -57,5 +58,29 @@ export type NodeInputs = {
     userPrompt: string;
     credentialId: string;
     systemPrompt?: string;
+  };
+  DISCORD_MESSAGE: {
+    variableName: string;
+    message: string;
+    username?: string;
+    webhookUrl: string;
+  };
+  SLACK_MESSAGE: {
+    variableName: string;
+    message: string;
+    username?: string;
+    webhookUrl: string;
+  };
+  DISCORD_TRIGGER: {
+    variableName: string;
+    message: string;
+    username?: string;
+    webhookUrl: string;
+  };
+  SLACK_TRIGGER: {
+    variableName: string;
+    message: string;
+    username?: string;
+    webhookUrl: string;
   };
 };

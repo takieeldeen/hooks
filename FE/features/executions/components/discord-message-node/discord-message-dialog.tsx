@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sheet";
 import React, { useEffect, useMemo } from "react";
 import z from "zod";
-import { GeminiNodeData } from "./gemini-node";
+import { DiscordMessageNodeData } from "./discord-message-node";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -20,40 +20,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useReactFlow } from "@xyflow/react";
-import {
-  useGetMyAvailableGeminiModels,
-  useUpdateWorkflow,
-} from "@/api/workflows";
+import { useUpdateWorkflow } from "@/api/workflows";
 import { useParams } from "next/navigation";
 import { ParamsOf } from "@/.next/dev/types/routes";
 import { Loader2 } from "lucide-react";
-import { useGetCredentialsByType } from "@/api/credentials";
-
-export const GEMINI_AVAILABLE_MODELS = [
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-flash-8b",
-  "gemini-1.5-pro",
-  "gemini-1.0-pro",
-  "gemini-pro",
-] as const;
 
 const formSchema = z.object({
-  model: z.string().min(1, "Please choose your agent model"),
-  systemPrompt: z.string().optional(),
-  userPrompt: z.string().min(1, "User Prompt is Required"),
-  credentialId: z.string().min(1, "Credential is Required"),
   variableName: z
     .string()
     .min(1, "Variable name is required")
@@ -61,6 +38,12 @@ const formSchema = z.object({
       /^[a-zA-Z_$][a-zA-Z0-9_$]*$/,
       "Variable name must start with a letter or underscore and can only contain letters, numbers, and underscores",
     ),
+  webhookUrl: z.string().min(1, "Please enter the webhook url"),
+  message: z
+    .string()
+    .min(1, "Please enter the message you want to send")
+    .max(2000, "Discord messages can't exceed 2000 characters"),
+  username: z.string().optional(),
 });
 
 function GeminiDialog({
@@ -71,29 +54,25 @@ function GeminiDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  nodeData: GeminiNodeData;
+  nodeData: DiscordMessageNodeData;
   nodeId: string;
 }) {
   const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
-  const { data: models } = useGetMyAvailableGeminiModels();
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =
     useUpdateWorkflow();
   const defaultValues = useMemo(
     () => ({
-      model: nodeData?.model || models?.content?.[0] || "",
-      systemPrompt: nodeData?.systemPrompt || "",
-      userPrompt: nodeData?.userPrompt || "",
-      credentialId: nodeData?.credentialId || "",
-      variableName: nodeData?.variableName || "",
+      variableName: nodeData?.variableName,
+      webhookUrl: nodeData?.webhookUrl || "",
+      message: nodeData?.message || "",
+      username: nodeData?.username || "",
     }),
     [
-      models?.content,
-      nodeData?.credentialId,
-      nodeData?.model,
-      nodeData?.systemPrompt,
-      nodeData?.userPrompt,
+      nodeData?.message,
+      nodeData?.username,
       nodeData?.variableName,
+      nodeData?.webhookUrl,
     ],
   );
 
@@ -122,8 +101,7 @@ function GeminiDialog({
       console.error(error);
     }
   };
-  const { data: credentials, isPending: isLoadingCredentials } =
-    useGetCredentialsByType("GEMINI");
+
   // Life Cycle hooks
   useEffect(() => {
     if (open) {
@@ -134,9 +112,9 @@ function GeminiDialog({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="dark:bg-neutral-900">
         <SheetHeader>
-          <SheetTitle>Gemini Configuration</SheetTitle>
+          <SheetTitle>Discord Message Configuration</SheetTitle>
           <SheetDescription>
-            Configure the AI model and prompts for this node.
+            Configure the message you want to send through discord
           </SheetDescription>
         </SheetHeader>
 
@@ -152,11 +130,11 @@ function GeminiDialog({
                 <FormItem>
                   <FormLabel>Variable Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="gemini" {...field} />
+                    <Input placeholder="discordMessage" {...field} />
                   </FormControl>
                   <FormDescription>
                     Use this name to reference the result in other nodes:{" "}
-                    {`{{${field.value || "gemini"}.aiResponse}}`}
+                    {`{{${field.value || "discordMessage"}.message}}`}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -164,90 +142,19 @@ function GeminiDialog({
             />
             <FormField
               control={form.control}
-              name="credentialId"
+              name="webhookUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Api Key</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger
-                        isLoading={isLoadingCredentials}
-                        isEmpty={
-                          !isLoadingCredentials &&
-                          (credentials?.content?.length ?? 0) === 0
-                        }
-                        className="w-full"
-                      >
-                        <SelectValue placeholder="Select an API Key" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {(credentials?.content ?? []).map((credential) => (
-                        <SelectItem key={credential.id} value={credential.id}>
-                          {credential.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Select the api key for your agent.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="model"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Model</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a method" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {(models?.content ?? []).map((model) => (
-                        <SelectItem key={model} value={model}>
-                          {model}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Select the agent you want to use for the prompt.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="systemPrompt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>System Prompt</FormLabel>
+                  <FormLabel>Webhook Url</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="You are a helpful assistant"
-                      className="min-h-[80px] font-mono text-sm"
+                    <Input
+                      placeholder="https://discord.com/api/webhooks/...."
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    Sets the behavior of the assistant. Use {"{{variables}}"}{" "}
-                    for simple values or
-                    {"{{json variable}}"} to stringify objects
+                    Create Discord Server &rarr; Server Settings &rarr;
+                    Integrations &rarr; New Webhook &rarr; Copy Webhookurl.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -255,24 +162,38 @@ function GeminiDialog({
             />
             <FormField
               control={form.control}
-              name="userPrompt"
+              name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>User Prompt</FormLabel>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Username" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    The username of the message sender
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Variable Name</FormLabel>
                   <FormControl>
                     <Textarea
+                      placeholder="Message"
                       {...field}
-                      className="min-h-[80px] font-mono text-sm"
-                      placeholder={
-                        "Summarize this text: {{json httpResponse.data}}"
-                      }
+                      className="h-36"
                     />
                   </FormControl>
                   <FormDescription>
-                    The prompt to send to the AI. Use {"{{variables}} "}
-                    for simple values or {"{{json variables}}"} to stringify
-                    objects
+                    Enter the message you want to send in discord
+                    {`(You can use variables inside this messages from other nodes.)`}
                   </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />

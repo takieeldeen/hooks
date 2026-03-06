@@ -11,11 +11,10 @@ Handlebars.registerHelper("json", (context) => {
   return safeString;
 });
 
-export const OpenAiExecutor: NodeExecutor<"OPENAI"> = async ({
-  context,
-  data,
-  nodeId,
-}) => {
+export const OpenAiExecutor: NodeExecutor<"OPENAI"> = async (
+  { context, data, nodeId },
+  userId,
+) => {
   if (!data.variableName) {
     throw new AppError(400, "Variable Name not configured");
   }
@@ -42,6 +41,7 @@ export const OpenAiExecutor: NodeExecutor<"OPENAI"> = async ({
   const apiKey = await prisma.credential.findUniqueOrThrow({
     where: {
       id: data.credentialId,
+      userId,
     },
   });
   const credentialValue = apiKey.value;

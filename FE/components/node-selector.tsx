@@ -48,6 +48,18 @@ const triggerNodes: NodeTypeOption[] = [
   //     <Icon icon="mingcute:stripe-fill" className="size-6 text-indigo-700" />
   //   ),
   // },
+  {
+    type: "SLACK_TRIGGER",
+    label: "Trigger on Slack Message",
+    description: "Runs the flow when a message or event occurs in Slack.",
+    icon: <Icon icon="logos:slack-icon" className="size-6" />,
+  },
+  {
+    type: "DISCORD_TRIGGER",
+    label: "Trigger on Discord Message",
+    description: "Runs the flow when a message or event occurs in Discord.",
+    icon: <Icon icon="logos:discord-icon" className="size-6" />,
+  },
 ];
 
 const executionNodes: NodeTypeOption[] = [
@@ -74,6 +86,18 @@ const executionNodes: NodeTypeOption[] = [
     label: "Anthropic",
     description: "Uses Anthropic to Generate Text",
     icon: <Icon icon="simple-icons:anthropic" className="size-6" />,
+  },
+  {
+    type: "SLACK_MESSAGE",
+    label: "Slack Message",
+    description: "Send a slack text message",
+    icon: <Icon icon="logos:slack-icon" className="size-6" />,
+  },
+  {
+    type: "DISCORD_MESSAGE",
+    label: "Discord Message",
+    description: "Send a discord text message",
+    icon: <Icon icon="logos:discord-icon" className="size-6" />,
   },
 ];
 
