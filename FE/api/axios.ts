@@ -32,6 +32,19 @@ export const endpoints = {
     listAll: "/credentials/all",
     single: (credentialId: string | number) => `/credentials/${credentialId}`,
   },
+  appConnections: {
+    getMyConnections: "/app-connections/my-connections",
+  },
+  integrations: {
+    discord: {
+      callback: (workflowId: string) =>
+        `/app-connections/DISCORD/connect?workflowId=${workflowId}`,
+      servers: (connectionId: string) =>
+        `/app-connections/discord/connections/${connectionId}/servers`,
+      channels: (serverId: string) =>
+        `/app-connections/discord/servers/${serverId}/channels`,
+    },
+  },
 };
 
 export default axios;

@@ -392,6 +392,7 @@ export const ModelName = {
   Subscription: 'Subscription',
   Payment: 'Payment',
   Workflow: 'Workflow',
+  AppConnection: 'AppConnection',
   Node: 'Node',
   Connection: 'Connection',
   Job: 'Job',
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "plan" | "subscription" | "payment" | "workflow" | "node" | "connection" | "job" | "credential"
+    modelProps: "user" | "session" | "account" | "verification" | "plan" | "subscription" | "payment" | "workflow" | "appConnection" | "node" | "connection" | "job" | "credential"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1007,6 +1008,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AppConnection: {
+      payload: Prisma.$AppConnectionPayload<ExtArgs>
+      fields: Prisma.AppConnectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AppConnectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AppConnectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload>
+        }
+        findFirst: {
+          args: Prisma.AppConnectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AppConnectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload>
+        }
+        findMany: {
+          args: Prisma.AppConnectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload>[]
+        }
+        create: {
+          args: Prisma.AppConnectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload>
+        }
+        createMany: {
+          args: Prisma.AppConnectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AppConnectionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload>[]
+        }
+        delete: {
+          args: Prisma.AppConnectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload>
+        }
+        update: {
+          args: Prisma.AppConnectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.AppConnectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AppConnectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AppConnectionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload>[]
+        }
+        upsert: {
+          args: Prisma.AppConnectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppConnectionPayload>
+        }
+        aggregate: {
+          args: Prisma.AppConnectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAppConnection>
+        }
+        groupBy: {
+          args: Prisma.AppConnectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AppConnectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AppConnectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AppConnectionCountAggregateOutputType> | number
+        }
+      }
+    }
     Node: {
       payload: Prisma.$NodePayload<ExtArgs>
       fields: Prisma.NodeFieldRefs
@@ -1455,6 +1530,23 @@ export const WorkflowScalarFieldEnum = {
 export type WorkflowScalarFieldEnum = (typeof WorkflowScalarFieldEnum)[keyof typeof WorkflowScalarFieldEnum]
 
 
+export const AppConnectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  expiresAt: 'expiresAt',
+  scope: 'scope',
+  externalId: 'externalId',
+  externalName: 'externalName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AppConnectionScalarFieldEnum = (typeof AppConnectionScalarFieldEnum)[keyof typeof AppConnectionScalarFieldEnum]
+
+
 export const NodeScalarFieldEnum = {
   id: 'id',
   workflowId: 'workflowId',
@@ -1611,6 +1703,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AppConnectionType'
+ */
+export type EnumAppConnectionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AppConnectionType'>
+    
+
+
+/**
+ * Reference to a field of type 'AppConnectionType[]'
+ */
+export type ListEnumAppConnectionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AppConnectionType[]'>
     
 
 
@@ -1772,6 +1878,7 @@ export type GlobalOmitConfig = {
   subscription?: Prisma.SubscriptionOmit
   payment?: Prisma.PaymentOmit
   workflow?: Prisma.WorkflowOmit
+  appConnection?: Prisma.AppConnectionOmit
   node?: Prisma.NodeOmit
   connection?: Prisma.ConnectionOmit
   job?: Prisma.JobOmit

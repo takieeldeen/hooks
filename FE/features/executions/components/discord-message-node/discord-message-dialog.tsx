@@ -6,7 +6,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import React, { useEffect, useMemo } from "react";
+import React, { Activity, useEffect, useMemo } from "react";
 import z from "zod";
 import { DiscordMessageNodeData } from "./discord-message-node";
 import { useForm } from "react-hook-form";
@@ -20,6 +20,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,8 +36,19 @@ import { useUpdateWorkflow } from "@/api/workflows";
 import { useParams } from "next/navigation";
 import { ParamsOf } from "@/.next/dev/types/routes";
 import { Loader2 } from "lucide-react";
+import {
+  useGetMyAppConnections,
+  useGetServerChannels,
+  useGetServers,
+} from "@/api/appConnections";
+import ConnectionButton from "@/components/connection-button/base-connection-button";
+import { Icon } from "@iconify/react";
+import { endpoints } from "@/api/axios";
 
 const formSchema = z.object({
+  connectionId: z.string().min(1, "Please select a connection"),
+  serverId: z.string().min(1, "Please select a server"),
+  channelId: z.string().min(1, "Please select a channel"),
   variableName: z
     .string()
     .min(1, "Variable name is required")
@@ -61,14 +79,24 @@ function GeminiDialog({
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =
     useUpdateWorkflow();
+  const { data: connections, isPending: isLoadingConnections } =
+    useGetMyAppConnections("DISCORD");
+  const hasConnections = Boolean(connections?.length);
+
   const defaultValues = useMemo(
     () => ({
+      connectionId: nodeData?.connectionId || "",
+      serverId: nodeData?.serverId || "",
+      channelId: nodeData?.channelId || "",
       variableName: nodeData?.variableName,
       webhookUrl: nodeData?.webhookUrl || "",
       message: nodeData?.message || "",
       username: nodeData?.username || "",
     }),
     [
+      nodeData?.channelId,
+      nodeData?.connectionId,
+      nodeData?.serverId,
       nodeData?.message,
       nodeData?.username,
       nodeData?.variableName,
@@ -80,6 +108,17 @@ function GeminiDialog({
     defaultValues,
     resolver: zodResolver(formSchema),
   });
+
+  const selectedConnectionId =
+    form?.watch("connectionId") || nodeData?.connectionId;
+
+  const { data: servers, isPending: isLoadingServers } =
+    useGetServers(selectedConnectionId);
+
+  const selectedServerId = form?.watch("serverId") || nodeData?.serverId;
+
+  const { data: channels, isPending: isLoadingChannels } =
+    useGetServerChannels(selectedServerId);
 
   const {
     handleSubmit,
@@ -108,6 +147,37 @@ function GeminiDialog({
       form.reset(defaultValues);
     }
   }, [defaultValues, form, open]);
+
+  useEffect(() => {
+    if (open && connections?.length && !form.getValues("connectionId")) {
+      form.setValue("connectionId", connections[0].id, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  }, [open, connections, form]);
+
+  useEffect(() => {
+    if (open && servers?.length && !form.getValues("serverId")) {
+      form.setValue("serverId", servers[0].id, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  }, [open, servers, form]);
+
+  useEffect(() => {
+    if (open && channels?.length && !form.getValues("channelId")) {
+      // Only set channel if we actually have text/voice channels to pick from
+      const defaultChannel =
+        channels.find((c) => c.type === 0 || c.type === 2) || channels[0];
+      form.setValue("channelId", defaultChannel.id, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  }, [open, channels, form]);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="dark:bg-neutral-900">
@@ -123,99 +193,192 @@ function GeminiDialog({
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-6 mt-4 px-3"
           >
-            <FormField
-              control={form.control}
-              name="variableName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Variable Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="discordMessage" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Use this name to reference the result in other nodes:{" "}
-                    {`{{${field.value || "discordMessage"}.message}}`}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="webhookUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Webhook Url</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://discord.com/api/webhooks/...."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Create Discord Server &rarr; Server Settings &rarr;
-                    Integrations &rarr; New Webhook &rarr; Copy Webhookurl.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Username" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    The username of the message sender
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Variable Name</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Message"
-                      {...field}
-                      className="h-36"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Enter the message you want to send in discord
-                    {`(You can use variables inside this messages from other nodes.)`}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <SheetFooter className="mt-4 px-0">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting || isUpdating}>
-                {isSubmitting || isUpdating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save"
+            <Activity mode={hasConnections ? "hidden" : "visible"}>
+              <ConnectionButton
+                icon={
+                  <Icon
+                    icon="streamline-logos:discord-logo-2-block"
+                    className="size-6"
+                  />
+                }
+                title="Connect to Discord"
+                className="mb-3"
+                link={`${process.env.NEXT_PUBLIC_API_URL}${endpoints.integrations.discord.callback(workflowId)}`}
+              />
+            </Activity>
+            <Activity mode={hasConnections ? "visible" : "hidden"}>
+              <FormField
+                control={form.control}
+                name="connectionId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Discord Account</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isLoadingConnections}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a Discord Account" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {connections?.map((connection) => (
+                          <SelectItem key={connection.id} value={connection.id}>
+                            {connection.externalName || connection.id}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Select the Discord account to use
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </Button>
-            </SheetFooter>
+              />
+              <FormField
+                control={form.control}
+                name="serverId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Discord Server</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isLoadingServers || !selectedConnectionId}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a Discord Server" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {servers?.map((server) => (
+                          <SelectItem key={server.id} value={server.id}>
+                            {server.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Select the Discord server to send the message to
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="channelId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Discord Channel</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isLoadingChannels || !selectedServerId}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a Discord Channel" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {channels
+                          ?.filter(
+                            (channel) =>
+                              channel.type === 0 || channel.type === 2,
+                          ) // Typically 0=text, 2=voice (for text in voice chat)
+                          .map((channel) => (
+                            <SelectItem key={channel.id} value={channel.id}>
+                              {channel.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Select the Discord channel to send the message to
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="variableName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Variable Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="discordMessage" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Use this name to reference the result in other nodes:{" "}
+                      {`{{${field.value || "discordMessage"}.message}}`}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Username" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      The username of the message sender
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Variable Name</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Message"
+                        {...field}
+                        className="h-36"
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter the message you want to send in discord
+                      {`(You can use variables inside this messages from other nodes.)`}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <SheetFooter className="mt-4 px-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting || isUpdating}>
+                  {isSubmitting || isUpdating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+              </SheetFooter>
+            </Activity>
           </form>
         </Form>
       </SheetContent>

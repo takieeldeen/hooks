@@ -58,6 +58,11 @@ export type Payment = Prisma.PaymentModel
  */
 export type Workflow = Prisma.WorkflowModel
 /**
+ * Model AppConnection
+ * 
+ */
+export type AppConnection = Prisma.AppConnectionModel
+/**
  * Model Node
  * 
  */

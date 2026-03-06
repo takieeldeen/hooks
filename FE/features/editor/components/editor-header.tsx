@@ -1,6 +1,8 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import EditorBreadcrumbs from "./editor-breadcrumbs";
 import EditorSaveButton from "./editor-save-button";
+import ConnectionButton from "@/components/connection-button/base-connection-button";
+import { Icon } from "@iconify/react";
 
 function EditorHeader({ workflowId }: { workflowId: string }) {
   return (

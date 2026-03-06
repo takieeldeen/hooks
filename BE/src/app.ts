@@ -9,6 +9,7 @@ import { workflowRouter } from "./routers/workflowRouter";
 import { credentialsRouter } from "./routers/credentialsRouter";
 import WebhooksRouter from "./routers/webhooksRouter";
 import morgan from "morgan";
+import appConnectionRouter from "./routers/appConnectionRouter";
 
 const app = express();
 
@@ -28,10 +29,11 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use("/api/app-connections", appConnectionRouter);
 app.all("/api/auth/*splat", toNodeHandler(auth));
-app.use("/api/webhooks", WebhooksRouter);
-app.use("/api/workflows", workflowRouter);
 app.use("/api/credentials", credentialsRouter);
+app.use("/api/workflows", workflowRouter);
+app.use("/api/webhooks", WebhooksRouter);
 app.use("/api/payments", paymentRouter);
 app.use("/api/ai", aiRouter);
 app.use(ErrorController);

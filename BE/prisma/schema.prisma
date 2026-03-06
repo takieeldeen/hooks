@@ -26,6 +26,7 @@ model User {
   subscriptions Subscription[]
   workflows     Workflow[]
   credentials Credential[]
+  appConnections AppConnection[]
   @@unique([email])
   @@map("user")
 }
@@ -145,6 +146,33 @@ model Workflow {
 
   @@index([userId])
   @@map("workflow")
+}
+
+enum AppConnectionType {
+  GOOGLE
+  SLACK
+  DISCORD
+}
+
+model AppConnection {
+  id           String            @id @default(uuid())
+  userId       String
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         AppConnectionType  
+
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime?
+  scope        String?           
+
+  externalId   String?           
+  externalName String?           
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@unique([userId, type])      
+  @@index([userId])
+  @@map("app_connection")
+
 }
 
 enum NodeType {

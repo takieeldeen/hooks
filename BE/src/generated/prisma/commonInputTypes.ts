@@ -202,6 +202,23 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
 }
 
+export type EnumAppConnectionTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.AppConnectionType | Prisma.EnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AppConnectionType[] | Prisma.ListEnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AppConnectionType[] | Prisma.ListEnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAppConnectionTypeFilter<$PrismaModel> | $Enums.AppConnectionType
+}
+
+export type EnumAppConnectionTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AppConnectionType | Prisma.EnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AppConnectionType[] | Prisma.ListEnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AppConnectionType[] | Prisma.ListEnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAppConnectionTypeWithAggregatesFilter<$PrismaModel> | $Enums.AppConnectionType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAppConnectionTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAppConnectionTypeFilter<$PrismaModel>
+}
+
 export type EnumNodeTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.NodeType | Prisma.EnumNodeTypeFieldRefInput<$PrismaModel>
   in?: $Enums.NodeType[] | Prisma.ListEnumNodeTypeFieldRefInput<$PrismaModel>
@@ -537,6 +554,23 @@ export type NestedFloatNullableFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
+}
+
+export type NestedEnumAppConnectionTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.AppConnectionType | Prisma.EnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AppConnectionType[] | Prisma.ListEnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AppConnectionType[] | Prisma.ListEnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAppConnectionTypeFilter<$PrismaModel> | $Enums.AppConnectionType
+}
+
+export type NestedEnumAppConnectionTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AppConnectionType | Prisma.EnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AppConnectionType[] | Prisma.ListEnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AppConnectionType[] | Prisma.ListEnumAppConnectionTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAppConnectionTypeWithAggregatesFilter<$PrismaModel> | $Enums.AppConnectionType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAppConnectionTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAppConnectionTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumNodeTypeFilter<$PrismaModel = never> = {

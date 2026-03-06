@@ -35,7 +35,7 @@ function DeletableEdge(props: EdgeProps) {
               setEdges((eds) => eds.filter((e) => e.id !== props.id));
             }}
           >
-            <X />
+            <X className="size-3" />
           </Button>
         </div>
       </EdgeLabelRenderer>

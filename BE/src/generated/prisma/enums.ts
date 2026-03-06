@@ -9,6 +9,15 @@
 * 🟢 You can import this file directly.
 */
 
+export const AppConnectionType = {
+  GOOGLE: 'GOOGLE',
+  SLACK: 'SLACK',
+  DISCORD: 'DISCORD'
+} as const
+
+export type AppConnectionType = (typeof AppConnectionType)[keyof typeof AppConnectionType]
+
+
 export const NodeType = {
   INITIAL: 'INITIAL',
   SLACK_TRIGGER: 'SLACK_TRIGGER',

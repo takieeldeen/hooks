@@ -59,6 +59,7 @@ export const ModelName = {
   Subscription: 'Subscription',
   Payment: 'Payment',
   Workflow: 'Workflow',
+  AppConnection: 'AppConnection',
   Node: 'Node',
   Connection: 'Connection',
   Job: 'Job',
@@ -192,6 +193,23 @@ export const WorkflowScalarFieldEnum = {
 } as const
 
 export type WorkflowScalarFieldEnum = (typeof WorkflowScalarFieldEnum)[keyof typeof WorkflowScalarFieldEnum]
+
+
+export const AppConnectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  expiresAt: 'expiresAt',
+  scope: 'scope',
+  externalId: 'externalId',
+  externalName: 'externalName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AppConnectionScalarFieldEnum = (typeof AppConnectionScalarFieldEnum)[keyof typeof AppConnectionScalarFieldEnum]
 
 
 export const NodeScalarFieldEnum = {

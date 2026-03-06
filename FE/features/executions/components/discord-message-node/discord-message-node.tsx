@@ -7,6 +7,9 @@ import { useNodeStatus } from "../../hooks/use-node-status";
 import { Icon } from "@iconify/react";
 
 export type DiscordMessageNodeData = {
+  connectionId?: string;
+  serverId?: string;
+  channelId?: string;
   variableName?: string;
   webhookUrl?: string;
   message?: string;
