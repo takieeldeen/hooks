@@ -61,7 +61,7 @@ export const getDiscordUser = async (accessToken: string) => {
 
 export const getDiscordServers = async (accessToken: string) => {
   try {
-    const response = await axios.get(
+    const userServers = await axios.get(
       "https://discord.com/api/users/@me/guilds",
       {
         headers: {
@@ -69,13 +69,27 @@ export const getDiscordServers = async (accessToken: string) => {
         },
       },
     );
-    return response.data;
+    const botServers = await axios.get(
+      "https://discord.com/api/users/@me/guilds",
+      {
+        headers: {
+          Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+        },
+      },
+    );
+    const botServerIds = new Set(botServers.data.map((g: any) => g.id));
+
+    return userServers.data.map((guild: any) => ({
+      ...guild,
+      botInstalled: botServerIds.has(guild.id),
+    }));
   } catch (err: any) {
     throw new AppError(400, err?.response?.data);
   }
 };
 export const getDiscordServerChannels = async (serverId: string) => {
   try {
+    console.log(serverId);
     const response = await axios.get(
       `https://discord.com/api/guilds/${serverId}/channels`,
       {
@@ -84,11 +98,49 @@ export const getDiscordServerChannels = async (serverId: string) => {
         },
       },
     );
-
     const textChannels = response.data.filter(
       (channel: any) => channel.type === 0,
     );
     return textChannels;
+  } catch (err: any) {
+    console.log("We HAVE AN ERROR");
+    throw new AppError(400, err?.response?.data);
+  }
+};
+
+export const generateBotInvitationUrl = (workflowId: string) => {
+  const state = Buffer.from(JSON.stringify({ workflowId })).toString("base64");
+  const params = new URLSearchParams({
+    client_id: process.env.DISCORD_CLIENT_ID!,
+    scope: "bot",
+    permissions: "3072",
+    // redirect_uri: `${process.env.CLIENT_URI}/workflows/${workflowId}`,
+    state,
+  });
+
+  const inviteUrl = `https://discord.com/oauth2/authorize?${params}`;
+
+  return inviteUrl;
+};
+
+export const sendDiscordMessage = async (
+  channelId: string,
+  message: string,
+) => {
+  try {
+    const response = await axios.post(
+      `https://discord.com/api/channels/${channelId}/messages`,
+      {
+        content: message,
+      },
+      {
+        headers: {
+          Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+        },
+      },
+    );
+
+    return response.data;
   } catch (err: any) {
     throw new AppError(400, err?.response?.data);
   }

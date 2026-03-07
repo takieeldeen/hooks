@@ -3,6 +3,7 @@ import { NodeExecutor } from "../../backgroundJobs/types";
 import { AppError } from "../../../controllers/errorController";
 import axios from "axios";
 import { decode } from "html-entities";
+import { sendDiscordMessage } from "../../../integrations/discord";
 
 Handlebars.registerHelper("json", (context) => {
   const stringified = JSON.stringify(context, null, 2);
@@ -18,10 +19,23 @@ export const DiscordMessageExecutor: NodeExecutor<"DISCORD_MESSAGE"> = async ({
   if (!data.variableName) {
     throw new AppError(400, "Variable Name not configured");
   }
-  if (!data.webhookUrl) {
+
+  if (!data.connectionId) {
     throw new AppError(
       400,
-      `Discord Message Node ${nodeId}: no model configured`,
+      `Discord Message Node ${nodeId}: no connection configured`,
+    );
+  }
+  if (!data.channelId) {
+    throw new AppError(
+      400,
+      `Discord Message Node ${nodeId}: no channelId configured`,
+    );
+  }
+  if (!data.serverId) {
+    throw new AppError(
+      400,
+      `Discord Message Node ${nodeId}: no serverId configured`,
     );
   }
   if (!data.message) {
@@ -32,21 +46,14 @@ export const DiscordMessageExecutor: NodeExecutor<"DISCORD_MESSAGE"> = async ({
   }
 
   const message = decode(Handlebars.compile(data.message)(context));
-  console.log(message);
-  const username = data.username
-    ? decode(Handlebars.compile(data.username)(context))
-    : undefined;
 
   try {
-    const result = await axios.post(data.webhookUrl, {
-      content: message.slice(0, 2000),
-      username,
-    });
+    const result = await sendDiscordMessage(data.channelId, message);
+    context[data.variableName] = {
+      message: result,
+    };
   } catch (err: any) {
     throw new AppError(400, err?.response?.data);
   }
-  context[data.variableName] = {
-    message: message.slice(0, 2000),
-  };
   return context;
 };

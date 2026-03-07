@@ -3,7 +3,11 @@ import { endpoints } from "./axios";
 import { getFetcher } from "./api";
 import { AxiosRequestConfig } from "axios";
 import { APIListResponse } from "@/types/common";
-import { AppConnection, AppConnectionType } from "@/types/appConnections";
+import {
+  AppConnection,
+  AppConnectionType,
+  DiscordServer,
+} from "@/types/appConnections";
 
 export function useGetMyAppConnections(type?: AppConnectionType) {
   const URL: [string, AxiosRequestConfig] = [
@@ -20,15 +24,6 @@ export function useGetMyAppConnections(type?: AppConnectionType) {
     queryFn: getFetcher(URL),
   });
   return { ...query, queryKey, data: query?.data?.content };
-}
-
-export interface DiscordServer {
-  id: string;
-  name: string;
-  icon: string | null;
-  owner: boolean;
-  permissions: string;
-  features: string[];
 }
 
 export function useGetServers(connectionId?: string) {

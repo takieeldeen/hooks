@@ -6,7 +6,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import React, { Activity, useEffect, useMemo } from "react";
+import { Activity, useEffect, useMemo } from "react";
 import z from "zod";
 import { DiscordMessageNodeData } from "./discord-message-node";
 import { useForm } from "react-hook-form";
@@ -56,12 +56,10 @@ const formSchema = z.object({
       /^[a-zA-Z_$][a-zA-Z0-9_$]*$/,
       "Variable name must start with a letter or underscore and can only contain letters, numbers, and underscores",
     ),
-  webhookUrl: z.string().min(1, "Please enter the webhook url"),
   message: z
     .string()
     .min(1, "Please enter the message you want to send")
     .max(2000, "Discord messages can't exceed 2000 characters"),
-  username: z.string().optional(),
 });
 
 function GeminiDialog({
@@ -82,25 +80,20 @@ function GeminiDialog({
   const { data: connections, isPending: isLoadingConnections } =
     useGetMyAppConnections("DISCORD");
   const hasConnections = Boolean(connections?.length);
-
   const defaultValues = useMemo(
     () => ({
       connectionId: nodeData?.connectionId || "",
       serverId: nodeData?.serverId || "",
       channelId: nodeData?.channelId || "",
       variableName: nodeData?.variableName,
-      webhookUrl: nodeData?.webhookUrl || "",
       message: nodeData?.message || "",
-      username: nodeData?.username || "",
     }),
     [
       nodeData?.channelId,
       nodeData?.connectionId,
       nodeData?.serverId,
       nodeData?.message,
-      nodeData?.username,
       nodeData?.variableName,
-      nodeData?.webhookUrl,
     ],
   );
 
@@ -114,6 +107,9 @@ function GeminiDialog({
 
   const { data: servers, isPending: isLoadingServers } =
     useGetServers(selectedConnectionId);
+  const botInstalled = servers?.find(
+    (server) => form?.watch("serverId") === server.id,
+  )?.botInstalled;
 
   const selectedServerId = form?.watch("serverId") || nodeData?.serverId;
 
@@ -238,6 +234,8 @@ function GeminiDialog({
                   </FormItem>
                 )}
               />
+            </Activity>
+            <Activity mode={hasConnections ? "visible" : "hidden"}>
               <FormField
                 control={form.control}
                 name="serverId"
@@ -269,6 +267,10 @@ function GeminiDialog({
                   </FormItem>
                 )}
               />
+            </Activity>
+            <Activity
+              mode={hasConnections && botInstalled ? "visible" : "hidden"}
+            >
               <FormField
                 control={form.control}
                 name="channelId"
@@ -322,28 +324,13 @@ function GeminiDialog({
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Username" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      The username of the message sender
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
               <FormField
                 control={form.control}
                 name="message"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Variable Name</FormLabel>
+                    <FormLabel>Message</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Message"
@@ -359,6 +346,21 @@ function GeminiDialog({
                   </FormItem>
                 )}
               />
+            </Activity>
+            <Activity
+              mode={
+                !botInstalled && !!form?.watch()?.serverId
+                  ? "visible"
+                  : "hidden"
+              }
+            >
+              <ConnectionButton
+                title='Invite "Hooks" Bot to this server'
+                icon={<Icon icon="fluent:bot-48-filled" className="size-6" />}
+                link={`${process.env.NEXT_PUBLIC_API_URL}${endpoints.integrations.discord.installBot(workflowId)}`}
+              />
+            </Activity>
+            <Activity mode={hasConnections ? "visible" : "hidden"}>
               <SheetFooter className="mt-4 px-0">
                 <Button
                   type="button"

@@ -43,6 +43,8 @@ export const endpoints = {
         `/app-connections/discord/connections/${connectionId}/servers`,
       channels: (serverId: string) =>
         `/app-connections/discord/servers/${serverId}/channels`,
+      installBot: (workflowId: string) =>
+        `/app-connections/discord/install-bot?workflowId=${workflowId}`,
     },
   },
 };

@@ -2,6 +2,7 @@ import axios from "axios";
 import { AppConnectionType } from "../generated/prisma/enums";
 import {
   exchangeDiscordCode,
+  generateBotInvitationUrl,
   generateDiscordUrl,
   getDiscordServerChannels,
   getDiscordServers,
@@ -92,4 +93,18 @@ export const getServerChannels = catchAsync(async (req, res) => {
     status: "success",
     content: channels,
   });
+});
+
+export const installDiscordBot = catchAsync(async (req, res) => {
+  const { workflowId } = req.query;
+  const userId = req.session?.user.id!;
+  const workflow = await prisma.workflow.findUniqueOrThrow({
+    where: {
+      id: workflowId as string,
+      userId,
+    },
+  });
+  const inviteUrl = generateBotInvitationUrl(workflow.id);
+
+  res.redirect(inviteUrl);
 });

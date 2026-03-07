@@ -62,8 +62,9 @@ export type NodeInputs = {
   DISCORD_MESSAGE: {
     variableName: string;
     message: string;
-    username?: string;
-    webhookUrl: string;
+    channelId: string;
+    serverId: string;
+    connectionId: string;
   };
   SLACK_MESSAGE: {
     variableName: string;
