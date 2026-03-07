@@ -17,7 +17,6 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useParams } from "next/navigation";
-import { ParamsOf } from "@/.next/dev/types/routes";
 import { useGetWorkflowDetails } from "@/api/workflows";
 import { nodeComponents, NodeType } from "@/config/node-components";
 import EditorAddNodeButton from "./editor-add-node-button";
@@ -30,7 +29,7 @@ const edgeTypes = {
   default: DeletableEdge,
 };
 export default function Editor() {
-  const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
+  const { workflowId } = useParams();
   const { data: workflow } = useGetWorkflowDetails(workflowId);
   const [nodes, setNodes] = useState<Node[]>(workflow?.content.nodes ?? []);
   const [edges, setEdges] = useState<Edge[]>(workflow?.content.edges ?? []);

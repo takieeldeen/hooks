@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/sheet";
 import React from "react";
 import { useParams } from "next/navigation";
-import { ParamsOf } from "@/.next/dev/types/routes";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -21,7 +20,7 @@ interface Props {
 }
 
 function GoogleFormTriggerDialog({ open, onOpenChange }: Props) {
-  const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
+  const { workflowId } = useParams();
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const webhookUrl = `${baseUrl}/api/webhooks/google-form-trigger?workflowId=${workflowId}`;
   const copyToClipboard = async () => {

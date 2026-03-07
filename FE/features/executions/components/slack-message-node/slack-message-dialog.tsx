@@ -27,7 +27,6 @@ import { Button } from "@/components/ui/button";
 import { useReactFlow } from "@xyflow/react";
 import { useUpdateWorkflow } from "@/api/workflows";
 import { useParams } from "next/navigation";
-import { ParamsOf } from "@/.next/dev/types/routes";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
@@ -56,7 +55,7 @@ function SlackDialog({
   nodeData: SlackMessageNodeData;
   nodeId: string;
 }) {
-  const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
+  const { workflowId } = useParams();
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =
     useUpdateWorkflow();

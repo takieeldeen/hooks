@@ -36,7 +36,6 @@ import {
   useUpdateWorkflow,
 } from "@/api/workflows";
 import { useParams } from "next/navigation";
-import { ParamsOf } from "@/.next/dev/types/routes";
 import { Loader2 } from "lucide-react";
 import { useGetCredentialsByType } from "@/api/credentials";
 
@@ -74,7 +73,7 @@ function GeminiDialog({
   nodeData: GeminiNodeData;
   nodeId: string;
 }) {
-  const { workflowId } = useParams<ParamsOf<"/workflows/[workflowId]">>();
+  const { workflowId } = useParams();
   const { data: models } = useGetMyAvailableGeminiModels();
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =
