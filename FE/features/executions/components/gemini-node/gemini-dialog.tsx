@@ -73,7 +73,7 @@ function GeminiDialog({
   nodeData: GeminiNodeData;
   nodeId: string;
 }) {
-  const { workflowId } = useParams();
+  const { workflowId } = useParams() as any;
   const { data: models } = useGetMyAvailableGeminiModels();
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =

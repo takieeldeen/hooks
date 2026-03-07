@@ -19,7 +19,7 @@ interface Props {
 }
 
 function StripeTriggerDialog({ open, onOpenChange }: Props) {
-  const { workflowId } = useParams();
+  const { workflowId } = useParams() as any;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const webhookUrl = `${baseUrl}/api/webhooks/stripe-trigger?workflowId=${workflowId}`;
   const copyToClipboard = async () => {

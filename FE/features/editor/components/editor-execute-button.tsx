@@ -4,7 +4,7 @@ import { useTriggerWorkflow } from "@/api/workflows";
 import { useParams } from "next/navigation";
 
 function EditorExecuteButton() {
-  const { workflowId } = useParams();
+  const { workflowId } = useParams() as any;
   const { mutateAsync: triggerWorkflow, isPending } = useTriggerWorkflow();
   return (
     <Button disabled={isPending} onClick={() => triggerWorkflow(workflowId)}>

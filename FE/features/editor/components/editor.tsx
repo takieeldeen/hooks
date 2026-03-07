@@ -29,7 +29,7 @@ const edgeTypes = {
   default: DeletableEdge,
 };
 export default function Editor() {
-  const { workflowId } = useParams();
+  const { workflowId } = useParams() as any;
   const { data: workflow } = useGetWorkflowDetails(workflowId);
   const [nodes, setNodes] = useState<Node[]>(workflow?.content.nodes ?? []);
   const [edges, setEdges] = useState<Edge[]>(workflow?.content.edges ?? []);

@@ -72,7 +72,7 @@ function GeminiDialog({
   nodeData: DiscordMessageNodeData;
   nodeId: string;
 }) {
-  const { workflowId } = useParams();
+  const { workflowId } = useParams() as any;
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =
     useUpdateWorkflow();
