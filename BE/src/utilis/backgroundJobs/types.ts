@@ -74,9 +74,8 @@ export type NodeInputs = {
   };
   DISCORD_TRIGGER: {
     variableName: string;
-    message: string;
-    username?: string;
-    webhookUrl: string;
+    channelId?: string;
+    serverId?: string;
   };
   SLACK_TRIGGER: {
     variableName: string;

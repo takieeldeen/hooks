@@ -17,6 +17,7 @@ function ConnectionButton({
 }: ConnectionButtonProps) {
   return (
     <Button
+      type="button"
       {...rest}
       className={cn(
         "bg-indigo-600 text-white h-12 hover:bg-indigo-600 hover:brightness-90 transition-all w-full",

@@ -3,7 +3,6 @@ import WorkflowService from "../srv/workflowsService";
 import { AppError } from "./errorController";
 
 export const googleFormWebhook = catchAsync(async (req, res, next) => {
-  // const url = new URL(req.url);
   const { workflowId, secret } = req.query;
   const expectedSecret = process.env.GOOGLE_FORM_WEBHOOK_SECRET;
   const providedSecret = secret;
@@ -33,9 +32,40 @@ export const googleFormWebhook = catchAsync(async (req, res, next) => {
   });
 });
 
+export const discordTriggerWebhook = catchAsync(async (req, res, next) => {
+  const { workflowId, secret } = req.query;
+  const expectedSecret = process.env.DISCORD_WEBHOOK_SECRET;
+  const providedSecret = secret;
+  if (expectedSecret !== providedSecret)
+    return res.status(401).json({
+      status: "error",
+      message: "UNAUTHORIZED",
+    });
+  if (!workflowId)
+    return next(
+      new AppError(400, "Missing required query parameter: workflowId"),
+    );
+  const body = req.body ?? {};
+  const discordData = {
+    messageId: body.messageId,
+    content: body.content,
+    authorId: body.authorId,
+    authorName: body.authorName,
+    channelId: body.channelId,
+    serverId: body.serverId,
+    timestamp: body.timestamp,
+    raw: body,
+  };
+  const initialData = discordData.messageId
+    ? { discordTrigger: discordData }
+    : {};
+  await WorkflowService.execute(workflowId as string, initialData);
+  res.status(200).json({
+    status: "success",
+  });
+});
+
 export const stripeWebhook = catchAsync(async (req, res, next) => {
-  // const url = new URL(req.url);
-  console.log("WEBHOOK TRIGGERED");
   const { workflowId, secret } = req.query;
   const expectedSecret = process.env.STRIPE_WEBHOOK_SECRET;
   const providedSecret = secret;

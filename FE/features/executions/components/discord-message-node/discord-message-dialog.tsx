@@ -100,16 +100,21 @@ function GeminiDialog({
     defaultValues,
     resolver: zodResolver(formSchema),
   });
-
+  const values = form?.watch();
   const selectedConnectionId =
     form?.watch("connectionId") || nodeData?.connectionId;
 
   const { data: servers, isPending: isLoadingServers } =
     useGetServers(selectedConnectionId);
   const botInstalled = servers?.find(
-    (server) => form?.watch("serverId") === server.id,
+    (server) => values.serverId === server.id,
   )?.botInstalled;
-
+  const showInvitationButton =
+    !botInstalled &&
+    !!values.serverId &&
+    values.serverId !== "" &&
+    !!values.connectionId &&
+    values.connectionId !== "";
   const selectedServerId = form?.watch("serverId") || nodeData?.serverId;
 
   const { data: channels, isPending: isLoadingChannels } =
@@ -346,13 +351,7 @@ function GeminiDialog({
                 )}
               />
             </Activity>
-            <Activity
-              mode={
-                !botInstalled && !!form?.watch()?.serverId
-                  ? "visible"
-                  : "hidden"
-              }
-            >
+            <Activity mode={showInvitationButton ? "visible" : "hidden"}>
               <ConnectionButton
                 title='Invite "Hooks" Bot to this server'
                 icon={<Icon icon="fluent:bot-48-filled" className="size-6" />}

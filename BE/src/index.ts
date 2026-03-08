@@ -5,6 +5,7 @@ import { Server } from "socket.io";
 import { parse } from "cookie";
 import app from "./app";
 import { auth } from "./lib/auth";
+import { startDiscordBot } from "./bot/discord-bot";
 
 const httpServer = createServer(app);
 export const io = new Server(httpServer, {
@@ -36,4 +37,5 @@ httpServer.listen(port, () => {
   console.log(
     `HTTP Server Started Listening on ${new Date().toISOString()} on PORT: ${port}`,
   );
+  startDiscordBot();
 });
