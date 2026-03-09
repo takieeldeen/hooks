@@ -46,6 +46,16 @@ export const endpoints = {
       installBot: (workflowId: string) =>
         `/app-connections/discord/install-bot?workflowId=${workflowId}`,
     },
+    slack: {
+      callback: (workflowId: string) =>
+        `/app-connections/SLACK/connect?workflowId=${workflowId}`,
+      servers: (connectionId: string) =>
+        `/app-connections/discord/connections/${connectionId}/servers`,
+      channels: (serverId: string) =>
+        `/app-connections/discord/servers/${serverId}/channels`,
+      installBot: (workflowId: string) =>
+        `/app-connections/discord/install-bot?workflowId=${workflowId}`,
+    },
   },
 };
 

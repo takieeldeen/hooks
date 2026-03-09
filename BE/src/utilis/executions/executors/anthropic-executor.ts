@@ -2,7 +2,7 @@ import Handlebars from "handlebars";
 import { NodeExecutor } from "../../backgroundJobs/types";
 import AiService from "../../../srv/aiService";
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { AppError } from "../../../controllers/errorController";
+import { AppError } from "../../../controllers/error.controller";
 import { prisma } from "../../../lib/prisma";
 
 Handlebars.registerHelper("json", (context) => {

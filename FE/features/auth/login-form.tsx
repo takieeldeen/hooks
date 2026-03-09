@@ -70,7 +70,6 @@ export function LoginForm({
         router.push("/");
       } catch (err: any) {
         toast.error(err.message);
-        console.log(err);
       }
     },
     [router],

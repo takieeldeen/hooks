@@ -56,7 +56,6 @@ export default function Editor() {
   const hasManualTrigger = nodes.some(
     (node) => (node.type as NodeType) === "MANUAL_TRIGGER",
   );
-  console.log(nodes);
   return (
     <div className="size-full">
       <ReactFlow

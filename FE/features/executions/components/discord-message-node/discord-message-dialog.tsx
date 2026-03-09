@@ -36,10 +36,10 @@ import { useUpdateWorkflow } from "@/api/workflows";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import {
-  useGetMyAppConnections,
-  useGetServerChannels,
-  useGetServers,
-} from "@/api/appConnections";
+  useGetMyDiscordConnections,
+  useGetDiscordServerChannels,
+  useGetDiscordServers,
+} from "@/api/discord";
 import ConnectionButton from "@/components/connection-button/base-connection-button";
 import { Icon } from "@iconify/react";
 import { endpoints } from "@/api/axios";
@@ -77,7 +77,7 @@ function GeminiDialog({
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =
     useUpdateWorkflow();
   const { data: connections, isPending: isLoadingConnections } =
-    useGetMyAppConnections("DISCORD");
+    useGetMyDiscordConnections();
   const hasConnections = Boolean(connections?.length);
   const defaultValues = useMemo(
     () => ({
@@ -105,7 +105,7 @@ function GeminiDialog({
     form?.watch("connectionId") || nodeData?.connectionId;
 
   const { data: servers, isPending: isLoadingServers } =
-    useGetServers(selectedConnectionId);
+    useGetDiscordServers(selectedConnectionId);
   const botInstalled = servers?.find(
     (server) => values.serverId === server.id,
   )?.botInstalled;
@@ -118,7 +118,7 @@ function GeminiDialog({
   const selectedServerId = form?.watch("serverId") || nodeData?.serverId;
 
   const { data: channels, isPending: isLoadingChannels } =
-    useGetServerChannels(selectedServerId);
+    useGetDiscordServerChannels(selectedServerId);
 
   const {
     handleSubmit,

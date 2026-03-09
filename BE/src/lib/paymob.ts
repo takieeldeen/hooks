@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AppError } from "../controllers/errorController";
+import { AppError } from "../controllers/error.controller";
 
 interface PaymobItem {
   name: string;

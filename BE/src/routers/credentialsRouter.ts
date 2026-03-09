@@ -7,7 +7,7 @@ import {
   getOne,
   getMany,
   getAll,
-} from "../controllers/credentialsController";
+} from "../controllers/credentials.controller";
 
 export const credentialsRouter = Router();
 

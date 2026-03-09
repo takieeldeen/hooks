@@ -3,7 +3,7 @@ import { NodeExecutor } from "../../backgroundJobs/types";
 import AiService from "../../../srv/aiService";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { prisma } from "../../../lib/prisma";
-import { AppError } from "../../../controllers/errorController";
+import { AppError } from "../../../controllers/error.controller";
 
 Handlebars.registerHelper("json", (context) => {
   const stringified = JSON.stringify(context, null, 2);

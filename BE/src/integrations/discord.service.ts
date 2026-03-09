@@ -1,7 +1,7 @@
 import axios from "axios";
-import { AppError } from "../controllers/errorController";
+import { AppError } from "../controllers/error.controller";
 
-export const generateDiscordUrl = (workflowId: string, userId: string) => {
+const generateDiscordUrl = (workflowId: string, userId: string) => {
   const state = Buffer.from(JSON.stringify({ userId, workflowId })).toString(
     "base64",
   );
@@ -17,7 +17,7 @@ export const generateDiscordUrl = (workflowId: string, userId: string) => {
   return `https://discord.com/api/oauth2/authorize?${params}`;
 };
 
-export const exchangeDiscordCode = async (code: string) => {
+const exchangeDiscordCode = async (code: string) => {
   try {
     const body = new URLSearchParams({
       client_id: process.env.DISCORD_CLIENT_ID!,
@@ -45,7 +45,7 @@ export const exchangeDiscordCode = async (code: string) => {
   }
 };
 
-export const getDiscordUser = async (accessToken: string) => {
+const getDiscordUser = async (accessToken: string) => {
   const response = await axios.get("https://discord.com/api/users/@me", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -59,7 +59,7 @@ export const getDiscordUser = async (accessToken: string) => {
   return response.data;
 };
 
-export const getDiscordServers = async (accessToken: string) => {
+const getDiscordServers = async (accessToken: string) => {
   try {
     const userServers = await axios.get(
       "https://discord.com/api/users/@me/guilds",
@@ -87,7 +87,7 @@ export const getDiscordServers = async (accessToken: string) => {
     throw new AppError(400, err?.response?.data);
   }
 };
-export const getDiscordServerChannels = async (serverId: string) => {
+const getDiscordServerChannels = async (serverId: string) => {
   try {
     console.log(serverId);
     const response = await axios.get(
@@ -108,7 +108,7 @@ export const getDiscordServerChannels = async (serverId: string) => {
   }
 };
 
-export const generateBotInvitationUrl = (workflowId: string) => {
+const generateBotInvitationUrl = (workflowId: string) => {
   const state = Buffer.from(JSON.stringify({ workflowId })).toString("base64");
   const params = new URLSearchParams({
     client_id: process.env.DISCORD_CLIENT_ID!,
@@ -123,10 +123,7 @@ export const generateBotInvitationUrl = (workflowId: string) => {
   return inviteUrl;
 };
 
-export const sendDiscordMessage = async (
-  channelId: string,
-  message: string,
-) => {
+const sendDiscordMessage = async (channelId: string, message: string) => {
   try {
     const response = await axios.post(
       `https://discord.com/api/channels/${channelId}/messages`,
@@ -145,3 +142,14 @@ export const sendDiscordMessage = async (
     throw new AppError(400, err?.response?.data);
   }
 };
+
+const DiscordService = {
+  generateDiscordUrl,
+  exchangeDiscordCode,
+  getDiscordUser,
+  getDiscordServers,
+  getDiscordServerChannels,
+  generateBotInvitationUrl,
+  sendDiscordMessage,
+};
+export default DiscordService;

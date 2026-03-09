@@ -10,7 +10,6 @@ import { WorkflowsNotFound } from "./workflow-error";
 function WorkflowsListView() {
   const [workflowParams] = useWorkflowParams();
   const { data, isFetching } = useGetWorkflows(workflowParams);
-  console.log(data?.canReset, data?.isEmpty);
   if (isFetching) return <WorkflowsLoading />;
   if (!data?.canReset && data?.isEmpty) return <WorkflowsEmpty />;
   if (data?.canReset && data?.isEmpty) return <WorkflowsNotFound />;

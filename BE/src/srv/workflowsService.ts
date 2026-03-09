@@ -1,4 +1,4 @@
-import { AppError } from "../controllers/errorController";
+import { AppError } from "../controllers/error.controller";
 import { prisma } from "../lib/prisma";
 import { registerJob } from "../utilis/backgroundJobs/backgroundJobs";
 import { EXECUTOR_REGISTRY } from "../utilis/executions/executorRegistry";

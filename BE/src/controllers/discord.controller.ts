@@ -1,46 +1,7 @@
-import axios from "axios";
-import { AppConnectionType } from "../generated/prisma/enums";
-import {
-  exchangeDiscordCode,
-  generateBotInvitationUrl,
-  generateDiscordUrl,
-  getDiscordServerChannels,
-  getDiscordServers,
-  getDiscordUser,
-} from "../integrations/discord";
+import DiscordService from "../integrations/discord.service";
 import { catchAsync } from "../lib/errors";
 import appConnectionService from "../srv/appConnectionsService";
 import { prisma } from "../lib/prisma";
-
-export const getUserAppConnections = catchAsync(async (req, res, next) => {
-  const { type } = req.params;
-  const userId = req.session?.user.id!;
-  const userConnections = await appConnectionService.getUserConnections(
-    userId,
-    type as AppConnectionType | undefined,
-  );
-  res.status(200).json({
-    status: "success",
-    content: userConnections,
-  });
-});
-
-export const initiateConnection = catchAsync(async (req, res) => {
-  const { type } = req.params;
-  const { workflowId } = req.query;
-
-  const providerMap = {
-    DISCORD: generateDiscordUrl,
-  };
-  const generateUrl = providerMap[type as keyof typeof providerMap];
-  if (!generateUrl) {
-    throw new Error("Unsupported connection type");
-  }
-
-  const url = generateUrl(workflowId as string, req?.session?.user?.id!);
-
-  res.redirect(url);
-});
 
 export const discordCallback = catchAsync(async (req, res) => {
   const { code, state } = req.query;
@@ -49,8 +10,10 @@ export const discordCallback = catchAsync(async (req, res) => {
     throw new Error("Discord authorization code missing");
   }
 
-  const tokenData = await exchangeDiscordCode(code as string);
-  const discordUser = await getDiscordUser(tokenData.access_token);
+  const tokenData = await DiscordService.exchangeDiscordCode(code as string);
+  const discordUser = await DiscordService.getDiscordUser(
+    tokenData.access_token,
+  );
 
   const decoded = JSON.parse(Buffer.from(state as string, "base64").toString());
 
@@ -69,7 +32,7 @@ export const discordCallback = catchAsync(async (req, res) => {
   res.redirect(`http://localhost:3000/workflows/${workflowId}`);
 });
 
-export const getConnectionDiscordServers = catchAsync(async (req, res) => {
+export const getDiscordServers = catchAsync(async (req, res) => {
   const { connectionId } = req.params;
   const connection = await prisma.appConnection.findUniqueOrThrow({
     where: {
@@ -78,7 +41,9 @@ export const getConnectionDiscordServers = catchAsync(async (req, res) => {
     },
   });
 
-  const servers = await getDiscordServers(connection.accessToken);
+  const servers = await DiscordService.getDiscordServers(
+    connection.accessToken,
+  );
 
   res.status(200).json({
     status: "success",
@@ -86,9 +51,11 @@ export const getConnectionDiscordServers = catchAsync(async (req, res) => {
   });
 });
 
-export const getServerChannels = catchAsync(async (req, res) => {
+export const getDiscordServerChannelsHandler = catchAsync(async (req, res) => {
   const { serverId } = req.params;
-  const channels = await getDiscordServerChannels(serverId as string);
+  const channels = await DiscordService.getDiscordServerChannels(
+    serverId as string,
+  );
   res.status(200).json({
     status: "success",
     content: channels,
@@ -104,7 +71,7 @@ export const installDiscordBot = catchAsync(async (req, res) => {
       userId,
     },
   });
-  const inviteUrl = generateBotInvitationUrl(workflow.id);
+  const inviteUrl = DiscordService.generateBotInvitationUrl(workflow.id);
 
   res.redirect(inviteUrl);
 });

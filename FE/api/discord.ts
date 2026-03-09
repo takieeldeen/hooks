@@ -3,22 +3,19 @@ import { endpoints } from "./axios";
 import { getFetcher } from "./api";
 import { AxiosRequestConfig } from "axios";
 import { APIListResponse } from "@/types/common";
-import {
-  AppConnection,
-  AppConnectionType,
-  DiscordServer,
-} from "@/types/appConnections";
+import { AppConnection } from "@/types/appConnections";
+import { DiscordServer } from "@/types/discord";
 
-export function useGetMyAppConnections(type?: AppConnectionType) {
+export function useGetMyDiscordConnections() {
   const URL: [string, AxiosRequestConfig] = [
     endpoints.appConnections.getMyConnections,
     {
       params: {
-        type,
+        type: "DISCORD",
       },
     },
   ];
-  const queryKey = ["app-connections", "my-connections"];
+  const queryKey = ["app-connections", "my-connections", "discord"];
   const query = useQuery<APIListResponse<AppConnection>>({
     queryKey,
     queryFn: getFetcher(URL),
@@ -26,7 +23,7 @@ export function useGetMyAppConnections(type?: AppConnectionType) {
   return { ...query, queryKey, data: query?.data?.content };
 }
 
-export function useGetServers(connectionId?: string) {
+export function useGetDiscordServers(connectionId?: string) {
   const URL: [string, AxiosRequestConfig] = [
     connectionId ? endpoints.integrations.discord.servers(connectionId) : "",
     {},
@@ -46,7 +43,7 @@ export interface DiscordChannel {
   type: number;
 }
 
-export function useGetServerChannels(serverId?: string) {
+export function useGetDiscordServerChannels(serverId?: string) {
   const URL: [string, AxiosRequestConfig] = [
     serverId ? endpoints.integrations.discord.channels(serverId) : "",
     {},

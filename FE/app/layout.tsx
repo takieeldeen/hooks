@@ -33,21 +33,21 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TanstackProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <SocketProvider>
+        <SocketProvider>
+          <TanstackProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
               <NuqsAdapter>
                 <Toaster />
                 <ViewTransition>{children}</ViewTransition>
               </NuqsAdapter>
-            </SocketProvider>
-          </ThemeProvider>
-        </TanstackProvider>
+            </ThemeProvider>
+          </TanstackProvider>
+        </SocketProvider>
       </body>
     </html>
   );

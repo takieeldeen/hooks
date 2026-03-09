@@ -1,9 +1,9 @@
 import Handlebars from "handlebars";
 import { NodeExecutor } from "../../backgroundJobs/types";
-import { AppError } from "../../../controllers/errorController";
+import { AppError } from "../../../controllers/error.controller";
 import axios from "axios";
 import { decode } from "html-entities";
-import { sendDiscordMessage } from "../../../integrations/discord";
+import { sendDiscordMessage } from "../../../integrations/discord.service";
 
 Handlebars.registerHelper("json", (context) => {
   const stringified = JSON.stringify(context, null, 2);

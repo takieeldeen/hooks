@@ -8,7 +8,7 @@ import {
   PaymobTransactionObject,
 } from "../lib/paymob";
 import { prisma } from "../lib/prisma";
-import { AppError } from "./errorController";
+import { AppError } from "./error.controller";
 
 export const checkout = catchAsync(async (req, res, next) => {
   const { planId } = req.body;

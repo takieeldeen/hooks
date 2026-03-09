@@ -3,7 +3,7 @@ import {
   getAvailableGoogleModels,
   getAvailableOpenAiModels,
   testAi,
-} from "../controllers/aiController";
+} from "../controllers/ai.controller";
 import { checkAuth } from "../lib/errors";
 
 const aiRouter = Router();

@@ -20,7 +20,6 @@ axiosServer.interceptors.request.use(async (req: any) => {
   const token = userCookies.get("token")?.value;
   req.headers.Cookie = `token=${token}; better-auth.session_token=${session}`;
   //   req.headers.Cookie = `better-auth.session_token=${session}`;
-  console.log(JSON.stringify(req.headers.Cookie));
   if (locale) {
     req.headers["Accept-Language"] = locale;
   }

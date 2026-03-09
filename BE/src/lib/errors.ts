@@ -1,5 +1,5 @@
 import { DatabaseError } from "pg";
-import { AppError } from "../controllers/errorController";
+import { AppError } from "../controllers/error.controller";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { auth } from "./auth";
 import { Session } from "better-auth";

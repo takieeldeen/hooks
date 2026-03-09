@@ -1,5 +1,5 @@
 import { NodeExecutor } from "../../backgroundJobs/types";
-import { AppError } from "../../../controllers/errorController";
+import { AppError } from "../../../controllers/error.controller";
 
 export const DiscordTriggerExecutor: NodeExecutor<"DISCORD_TRIGGER"> = async ({
   context,

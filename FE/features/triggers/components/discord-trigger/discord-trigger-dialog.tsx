@@ -33,10 +33,10 @@ import { useUpdateWorkflow } from "@/api/workflows";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import {
-  useGetMyAppConnections,
-  useGetServerChannels,
-  useGetServers,
-} from "@/api/appConnections";
+  useGetMyDiscordConnections,
+  useGetDiscordServerChannels,
+  useGetDiscordServers,
+} from "@/api/discord";
 import ConnectionButton from "@/components/connection-button/base-connection-button";
 import { Icon } from "@iconify/react";
 import { endpoints } from "@/api/axios";
@@ -70,7 +70,7 @@ function DiscordTriggerDialog({ open, onOpenChange, nodeData, nodeId }: Props) {
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =
     useUpdateWorkflow();
   const { data: connections, isPending: isLoadingConnections } =
-    useGetMyAppConnections("DISCORD");
+    useGetMyDiscordConnections("DISCORD");
   const hasConnections = Boolean(connections?.length);
   const defaultValues = useMemo(
     () => ({
@@ -96,7 +96,7 @@ function DiscordTriggerDialog({ open, onOpenChange, nodeData, nodeId }: Props) {
     form?.watch("connectionId") || nodeData?.connectionId;
 
   const { data: servers, isPending: isLoadingServers } =
-    useGetServers(selectedConnectionId);
+    useGetDiscordServers(selectedConnectionId);
   const botInstalled = servers?.find(
     (server) => values.serverId === server.id,
   )?.botInstalled;
@@ -109,7 +109,7 @@ function DiscordTriggerDialog({ open, onOpenChange, nodeData, nodeId }: Props) {
   const selectedServerId = form?.watch("serverId") || nodeData?.serverId;
 
   const { data: channels, isPending: isLoadingChannels } =
-    useGetServerChannels(selectedServerId);
+    useGetDiscordServerChannels(selectedServerId);
 
   const {
     handleSubmit,

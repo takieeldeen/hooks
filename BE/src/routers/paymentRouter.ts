@@ -3,7 +3,7 @@ import {
   confirmPayment,
   getSubscription,
   checkout,
-} from "../controllers/paymentController";
+} from "../controllers/payment.controller";
 import { checkAuth } from "../lib/errors";
 
 export const paymentRouter = Router();

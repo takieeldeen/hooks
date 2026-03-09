@@ -14,7 +14,6 @@ export function WorkflowsHeader({ disabled }: { disabled?: boolean }) {
       { name: "New Workflow" },
       {
         onSuccess: (data, res) => {
-          console.log(data, res);
           router.push(`/workflows/${data.content.id}`);
         },
         onError: (error) => {

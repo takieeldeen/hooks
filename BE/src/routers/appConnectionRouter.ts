@@ -1,32 +1,34 @@
 import { Router } from "express";
 import { checkAuth } from "../lib/errors";
 import {
+  getUserIntegrations,
+  initiateIntegrations,
+} from "../controllers/integrations.controller";
+import {
   discordCallback,
-  getConnectionDiscordServers,
-  getServerChannels,
-  getUserAppConnections,
-  initiateConnection,
+  getDiscordServerChannelsHandler,
+  getDiscordServers,
   installDiscordBot,
-} from "../controllers/appConnectionsController";
+} from "../controllers/discord.controller";
 
 const appConnectionRouter = Router();
-// appConnectionRouter.use(checkAuth);
 appConnectionRouter
   .route("/my-connections")
-  .get(checkAuth, getUserAppConnections);
+  .get(checkAuth, getUserIntegrations);
 
-appConnectionRouter.get("/:type/connect", checkAuth, initiateConnection);
+appConnectionRouter.get("/:type/connect", checkAuth, initiateIntegrations);
 // Discord Routes
 appConnectionRouter.get("/discord/callback", discordCallback);
 appConnectionRouter.get("/discord/install-bot", installDiscordBot);
 appConnectionRouter.get(
   "/discord/connections/:connectionId/servers",
   checkAuth,
-  getConnectionDiscordServers,
+  getDiscordServers,
 );
 appConnectionRouter.get(
   "/discord/servers/:serverId/channels",
   checkAuth,
-  getServerChannels,
+  getDiscordServerChannelsHandler,
 );
+
 export default appConnectionRouter;

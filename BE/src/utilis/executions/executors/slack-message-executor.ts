@@ -1,6 +1,6 @@
 import Handlebars from "handlebars";
 import { NodeExecutor } from "../../backgroundJobs/types";
-import { AppError } from "../../../controllers/errorController";
+import { AppError } from "../../../controllers/error.controller";
 import axios from "axios";
 import { decode } from "html-entities";
 

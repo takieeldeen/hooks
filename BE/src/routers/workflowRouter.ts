@@ -8,7 +8,7 @@ import {
   updateWorkflow,
   updateWorkflowName,
   executeWorkflow,
-} from "../controllers/workflowController";
+} from "../controllers/workflow.controller";
 
 export const workflowRouter = Router();
 
