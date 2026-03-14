@@ -6,6 +6,7 @@ export interface ExecutorPayload<T = Record<string, unknown>> {
   data: T;
   nodeId: string;
   context: WorkflowContext;
+  functionContext?: Record<string, unknown>;
 }
 
 // export type NodeExecutor<T = Record<string, unknown>> = (
@@ -33,6 +34,7 @@ export type NodeInputs = {
     endpoint: string;
     method: "POST" | "GET" | "PUT" | "PATCH" | "DELETE";
     body?: string;
+    headers?: string;
   };
   INITIAL: null;
   MANUAL_TRIGGER: null;
@@ -69,8 +71,8 @@ export type NodeInputs = {
   SLACK_MESSAGE: {
     variableName: string;
     message: string;
-    username?: string;
-    webhookUrl: string;
+    channelId: string;
+    connectionId: string;
   };
   DISCORD_TRIGGER: {
     variableName: string;

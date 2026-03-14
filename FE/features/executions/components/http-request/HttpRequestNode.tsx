@@ -11,6 +11,7 @@ export type HttpRequestNodeData = {
   endpoint?: string;
   method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   body?: string;
+  headers?: string;
   [key: string]: unknown;
 };
 

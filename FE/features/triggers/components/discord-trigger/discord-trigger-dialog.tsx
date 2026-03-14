@@ -70,7 +70,7 @@ function DiscordTriggerDialog({ open, onOpenChange, nodeData, nodeId }: Props) {
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =
     useUpdateWorkflow();
   const { data: connections, isPending: isLoadingConnections } =
-    useGetMyDiscordConnections("DISCORD");
+    useGetMyDiscordConnections();
   const hasConnections = Boolean(connections?.length);
   const defaultValues = useMemo(
     () => ({

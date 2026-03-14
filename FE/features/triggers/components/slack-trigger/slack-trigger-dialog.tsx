@@ -32,16 +32,13 @@ import { useReactFlow } from "@xyflow/react";
 import { useUpdateWorkflow } from "@/api/workflows";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import {
-  useGetMySlackConnections,
-  useGetSlackServerChannels,
-  useGetSlackServers,
-} from "@/api/slack";
+import { useGetMySlackConnections, useGetSlackChannels } from "@/api/slack";
 import ConnectionButton from "@/components/connection-button/base-connection-button";
 import { Icon } from "@iconify/react";
 import { endpoints } from "@/api/axios";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   variableName: z
@@ -52,7 +49,6 @@ const formSchema = z.object({
       "Variable name must start with a letter or underscore and can only contain letters, numbers, and underscores",
     ),
   connectionId: z.string().min(1, "Please select a connection"),
-  serverId: z.string().min(1, "Please select a server"),
   channelId: z.string().min(1, "Please select a channel"),
 });
 
@@ -75,16 +71,10 @@ function SlackTriggerDialog({ open, onOpenChange, nodeData, nodeId }: Props) {
   const defaultValues = useMemo(
     () => ({
       connectionId: nodeData?.connectionId || "",
-      serverId: nodeData?.serverId || "",
       channelId: nodeData?.channelId || "",
       variableName: nodeData?.variableName,
     }),
-    [
-      nodeData?.channelId,
-      nodeData?.connectionId,
-      nodeData?.serverId,
-      nodeData?.variableName,
-    ],
+    [nodeData?.channelId, nodeData?.connectionId, nodeData?.variableName],
   );
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -92,25 +82,9 @@ function SlackTriggerDialog({ open, onOpenChange, nodeData, nodeId }: Props) {
     resolver: zodResolver(formSchema),
   });
   const values = form?.watch();
-  const selectedConnectionId =
-    form?.watch("connectionId") || nodeData?.connectionId;
-
-  const { data: servers, isPending: isLoadingServers } =
-    useGetSlackServers(selectedConnectionId);
-  const botInstalled = servers?.find(
-    (server) => values.serverId === server.id,
-  )?.botInstalled;
-  const showInvitationButton =
-    !botInstalled &&
-    !!values.serverId &&
-    values.serverId !== "" &&
-    !!values.connectionId &&
-    values.connectionId !== "";
-  const selectedServerId = form?.watch("serverId") || nodeData?.serverId;
 
   const { data: channels, isPending: isLoadingChannels } =
-    useGetSlackServerChannels(selectedServerId);
-
+    useGetSlackChannels();
   const {
     handleSubmit,
     formState: { isSubmitting },
@@ -134,6 +108,9 @@ function SlackTriggerDialog({ open, onOpenChange, nodeData, nodeId }: Props) {
       toast.error("Failed to save trigger configuration");
     }
   };
+  const subscribedToChannel = channels?.find(
+    (channel) => channel.id === values.channelId,
+  )?.is_member;
 
   // Life Cycle hooks
   useEffect(() => {
@@ -152,19 +129,8 @@ function SlackTriggerDialog({ open, onOpenChange, nodeData, nodeId }: Props) {
   }, [open, connections, form]);
 
   useEffect(() => {
-    if (open && servers?.length && !form.getValues("serverId")) {
-      form.setValue("serverId", servers[0].id, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-  }, [open, servers, form]);
-
-  useEffect(() => {
     if (open && channels?.length && !form.getValues("channelId")) {
-      const defaultChannel =
-        channels.find((c) => c.type === 0 || c.type === 2) || channels[0];
-      form.setValue("channelId", defaultChannel.id, {
+      form.setValue("channelId", channels?.[0]?.id, {
         shouldValidate: true,
         shouldDirty: true,
       });
@@ -246,41 +212,10 @@ function SlackTriggerDialog({ open, onOpenChange, nodeData, nodeId }: Props) {
                 )}
               />
             </Activity>
-            <Activity mode={hasConnections ? "visible" : "hidden"}>
-              <FormField
-                control={form.control}
-                name="serverId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Slack Server</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      disabled={isLoadingServers || !selectedConnectionId}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a Slack Server" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {servers?.map((server) => (
-                          <SelectItem key={server.id} value={server.id}>
-                            {server.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Select the Slack server to listen to
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </Activity>
             <Activity
-              mode={hasConnections && botInstalled ? "visible" : "hidden"}
+              mode={
+                hasConnections && values.connectionId ? "visible" : "hidden"
+              }
             >
               <FormField
                 control={form.control}
@@ -291,42 +226,46 @@ function SlackTriggerDialog({ open, onOpenChange, nodeData, nodeId }: Props) {
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
-                      disabled={isLoadingChannels || !selectedServerId}
+                      disabled={isLoadingChannels}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger
+                          className="w-full"
+                          isLoading={isLoadingChannels}
+                        >
                           <SelectValue placeholder="Select a Slack Channel" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {channels
-                          ?.filter(
-                            (channel) =>
-                              channel.type === 0 || channel.type === 2,
-                          )
-                          .map((channel) => (
-                            <SelectItem key={channel.id} value={channel.id}>
-                              {channel.name}
-                            </SelectItem>
-                          ))}
+                        {channels?.map((channel) => (
+                          <SelectItem key={channel.id} value={channel.id}>
+                            {channel.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription>
-                      Select the Slack channel to listen to
+                    <FormDescription
+                      className={cn(
+                        values.channelId &&
+                          !subscribedToChannel &&
+                          "text-rose-700 dark:text-rose-400",
+                      )}
+                    >
+                      {subscribedToChannel || !values.channelId
+                        ? "Select the Slack channel to listen to"
+                        : "'Hooks' Bot is not invited to this channel: Go to the channel -> Type '/invite @Hooks'"}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </Activity>
-            <Activity mode={showInvitationButton ? "visible" : "hidden"}>
-              <ConnectionButton
-                title='Invite "Hooks" Bot to this server'
-                icon={<Icon icon="fluent:bot-48-filled" className="size-6" />}
-                link={`${process.env.NEXT_PUBLIC_API_URL}${endpoints.integrations.slack.installBot(workflowId)}`}
-              />
-            </Activity>
-            <Activity mode={hasConnections ? "visible" : "hidden"}>
+
+            <Activity
+              mode={
+                hasConnections && subscribedToChannel ? "visible" : "hidden"
+              }
+            >
               <SheetFooter className="mt-4 px-0">
                 <Button
                   type="button"

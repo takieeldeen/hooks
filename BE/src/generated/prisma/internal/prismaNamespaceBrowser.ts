@@ -63,7 +63,10 @@ export const ModelName = {
   Node: 'Node',
   Connection: 'Connection',
   Job: 'Job',
-  Credential: 'Credential'
+  Credential: 'Credential',
+  WorkflowExecution: 'WorkflowExecution',
+  NodeExecution: 'NodeExecution',
+  NodeExecutionLog: 'NodeExecutionLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -266,6 +269,43 @@ export const CredentialScalarFieldEnum = {
 } as const
 
 export type CredentialScalarFieldEnum = (typeof CredentialScalarFieldEnum)[keyof typeof CredentialScalarFieldEnum]
+
+
+export const WorkflowExecutionScalarFieldEnum = {
+  id: 'id',
+  workflowId: 'workflowId',
+  userId: 'userId',
+  trigger: 'trigger',
+  status: 'status',
+  createdAt: 'createdAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type WorkflowExecutionScalarFieldEnum = (typeof WorkflowExecutionScalarFieldEnum)[keyof typeof WorkflowExecutionScalarFieldEnum]
+
+
+export const NodeExecutionScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  inputs: 'inputs',
+  outputs: 'outputs',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type NodeExecutionScalarFieldEnum = (typeof NodeExecutionScalarFieldEnum)[keyof typeof NodeExecutionScalarFieldEnum]
+
+
+export const NodeExecutionLogScalarFieldEnum = {
+  id: 'id',
+  level: 'level',
+  message: 'message',
+  timestamp: 'timestamp',
+  nodeExecutionId: 'nodeExecutionId'
+} as const
+
+export type NodeExecutionLogScalarFieldEnum = (typeof NodeExecutionLogScalarFieldEnum)[keyof typeof NodeExecutionLogScalarFieldEnum]
 
 
 export const SortOrder = {

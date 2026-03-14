@@ -131,7 +131,7 @@ function AnthropicDialog({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="dark:bg-neutral-900">
+      <SheetContent side="left" className="overflow-y-auto dark:bg-neutral-900">
         <SheetHeader>
           <SheetTitle>Anthropic Configuration</SheetTitle>
           <SheetDescription>

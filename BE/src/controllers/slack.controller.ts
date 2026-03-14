@@ -1,6 +1,9 @@
 import axios from "axios";
 import { catchAsync } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import WorkflowService from "../srv/workflowsService";
+import SlackService from "../integrations/slack.service";
+import { AppError } from "./error.controller";
 
 export const slackCallback = catchAsync(async (req, res) => {
   const { code, state } = req.query;
@@ -32,16 +35,8 @@ export const slackCallback = catchAsync(async (req, res) => {
       type: "SLACK",
       accessToken: data.access_token,
       externalName: data.team.name,
-      externalId: data.bot_user_id,
+      externalId: data.authed_user.id,
     },
-    // userId,
-    // type: "DISCORD",
-    // accessToken: tokenData.access_token,
-    // refreshToken: tokenData.refresh_token,
-    // scope: tokenData.scope,
-    // expiresAt: new Date(Date.now() + tokenData.expires_in * 1000),
-    // externalId: discordUser.id,
-    // externalName: discordUser.username,
   });
 
   res.redirect(`http://localhost:3000/workflows/${workflowId}`);
@@ -49,10 +44,79 @@ export const slackCallback = catchAsync(async (req, res) => {
 
 // Slack
 export const slackEventHandler = catchAsync(async (req, res, next) => {
-  const challenge = req?.body?.challenge;
-  console.log(req.body, "NEW_EVENT");
+  const body = req.body;
+
+  // Slack URL verification
+  if (body.type === "url_verification") {
+    return res.status(200).json({ challenge: body.challenge });
+  }
+
+  const event = body.event;
+  console.log(event);
+
+  // Ignore bot messages to prevent loops
+  if (event?.bot_id || event?.subtype === "bot_message") {
+    return res.sendStatus(200);
+  }
+
+  const slackUserId = event?.user;
+
+  const integration = await prisma.appConnection.findFirst({
+    where: {
+      externalId: slackUserId,
+      type: "SLACK",
+    },
+    include: {
+      user: true,
+    },
+  });
+  console.log(slackUserId, integration);
+
+  if (!integration) return res.sendStatus(200);
+
+  const slackTriggerNodes = await prisma.node.findMany({
+    where: {
+      type: "SLACK_TRIGGER",
+      workflow: {
+        userId: integration.user.id,
+      },
+    },
+    select: {
+      workflowId: true,
+      data: true,
+    },
+  });
+
+  const targetWorkflows = slackTriggerNodes
+    .filter((node) => {
+      const nodeData = node.data as any;
+      return nodeData?.channelId === event?.channel;
+    })
+    .map((node) => node.workflowId);
+
+  if (targetWorkflows.length > 0) {
+    await Promise.allSettled(
+      targetWorkflows.map((workflowId) =>
+        WorkflowService.execute(workflowId, body, integration.user.id),
+      ),
+    );
+  }
+
+  res.sendStatus(200);
+});
+
+export const getSlackChannels = catchAsync(async (req, res, next) => {
+  const connection = await prisma.appConnection.findFirst({
+    where: {
+      userId: req.session?.user.id,
+      type: "SLACK",
+    },
+  });
+  if (!connection)
+    return next(new AppError(400, "No Active Connection with slack found."));
+  const channels = await SlackService.getSlackChannels(connection?.id);
   res.status(200).json({
-    status: "success",
-    challenge,
+    status: "succes",
+    content: channels,
   });
 });

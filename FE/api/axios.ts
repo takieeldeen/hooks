@@ -22,6 +22,7 @@ export const endpoints = {
     single: (workflowId: string | number) => `/workflows/${workflowId}`,
     updateName: (workflowId: string) => `/workflows/${workflowId}/name`,
     execute: (workflowId: string) => `/workflows/${workflowId}/execute`,
+    executions: (workflowId: string) => `/workflows/${workflowId}/executions`,
   },
   ai: {
     geminiAvailableModels: "/ai/my-google-models",
@@ -49,12 +50,7 @@ export const endpoints = {
     slack: {
       callback: (workflowId: string) =>
         `/app-connections/SLACK/connect?workflowId=${workflowId}`,
-      servers: (connectionId: string) =>
-        `/app-connections/discord/connections/${connectionId}/servers`,
-      channels: (serverId: string) =>
-        `/app-connections/discord/servers/${serverId}/channels`,
-      installBot: (workflowId: string) =>
-        `/app-connections/discord/install-bot?workflowId=${workflowId}`,
+      channels: "/slack/channels",
     },
   },
 };

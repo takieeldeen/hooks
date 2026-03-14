@@ -43,3 +43,32 @@ export const CredentialType = {
 } as const
 
 export type CredentialType = (typeof CredentialType)[keyof typeof CredentialType]
+
+
+export const WorkflowExecutionStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type WorkflowExecutionStatus = (typeof WorkflowExecutionStatus)[keyof typeof WorkflowExecutionStatus]
+
+
+export const NodeExecutionStatus = {
+  IDLE: 'IDLE',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED'
+} as const
+
+export type NodeExecutionStatus = (typeof NodeExecutionStatus)[keyof typeof NodeExecutionStatus]
+
+
+export const LogLevel = {
+  WARNING: 'WARNING',
+  ERROR: 'ERROR',
+  INFO: 'INFO'
+} as const
+
+export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel]

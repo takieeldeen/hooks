@@ -97,7 +97,7 @@ export function CredentialForm({
 
   return (
     <Sheet open={open} onOpenChange={(val) => !val && onClose()}>
-      <SheetContent side="left" className="sm:max-w-md">
+      <SheetContent side="left" className="overflow-y-auto sm:max-w-md">
         <SheetHeader>
           <SheetTitle>
             {isEditMode ? "Update Credential" : "Add New Credential"}

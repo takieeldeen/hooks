@@ -1,4 +1,5 @@
 import axios, { endpoints } from "./axios";
+import { useQuery } from "@tanstack/react-query";
 
 export interface LoginData {
   email: string;
@@ -42,3 +43,11 @@ export const getCurrentSession = async (): Promise<SessionData> => {
   });
   return response.data;
 };
+
+export function useGetCurrentSession() {
+  const query = useQuery({
+    queryKey: ["auth", "session"],
+    queryFn: getCurrentSession,
+  });
+  return { ...query, session: query?.data };
+}

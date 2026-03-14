@@ -15,21 +15,24 @@ import {
 } from "../react-flow/node-status-indicator";
 import { BaseNode, BaseNodeContent } from "../react-flow/base-node";
 import { Icon } from "@iconify/react";
-import { CheckCircleIcon, Loader2Icon, XCircleIcon } from "lucide-react";
 
 export default function RealtimeBentoCard() {
   return (
-    <Card className="w-full relative">
-      <CardHeader className="text-left">
-        <CardTitle>Realtime</CardTitle>
-        <CardDescription>
-          Hooks Reflects realtime status for all nodes and workflows.
+    <Card className="w-full relative overflow-hidden group border-none bg-neutral-900/50 backdrop-blur-sm shadow-2xl h-96">
+      <div className="absolute inset-0 bg-linear-to-br from-indigo-500/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <CardHeader className="text-left relative z-10">
+        <CardTitle className="flex items-center gap-2 text-white">
+          <Icon icon="lucide:zap" className="text-indigo-400" />
+          Realtime
+        </CardTitle>
+        <CardDescription className="text-neutral-400">
+          Reflects live status for all nodes and active workflows.
         </CardDescription>
       </CardHeader>
-      <CardContent className="relative h-96">
+      <CardContent className="relative h-48 flex items-center justify-center">
         <DotPattern
           className={cn(
-            "[mask-image:radial-gradient(300px_circle_at_center,rgba(255,255,255,0.6),transparent)]",
+            "[mask-image:radial-gradient(150px_circle_at_center,white,transparent)] opacity-20",
           )}
         />
         <RealtimeDiscordCard />
@@ -38,93 +41,61 @@ export default function RealtimeBentoCard() {
   );
 }
 function RealtimeDiscordCard() {
-  const [status, setStatus] = useState<NodeStatus>("initial");
+  const [status, setStatus] = useState<NodeStatus>("success");
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    if (!isHovered) {
-      // Reset to initial when not hovered
-      const timer = setTimeout(() => {
-        setStatus("initial");
-      }, 300);
-      return () => clearTimeout(timer);
-    }
+    if (!isHovered) return;
 
-    // State machine: initial -> loading -> success/error
-    const progressTimer = setTimeout(() => {
-      setStatus("loading");
-    }, 500);
+    const interval = setInterval(() => {
+      setStatus((prev) => {
+        if (prev === "loading") return "success";
+        if (prev === "success") return "error";
+        return "loading";
+      });
+    }, 1000);
 
-    const completionTimer = setTimeout(() => {
-      // Randomly choose success or error (70% success rate)
-      const randomSuccess = Math.random() > 0.3;
-      setStatus(randomSuccess ? "success" : "error");
-    }, 2500);
-
-    return () => {
-      clearTimeout(progressTimer);
-      clearTimeout(completionTimer);
-    };
+    return () => clearInterval(interval);
   }, [isHovered]);
-
-  const getStatusLabel = () => {
-    switch (status) {
-      case "loading":
-        return "Processing...";
-      case "success":
-        return "Connected";
-      case "error":
-        return "Failed";
-      default:
-        return "Ready";
-    }
-  };
-
-  const getStatusColor = () => {
-    switch (status) {
-      case "loading":
-        return "text-blue-600";
-      case "success":
-        return "text-green-600";
-      case "error":
-        return "text-red-600";
-      default:
-        return "text-muted-foreground";
-    }
-  };
 
   return (
     <div
-      className="absolute inset-0 flex items-center justify-center p-8"
+      className="relative z-10"
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setStatus("success");
+      }}
     >
-      <NodeStatusIndicator status={status} variant="border">
-        <BaseNode className="w-64 cursor-pointer transition-transform hover:scale-105">
-          <BaseNodeContent className="flex flex-row items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#5865F2]/10">
-              <Icon icon="logos:discord-icon" className="size-8" />
-            </div>
-            <div className="flex flex-col items-start gap-0.5">
-              <span className="font-semibold text-foreground">Discord</span>
-              <div className="flex items-center gap-1.5">
-                {status === "loading" && (
-                  <Loader2Icon className="size-3.5 animate-spin text-blue-600" />
-                )}
-                {status === "success" && (
-                  <CheckCircleIcon className="size-3.5 text-green-600" />
-                )}
-                {status === "error" && (
-                  <XCircleIcon className="size-3.5 text-red-600" />
-                )}
-                <span className={cn("text-xs", getStatusColor())}>
-                  {getStatusLabel()}
-                </span>
-              </div>
-            </div>
-          </BaseNodeContent>
-        </BaseNode>
-      </NodeStatusIndicator>
+      <div className="relative h-24 w-24 overflow-hidden flex items-center justify-center rounded-xl rounded-r-[40px]">
+        <div className="relative z-20 h-23 w-23 rounded-xl bg-neutral-800 rounded-r-[40px] flex items-center justify-center">
+          <Icon icon="logos:discord-icon" className="size-10" />
+          <Icon
+            icon={
+              status === "loading"
+                ? "fluent:spinner-ios-16-filled"
+                : status === "success"
+                  ? "icon-park-outline:check-one"
+                  : "mdi:cross-circle-outline"
+            }
+            className={cn(
+              "absolute bottom-2 left-2 size-4",
+              status === "loading" && "animate-spin text-indigo-400",
+              status === "success" && "text-teal-500",
+              status === "error" && "text-rose-500",
+            )}
+          />
+        </div>
+        <div
+          className={cn(
+            "absolute inset-0",
+            status === "loading" &&
+              "origin-top top-[10%] left-[10%]  h-[150%] w-[20%] animate-spin bg-linear-to-l from-indigo-500 to-indigo-700",
+            status === "success" && "bg-teal-500",
+            status === "error" && "bg-rose-500",
+          )}
+        ></div>
+      </div>
     </div>
   );
 }

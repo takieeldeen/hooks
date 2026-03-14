@@ -5,7 +5,6 @@ import { ViewTransition } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import TanstackProvider from "@/providers/TanstackProvider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { SocketProvider } from "@/providers/SocketProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const geistSans = Geist({
@@ -33,21 +32,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SocketProvider>
-          <TanstackProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <NuqsAdapter>
-                <Toaster />
-                <ViewTransition>{children}</ViewTransition>
-              </NuqsAdapter>
-            </ThemeProvider>
-          </TanstackProvider>
-        </SocketProvider>
+        <TanstackProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <NuqsAdapter>
+              <Toaster />
+              <ViewTransition>{children}</ViewTransition>
+            </NuqsAdapter>
+          </ThemeProvider>
+        </TanstackProvider>
       </body>
     </html>
   );

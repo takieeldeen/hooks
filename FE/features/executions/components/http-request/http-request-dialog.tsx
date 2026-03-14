@@ -39,6 +39,7 @@ const formSchema = z.object({
   method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]),
   endpoint: z.string().min(1, "Please enter the request url"),
   body: z.string().optional(),
+  headers: z.string().optional(),
   variableName: z
     .string()
     .min(1, "Variable name is required")
@@ -68,11 +69,13 @@ function HttpRequestDialog({
       method: nodeData?.method || "GET",
       endpoint: nodeData?.endpoint || "",
       body: nodeData?.body || "",
+      headers: nodeData?.headers || "",
       variableName: nodeData?.variableName || "",
     }),
     [
       nodeData?.body,
       nodeData?.endpoint,
+      nodeData?.headers,
       nodeData?.method,
       nodeData?.variableName,
     ],
@@ -114,7 +117,7 @@ function HttpRequestDialog({
   }, [defaultValues, form, open]);
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="dark:bg-neutral-900">
+      <SheetContent side="left" className="overflow-y-auto dark:bg-neutral-900 overflow-y-auto">
         <SheetHeader>
           <SheetTitle>HTTP Request</SheetTitle>
           <SheetDescription>
@@ -214,6 +217,24 @@ function HttpRequestDialog({
                 )}
               />
             )}
+            <FormField
+              control={form.control}
+              name="headers"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Headers</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder={
+                        '{\n "userId": "{{httpResponse.data.id}}",\n "name": "{{httpResponse.data.name}}",\n"items": {{json httpResponse.data.items}}\n}'
+                      }
+                    />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                </FormItem>
+              )}
+            />
             <SheetFooter className="mt-4 px-0">
               <Button
                 type="button"

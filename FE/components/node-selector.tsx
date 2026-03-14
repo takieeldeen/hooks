@@ -152,7 +152,10 @@ export function NodeSelector({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto" side="right">
+      <SheetContent
+        className=" w-full sm:max-w-md overflow-y-auto"
+        side="right"
+      >
         <SheetHeader>
           <SheetTitle>What triggers this workflow?</SheetTitle>
           <SheetDescription>

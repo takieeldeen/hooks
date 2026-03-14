@@ -396,7 +396,10 @@ export const ModelName = {
   Node: 'Node',
   Connection: 'Connection',
   Job: 'Job',
-  Credential: 'Credential'
+  Credential: 'Credential',
+  WorkflowExecution: 'WorkflowExecution',
+  NodeExecution: 'NodeExecution',
+  NodeExecutionLog: 'NodeExecutionLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -412,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "plan" | "subscription" | "payment" | "workflow" | "appConnection" | "node" | "connection" | "job" | "credential"
+    modelProps: "user" | "session" | "account" | "verification" | "plan" | "subscription" | "payment" | "workflow" | "appConnection" | "node" | "connection" | "job" | "credential" | "workflowExecution" | "nodeExecution" | "nodeExecutionLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1378,6 +1381,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WorkflowExecution: {
+      payload: Prisma.$WorkflowExecutionPayload<ExtArgs>
+      fields: Prisma.WorkflowExecutionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WorkflowExecutionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WorkflowExecutionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload>
+        }
+        findFirst: {
+          args: Prisma.WorkflowExecutionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WorkflowExecutionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload>
+        }
+        findMany: {
+          args: Prisma.WorkflowExecutionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload>[]
+        }
+        create: {
+          args: Prisma.WorkflowExecutionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload>
+        }
+        createMany: {
+          args: Prisma.WorkflowExecutionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WorkflowExecutionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload>[]
+        }
+        delete: {
+          args: Prisma.WorkflowExecutionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload>
+        }
+        update: {
+          args: Prisma.WorkflowExecutionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload>
+        }
+        deleteMany: {
+          args: Prisma.WorkflowExecutionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WorkflowExecutionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WorkflowExecutionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload>[]
+        }
+        upsert: {
+          args: Prisma.WorkflowExecutionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkflowExecutionPayload>
+        }
+        aggregate: {
+          args: Prisma.WorkflowExecutionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWorkflowExecution>
+        }
+        groupBy: {
+          args: Prisma.WorkflowExecutionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkflowExecutionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WorkflowExecutionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkflowExecutionCountAggregateOutputType> | number
+        }
+      }
+    }
+    NodeExecution: {
+      payload: Prisma.$NodeExecutionPayload<ExtArgs>
+      fields: Prisma.NodeExecutionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NodeExecutionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NodeExecutionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload>
+        }
+        findFirst: {
+          args: Prisma.NodeExecutionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NodeExecutionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload>
+        }
+        findMany: {
+          args: Prisma.NodeExecutionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload>[]
+        }
+        create: {
+          args: Prisma.NodeExecutionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload>
+        }
+        createMany: {
+          args: Prisma.NodeExecutionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NodeExecutionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload>[]
+        }
+        delete: {
+          args: Prisma.NodeExecutionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload>
+        }
+        update: {
+          args: Prisma.NodeExecutionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload>
+        }
+        deleteMany: {
+          args: Prisma.NodeExecutionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NodeExecutionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NodeExecutionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload>[]
+        }
+        upsert: {
+          args: Prisma.NodeExecutionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionPayload>
+        }
+        aggregate: {
+          args: Prisma.NodeExecutionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNodeExecution>
+        }
+        groupBy: {
+          args: Prisma.NodeExecutionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NodeExecutionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NodeExecutionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NodeExecutionCountAggregateOutputType> | number
+        }
+      }
+    }
+    NodeExecutionLog: {
+      payload: Prisma.$NodeExecutionLogPayload<ExtArgs>
+      fields: Prisma.NodeExecutionLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NodeExecutionLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NodeExecutionLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload>
+        }
+        findFirst: {
+          args: Prisma.NodeExecutionLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NodeExecutionLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload>
+        }
+        findMany: {
+          args: Prisma.NodeExecutionLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload>[]
+        }
+        create: {
+          args: Prisma.NodeExecutionLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload>
+        }
+        createMany: {
+          args: Prisma.NodeExecutionLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NodeExecutionLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload>[]
+        }
+        delete: {
+          args: Prisma.NodeExecutionLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload>
+        }
+        update: {
+          args: Prisma.NodeExecutionLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.NodeExecutionLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NodeExecutionLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NodeExecutionLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.NodeExecutionLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NodeExecutionLogPayload>
+        }
+        aggregate: {
+          args: Prisma.NodeExecutionLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNodeExecutionLog>
+        }
+        groupBy: {
+          args: Prisma.NodeExecutionLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NodeExecutionLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NodeExecutionLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NodeExecutionLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1603,6 +1828,43 @@ export const CredentialScalarFieldEnum = {
 export type CredentialScalarFieldEnum = (typeof CredentialScalarFieldEnum)[keyof typeof CredentialScalarFieldEnum]
 
 
+export const WorkflowExecutionScalarFieldEnum = {
+  id: 'id',
+  workflowId: 'workflowId',
+  userId: 'userId',
+  trigger: 'trigger',
+  status: 'status',
+  createdAt: 'createdAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type WorkflowExecutionScalarFieldEnum = (typeof WorkflowExecutionScalarFieldEnum)[keyof typeof WorkflowExecutionScalarFieldEnum]
+
+
+export const NodeExecutionScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  inputs: 'inputs',
+  outputs: 'outputs',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type NodeExecutionScalarFieldEnum = (typeof NodeExecutionScalarFieldEnum)[keyof typeof NodeExecutionScalarFieldEnum]
+
+
+export const NodeExecutionLogScalarFieldEnum = {
+  id: 'id',
+  level: 'level',
+  message: 'message',
+  timestamp: 'timestamp',
+  nodeExecutionId: 'nodeExecutionId'
+} as const
+
+export type NodeExecutionLogScalarFieldEnum = (typeof NodeExecutionLogScalarFieldEnum)[keyof typeof NodeExecutionLogScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1763,6 +2025,48 @@ export type ListEnumCredentialTypeFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
+ * Reference to a field of type 'WorkflowExecutionStatus'
+ */
+export type EnumWorkflowExecutionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WorkflowExecutionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'WorkflowExecutionStatus[]'
+ */
+export type ListEnumWorkflowExecutionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WorkflowExecutionStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'NodeExecutionStatus'
+ */
+export type EnumNodeExecutionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NodeExecutionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'NodeExecutionStatus[]'
+ */
+export type ListEnumNodeExecutionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NodeExecutionStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'LogLevel'
+ */
+export type EnumLogLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogLevel'>
+    
+
+
+/**
+ * Reference to a field of type 'LogLevel[]'
+ */
+export type ListEnumLogLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogLevel[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1883,6 +2187,9 @@ export type GlobalOmitConfig = {
   connection?: Prisma.ConnectionOmit
   job?: Prisma.JobOmit
   credential?: Prisma.CredentialOmit
+  workflowExecution?: Prisma.WorkflowExecutionOmit
+  nodeExecution?: Prisma.NodeExecutionOmit
+  nodeExecutionLog?: Prisma.NodeExecutionLogOmit
 }
 
 /* Types for Logging */

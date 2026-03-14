@@ -104,3 +104,18 @@ export type Job = Prisma.JobModel
  * 
  */
 export type Credential = Prisma.CredentialModel
+/**
+ * Model WorkflowExecution
+ * 
+ */
+export type WorkflowExecution = Prisma.WorkflowExecutionModel
+/**
+ * Model NodeExecution
+ * 
+ */
+export type NodeExecution = Prisma.NodeExecutionModel
+/**
+ * Model NodeExecutionLog
+ * 
+ */
+export type NodeExecutionLog = Prisma.NodeExecutionLogModel

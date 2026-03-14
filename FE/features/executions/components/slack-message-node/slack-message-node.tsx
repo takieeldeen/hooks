@@ -2,11 +2,14 @@
 import { Node, NodeProps } from "@xyflow/react";
 import React, { useCallback, useState } from "react";
 import BaseExecutionNode from "../base-execution-node";
+import SlackDialog from "./slack-message-dialog";
 import { useNodeStatus } from "../../hooks/use-node-status";
 import { Icon } from "@iconify/react";
-import SlackDialog from "./slack-message-dialog";
 
 export type SlackMessageNodeData = {
+  connectionId?: string;
+  serverId?: string;
+  channelId?: string;
   variableName?: string;
   webhookUrl?: string;
   message?: string;

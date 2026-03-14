@@ -204,6 +204,7 @@ export type UserWhereInput = {
   workflows?: Prisma.WorkflowListRelationFilter
   credentials?: Prisma.CredentialListRelationFilter
   appConnections?: Prisma.AppConnectionListRelationFilter
+  executions?: Prisma.WorkflowExecutionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -220,6 +221,7 @@ export type UserOrderByWithRelationInput = {
   workflows?: Prisma.WorkflowOrderByRelationAggregateInput
   credentials?: Prisma.CredentialOrderByRelationAggregateInput
   appConnections?: Prisma.AppConnectionOrderByRelationAggregateInput
+  executions?: Prisma.WorkflowExecutionOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -239,6 +241,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   workflows?: Prisma.WorkflowListRelationFilter
   credentials?: Prisma.CredentialListRelationFilter
   appConnections?: Prisma.AppConnectionListRelationFilter
+  executions?: Prisma.WorkflowExecutionListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -281,6 +284,7 @@ export type UserCreateInput = {
   workflows?: Prisma.WorkflowCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -297,6 +301,7 @@ export type UserUncheckedCreateInput = {
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionUncheckedCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -313,6 +318,7 @@ export type UserUpdateInput = {
   workflows?: Prisma.WorkflowUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -329,6 +335,7 @@ export type UserUncheckedUpdateInput = {
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUncheckedUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -496,6 +503,20 @@ export type UserUpdateOneRequiredWithoutCredentialsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCredentialsInput, Prisma.UserUpdateWithoutCredentialsInput>, Prisma.UserUncheckedUpdateWithoutCredentialsInput>
 }
 
+export type UserCreateNestedOneWithoutExecutionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutExecutionsInput, Prisma.UserUncheckedCreateWithoutExecutionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutExecutionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutExecutionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutExecutionsInput, Prisma.UserUncheckedCreateWithoutExecutionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutExecutionsInput
+  upsert?: Prisma.UserUpsertWithoutExecutionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutExecutionsInput, Prisma.UserUpdateWithoutExecutionsInput>, Prisma.UserUncheckedUpdateWithoutExecutionsInput>
+}
+
 export type UserCreateWithoutSessionsInput = {
   id: string
   name: string
@@ -509,6 +530,7 @@ export type UserCreateWithoutSessionsInput = {
   workflows?: Prisma.WorkflowCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -524,6 +546,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionUncheckedCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -555,6 +578,7 @@ export type UserUpdateWithoutSessionsInput = {
   workflows?: Prisma.WorkflowUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -570,6 +594,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUncheckedUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -585,6 +610,7 @@ export type UserCreateWithoutAccountsInput = {
   workflows?: Prisma.WorkflowCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -600,6 +626,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionUncheckedCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -631,6 +658,7 @@ export type UserUpdateWithoutAccountsInput = {
   workflows?: Prisma.WorkflowUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -646,6 +674,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUncheckedUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSubscriptionsInput = {
@@ -661,6 +690,7 @@ export type UserCreateWithoutSubscriptionsInput = {
   workflows?: Prisma.WorkflowCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSubscriptionsInput = {
@@ -676,6 +706,7 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionUncheckedCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSubscriptionsInput = {
@@ -707,6 +738,7 @@ export type UserUpdateWithoutSubscriptionsInput = {
   workflows?: Prisma.WorkflowUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubscriptionsInput = {
@@ -722,6 +754,7 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUncheckedUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWorkflowsInput = {
@@ -737,6 +770,7 @@ export type UserCreateWithoutWorkflowsInput = {
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWorkflowsInput = {
@@ -752,6 +786,7 @@ export type UserUncheckedCreateWithoutWorkflowsInput = {
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionUncheckedCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWorkflowsInput = {
@@ -783,6 +818,7 @@ export type UserUpdateWithoutWorkflowsInput = {
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkflowsInput = {
@@ -798,6 +834,7 @@ export type UserUncheckedUpdateWithoutWorkflowsInput = {
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUncheckedUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAppConnectionsInput = {
@@ -813,6 +850,7 @@ export type UserCreateWithoutAppConnectionsInput = {
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
   workflows?: Prisma.WorkflowCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAppConnectionsInput = {
@@ -828,6 +866,7 @@ export type UserUncheckedCreateWithoutAppConnectionsInput = {
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAppConnectionsInput = {
@@ -859,6 +898,7 @@ export type UserUpdateWithoutAppConnectionsInput = {
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
   workflows?: Prisma.WorkflowUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAppConnectionsInput = {
@@ -874,6 +914,7 @@ export type UserUncheckedUpdateWithoutAppConnectionsInput = {
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCredentialsInput = {
@@ -889,6 +930,7 @@ export type UserCreateWithoutCredentialsInput = {
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
   workflows?: Prisma.WorkflowCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCredentialsInput = {
@@ -904,6 +946,7 @@ export type UserUncheckedCreateWithoutCredentialsInput = {
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutUserInput
   appConnections?: Prisma.AppConnectionUncheckedCreateNestedManyWithoutUserInput
+  executions?: Prisma.WorkflowExecutionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCredentialsInput = {
@@ -935,6 +978,7 @@ export type UserUpdateWithoutCredentialsInput = {
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
   workflows?: Prisma.WorkflowUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCredentialsInput = {
@@ -950,6 +994,87 @@ export type UserUncheckedUpdateWithoutCredentialsInput = {
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutUserNestedInput
   appConnections?: Prisma.AppConnectionUncheckedUpdateManyWithoutUserNestedInput
+  executions?: Prisma.WorkflowExecutionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutExecutionsInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutUserInput
+  credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  appConnections?: Prisma.AppConnectionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutExecutionsInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutUserInput
+  credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  appConnections?: Prisma.AppConnectionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutExecutionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutExecutionsInput, Prisma.UserUncheckedCreateWithoutExecutionsInput>
+}
+
+export type UserUpsertWithoutExecutionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutExecutionsInput, Prisma.UserUncheckedUpdateWithoutExecutionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutExecutionsInput, Prisma.UserUncheckedCreateWithoutExecutionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutExecutionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutExecutionsInput, Prisma.UserUncheckedUpdateWithoutExecutionsInput>
+}
+
+export type UserUpdateWithoutExecutionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutUserNestedInput
+  credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  appConnections?: Prisma.AppConnectionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutExecutionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutUserNestedInput
+  credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  appConnections?: Prisma.AppConnectionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -964,6 +1089,7 @@ export type UserCountOutputType = {
   workflows: number
   credentials: number
   appConnections: number
+  executions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -973,6 +1099,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   workflows?: boolean | UserCountOutputTypeCountWorkflowsArgs
   credentials?: boolean | UserCountOutputTypeCountCredentialsArgs
   appConnections?: boolean | UserCountOutputTypeCountAppConnectionsArgs
+  executions?: boolean | UserCountOutputTypeCountExecutionsArgs
 }
 
 /**
@@ -1027,6 +1154,13 @@ export type UserCountOutputTypeCountAppConnectionsArgs<ExtArgs extends runtime.T
   where?: Prisma.AppConnectionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountExecutionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkflowExecutionWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1042,6 +1176,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   workflows?: boolean | Prisma.User$workflowsArgs<ExtArgs>
   credentials?: boolean | Prisma.User$credentialsArgs<ExtArgs>
   appConnections?: boolean | Prisma.User$appConnectionsArgs<ExtArgs>
+  executions?: boolean | Prisma.User$executionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1083,6 +1218,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   workflows?: boolean | Prisma.User$workflowsArgs<ExtArgs>
   credentials?: boolean | Prisma.User$credentialsArgs<ExtArgs>
   appConnections?: boolean | Prisma.User$appConnectionsArgs<ExtArgs>
+  executions?: boolean | Prisma.User$executionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1097,6 +1233,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     workflows: Prisma.$WorkflowPayload<ExtArgs>[]
     credentials: Prisma.$CredentialPayload<ExtArgs>[]
     appConnections: Prisma.$AppConnectionPayload<ExtArgs>[]
+    executions: Prisma.$WorkflowExecutionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1506,6 +1643,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   workflows<T extends Prisma.User$workflowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workflowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   credentials<T extends Prisma.User$credentialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$credentialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   appConnections<T extends Prisma.User$appConnectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$appConnectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  executions<T extends Prisma.User$executionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$executionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkflowExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2071,6 +2209,30 @@ export type User$appConnectionsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.AppConnectionScalarFieldEnum | Prisma.AppConnectionScalarFieldEnum[]
+}
+
+/**
+ * User.executions
+ */
+export type User$executionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkflowExecution
+   */
+  select?: Prisma.WorkflowExecutionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkflowExecution
+   */
+  omit?: Prisma.WorkflowExecutionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkflowExecutionInclude<ExtArgs> | null
+  where?: Prisma.WorkflowExecutionWhereInput
+  orderBy?: Prisma.WorkflowExecutionOrderByWithRelationInput | Prisma.WorkflowExecutionOrderByWithRelationInput[]
+  cursor?: Prisma.WorkflowExecutionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkflowExecutionScalarFieldEnum | Prisma.WorkflowExecutionScalarFieldEnum[]
 }
 
 /**

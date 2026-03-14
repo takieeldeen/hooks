@@ -1,8 +1,8 @@
 import Handlebars from "handlebars";
 import { NodeExecutor } from "../../backgroundJobs/types";
 import { AppError } from "../../../controllers/error.controller";
-import axios from "axios";
 import { decode } from "html-entities";
+import SlackService from "../../../integrations/slack.service";
 
 Handlebars.registerHelper("json", (context) => {
   const stringified = JSON.stringify(context, null, 2);
@@ -10,18 +10,24 @@ Handlebars.registerHelper("json", (context) => {
   return safeString;
 });
 
-export const SlackMessageExecutor: NodeExecutor<"SLACK_MESSAGE"> = async ({
-  context,
-  data,
-  nodeId,
-}) => {
+export const SlackMessageExecutor: NodeExecutor<"SLACK_MESSAGE"> = async (
+  { context, data, nodeId },
+  userId,
+) => {
   if (!data.variableName) {
     throw new AppError(400, "Variable Name not configured");
   }
-  if (!data.webhookUrl) {
+
+  if (!data.connectionId) {
     throw new AppError(
       400,
-      `Slack Message Node ${nodeId}: no model configured`,
+      `Slack Message Node ${nodeId}: no connection configured`,
+    );
+  }
+  if (!data.channelId) {
+    throw new AppError(
+      400,
+      `Slack Message Node ${nodeId}: no channelId configured`,
     );
   }
   if (!data.message) {
@@ -34,14 +40,16 @@ export const SlackMessageExecutor: NodeExecutor<"SLACK_MESSAGE"> = async ({
   const message = decode(Handlebars.compile(data.message)(context));
 
   try {
-    await axios.post(data.webhookUrl, {
-      text: message.slice(0, 2000),
-    });
+    const result = await SlackService.sendSlackMessage(
+      userId!,
+      data.channelId,
+      message,
+    );
+    context[data.variableName] = {
+      message: result,
+    };
   } catch (err: any) {
     throw new AppError(400, err?.response?.data);
   }
-  context[data.variableName] = {
-    message: message.slice(0, 2000),
-  };
   return context;
 };

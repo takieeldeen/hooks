@@ -1,6 +1,9 @@
 import axios from "axios";
 import Handlebars from "handlebars";
 import { NodeExecutor } from "../../backgroundJobs/types";
+import { CookieJar } from "tough-cookie";
+import { wrapper } from "axios-cookiejar-support";
+import { AppError } from "../../../controllers/error.controller";
 
 Handlebars.registerHelper("json", (context) => {
   const stringified = JSON.stringify(context, null, 2);
@@ -12,37 +15,82 @@ export const HttpRequestExecutor: NodeExecutor<"HTTP_REQUEST"> = async ({
   context,
   data,
   nodeId,
+  functionContext,
 }) => {
-  // await new Promise((res) => {
-  //   const timeout = setTimeout(() => res(null), 3000);
+  // try {
+  const axiosInstance = (functionContext?.axios as any) || axios;
+  // if (!context.cookieJar) {
+  //   context.cookieJar = new CookieJar();
+  // }
+  // const axiosClient = axios.create({
+  //   jar: context.cookieJar,
+  //   withCredentials: true,
+  // } as any);
+
+  // axiosClient.interceptors.request.use((config) => {
+  //   console.log("---- AXIOS REQUEST ----");
+  //   console.log("URL:", config.url);
+  //   console.log("METHOD:", config.method);
+  //   console.log("HEADERS:", config.headers);
+  //   console.log("DATA:", config.data);
+  //   console.log("-----------------------");
+
+  //   return config;
   // });
+  // const client = wrapper(axiosClient as any);
   if (!data.variableName) {
-    throw new Error("Variable Name not configured");
+    throw new AppError(400, "Variable Name not configured");
   }
   if (!data.endpoint) {
-    throw new Error(`HTTP Request Node ${nodeId}: no endpoint configured`);
+    throw new AppError(
+      400,
+      `HTTP Request Node ${nodeId}: no endpoint configured`,
+    );
   }
   if (!data.method) {
-    throw new Error(`HTTP Request Node ${nodeId}: no method configured`);
+    throw new AppError(
+      400,
+      `HTTP Request Node ${nodeId}: no method configured`,
+    );
   }
   const hasBody = ["POST", "PUT", "PATCH"].includes(data.method);
+  const hasHeaders = !!data.headers;
   const endpoint = Handlebars.compile(data.endpoint)(context);
-  console.log(data.endpoint, context, endpoint, "REQUET_ENDPOINT");
+  // const cookies = await (context as any)?.cookieJar.getCookies(endpoint);
   let bodyOptions: any = {};
+  let parsedBody = data?.body ?? {};
   if (hasBody && data?.body) {
+    try {
+      parsedBody = JSON.parse(Handlebars.compile(data.body ?? {})(context));
+    } catch (err) {
+      console.log(err);
+      throw new AppError(400, "INVALID_JSON_BODY_STRUCTURE");
+    }
     bodyOptions = {
-      data: JSON.parse(Handlebars.compile(data.body ?? {})(context)),
-      // headers: {
-      //   "Content-Type": "application/json",
-      // },
+      data: parsedBody,
     };
   }
-
-  const result = await axios({
-    method: data?.method?.toLowerCase(),
-    url: endpoint,
-    ...bodyOptions,
-  });
+  let headersOptions: any = {};
+  if (hasHeaders) {
+    try {
+      headersOptions = JSON.parse(Handlebars.compile(data.headers)(context));
+    } catch (err) {
+      console.log(err);
+      throw new AppError(400, "INVALID_JSON_HEADERS_STRUCTURE");
+    }
+  }
+  let result: any = null;
+  try {
+    result = await axiosInstance({
+      method: data?.method?.toLowerCase(),
+      url: endpoint,
+      ...bodyOptions,
+      headers: headersOptions,
+    });
+  } catch (err: any) {
+    console.log(err);
+    throw new AppError(400, err.response.data);
+  }
   context[data.variableName] = {
     httpResponse: {
       status: result.status,
@@ -51,4 +99,7 @@ export const HttpRequestExecutor: NodeExecutor<"HTTP_REQUEST"> = async ({
     },
   };
   return context;
+  // } catch (err) {
+  //   console.log(err);
+  // }
 };

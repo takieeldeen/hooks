@@ -9,7 +9,7 @@ import {
 import axios, { endpoints } from "./axios";
 import { getFetcher } from "./api";
 import { APIDetailsResponse, APIListResponse } from "@/types/common";
-import { Workflow } from "@/types/workflows";
+import { Workflow, WorkflowExecution } from "@/types/workflows";
 import { toast } from "sonner";
 import { AxiosRequestConfig } from "axios";
 import { PAGINATION } from "@/config/constants";
@@ -215,10 +215,38 @@ export function useGetMyAvailableGeminiModels() {
   });
   return { ...query, queryKey };
 }
+
 export function useGetMyAvailableOpenAiModels() {
   const URL = endpoints.ai.openAiAvailableModels;
   const queryKey = ["openai", "models"];
   const query = useQuery<APIListResponse<string>>({
+    queryKey,
+    queryFn: getFetcher(URL),
+  });
+  return { ...query, queryKey };
+}
+
+export function useGetWorkflowExecutions(
+  workflowId: string,
+  {
+    page = PAGINATION.DEFAULT_PAGE,
+    pageSize = PAGINATION.DEFAULT_PAGE_SIZE,
+  }: {
+    page?: number;
+    pageSize?: number;
+  } = {}
+) {
+  const URL: [string, AxiosRequestConfig] = [
+    endpoints.workflows.executions(workflowId),
+    {
+      params: {
+        page,
+        pageSize,
+      },
+    },
+  ];
+  const queryKey = ["workflows", workflowId, "executions", { page, pageSize }];
+  const query = useQuery<APIListResponse<WorkflowExecution>>({
     queryKey,
     queryFn: getFetcher(URL),
   });

@@ -6,7 +6,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import React, { useEffect, useMemo } from "react";
+import { Activity, useEffect, useMemo } from "react";
 import z from "zod";
 import { SlackMessageNodeData } from "./slack-message-node";
 import { useForm } from "react-hook-form";
@@ -20,6 +20,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,8 +35,15 @@ import { useReactFlow } from "@xyflow/react";
 import { useUpdateWorkflow } from "@/api/workflows";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { useGetMySlackConnections, useGetSlackChannels } from "@/api/slack";
+import ConnectionButton from "@/components/connection-button/base-connection-button";
+import { Icon } from "@iconify/react";
+import { endpoints } from "@/api/axios";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
+  connectionId: z.string().min(1, "Please select a connection"),
+  channelId: z.string().min(1, "Please select a channel"),
   variableName: z
     .string()
     .min(1, "Variable name is required")
@@ -37,14 +51,13 @@ const formSchema = z.object({
       /^[a-zA-Z_$][a-zA-Z0-9_$]*$/,
       "Variable name must start with a letter or underscore and can only contain letters, numbers, and underscores",
     ),
-  webhookUrl: z.string().min(1, "Please enter the webhook url"),
   message: z
     .string()
     .min(1, "Please enter the message you want to send")
-    .max(2000, "Discord messages can't exceed 2000 characters"),
+    .max(2000, "Slack messages can't exceed 2000 characters"),
 });
 
-function SlackDialog({
+function GeminiDialog({
   open,
   onOpenChange,
   nodeData,
@@ -59,19 +72,34 @@ function SlackDialog({
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const { mutateAsync: updateWorkflow, isPending: isUpdating } =
     useUpdateWorkflow();
+  const { data: connections, isPending: isLoadingConnections } =
+    useGetMySlackConnections();
+  const hasConnections = Boolean(connections?.length);
   const defaultValues = useMemo(
     () => ({
+      connectionId: nodeData?.connectionId || "",
+      channelId: nodeData?.channelId || "",
       variableName: nodeData?.variableName,
-      webhookUrl: nodeData?.webhookUrl || "",
       message: nodeData?.message || "",
     }),
-    [nodeData?.message, nodeData?.variableName, nodeData?.webhookUrl],
+    [
+      nodeData?.channelId,
+      nodeData?.connectionId,
+      nodeData?.message,
+      nodeData?.variableName,
+    ],
   );
 
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues,
     resolver: zodResolver(formSchema),
   });
+  const values = form?.watch();
+  const { data: channels, isPending: isLoadingChannels } =
+    useGetSlackChannels();
+  const subscribedToChannel = channels?.find(
+    (channel) => channel.id === values.channelId,
+  )?.is_member;
 
   const {
     handleSubmit,
@@ -100,6 +128,27 @@ function SlackDialog({
       form.reset(defaultValues);
     }
   }, [defaultValues, form, open]);
+
+  useEffect(() => {
+    if (open && connections?.length && !form.getValues("connectionId")) {
+      form.setValue("connectionId", connections[0].id, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  }, [open, connections, form]);
+
+  useEffect(() => {
+    if (open && channels?.length && !form.getValues("channelId")) {
+      // Only set channel if we actually have text/voice channels to pick from
+      const defaultChannel = channels[0];
+      form.setValue("channelId", defaultChannel.id, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  }, [open, channels, form]);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="dark:bg-neutral-900">
@@ -115,84 +164,154 @@ function SlackDialog({
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-6 mt-4 px-3"
           >
-            <FormField
-              control={form.control}
-              name="variableName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Variable Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="slackMessage" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Use this name to reference the result in other nodes:{" "}
-                    {`{{${field.value || "slackMessage"}.message}}`}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="webhookUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Webhook Url</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://hooks.slack.com/api/webhooks/...."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Get this from Slack: Worksace Settings &rarr; Workflows
-                    &rarr; Webhooks
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Variable Name</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Message"
-                      {...field}
-                      className="h-36"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Enter the message you want to send in slack
-                    {`(You can use variables inside this messages from other nodes.)`}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <SheetFooter className="mt-4 px-0">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting || isUpdating}>
-                {isSubmitting || isUpdating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save"
+            <Activity mode={hasConnections ? "hidden" : "visible"}>
+              <ConnectionButton
+                icon={<Icon icon="mdi:slack" className="size-6" />}
+                title="Connect to Slack"
+                className="mb-3 bg-teal-700 hover:bg-teal-600"
+                link={`${process.env.NEXT_PUBLIC_API_URL}${endpoints.integrations.slack.callback(workflowId)}`}
+              />
+            </Activity>
+            <Activity mode={hasConnections ? "visible" : "hidden"}>
+              <FormField
+                control={form.control}
+                name="connectionId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Slack Account</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isLoadingConnections}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a Slack Account" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {connections?.map((connection) => (
+                          <SelectItem key={connection.id} value={connection.id}>
+                            {connection.externalName || connection.id}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Select the Slack account to use
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </Button>
-            </SheetFooter>
+              />
+            </Activity>
+
+            <Activity mode={hasConnections ? "visible" : "hidden"}>
+              <FormField
+                control={form.control}
+                name="channelId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Slack Channel</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isLoadingChannels}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a Slack Channel" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {channels.map((channel) => (
+                          <SelectItem key={channel.id} value={channel.id}>
+                            {channel.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription
+                      className={cn(
+                        values.channelId &&
+                          !subscribedToChannel &&
+                          "text-rose-700 dark:text-rose-400",
+                      )}
+                    >
+                      {subscribedToChannel || !values.channelId
+                        ? "Select the Slack channel to send message to "
+                        : "'Hooks' Bot is not invited to this channel: Go to the channel -> Type '/invite @Hooks'"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="variableName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Variable Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="slackMessage" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Use this name to reference the result in other nodes:{" "}
+                      {`{{${field.value || "slackMessage"}.message}}`}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Message</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Message"
+                        {...field}
+                        className="h-36"
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter the message you want to send in slack
+                      {`(You can use variables inside this messages from other nodes.)`}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Activity>
+
+            <Activity
+              mode={
+                hasConnections && subscribedToChannel ? "visible" : "hidden"
+              }
+            >
+              <SheetFooter className="mt-4 px-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting || isUpdating}>
+                  {isSubmitting || isUpdating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+              </SheetFooter>
+            </Activity>
           </form>
         </Form>
       </SheetContent>
@@ -200,4 +319,4 @@ function SlackDialog({
   );
 }
 
-export default SlackDialog;
+export default GeminiDialog;

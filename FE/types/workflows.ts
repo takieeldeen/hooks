@@ -9,3 +9,17 @@ export interface Workflow {
   nodes: Node[];
   edges: Edge[];
 }
+
+export type ExecutionStatus = "PENDING" | "RUNNING" | "COMPLETED" | "FAILED";
+
+export interface WorkflowExecution {
+  id: string;
+  workflowId: string;
+  userId: string;
+  trigger: string;
+  status: ExecutionStatus;
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  creditsConsumed: number;
+}

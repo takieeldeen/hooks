@@ -9,6 +9,7 @@ type JobFn<T = any> = (payload: T, userId?: string) => Promise<any>;
 
 interface QueueEntry<T = any> {
   jobName: string;
+  executionId: string;
   jobFn: JobFn<T>;
   payload?: T;
 }
@@ -27,6 +28,7 @@ class BackgroundJobQueue {
   /** workflowId → whether a job is currently being processed */
   private running = new Map<string, boolean>();
   private userId: string | undefined;
+
   /**
    * Enqueue a job.
    * @param workflowId  Used to group jobs that must run sequentially.
@@ -37,6 +39,7 @@ class BackgroundJobQueue {
   enqueue<T = any>(
     userId: string,
     workflowId: string,
+    executionId: string,
     jobName: string,
     jobFn: JobFn<T>,
     payload?: T,
@@ -47,7 +50,7 @@ class BackgroundJobQueue {
       this.queues.set(workflowId, []);
     }
 
-    this.queues.get(workflowId)!.push({ jobName, jobFn, payload });
+    this.queues.get(workflowId)!.push({ jobName, executionId, jobFn, payload });
 
     // Start processing if nothing is running for this workflow
     if (!this.running.get(workflowId)) {
@@ -82,7 +85,31 @@ class BackgroundJobQueue {
     this.running.set(workflowId, true);
     const entry = queue.shift()!; // take the first job
 
-    await this.executeJob(entry);
+    const status = await this.executeJob(entry);
+
+    // After executing, check if this execution has more jobs in the queue
+    const hasMoreForExecution = queue.some(
+      (q) => q.executionId === entry.executionId,
+    );
+
+    if (status === "FAILED") {
+      // Remove any remaining jobs for this executionId so they don't run
+      const remainingJobs = queue.filter(
+        (q) => q.executionId !== entry.executionId,
+      );
+      this.queues.set(workflowId, remainingJobs);
+
+      await prisma.workflowExecution.update({
+        where: { id: entry.executionId },
+        data: { status: "FAILED", completedAt: new Date() },
+      });
+    } else if (!hasMoreForExecution) {
+      // It succeeded and it was the last job for this executionId
+      await prisma.workflowExecution.update({
+        where: { id: entry.executionId },
+        data: { status: "COMPLETED", completedAt: new Date() },
+      });
+    }
 
     // Immediately move to the next job in this workflow's queue
     await this.runNext(workflowId);
@@ -91,15 +118,22 @@ class BackgroundJobQueue {
   /** Runs a single job: persists status transitions to the DB. */
   private async executeJob({
     jobName,
+    executionId,
     jobFn,
     payload,
-  }: QueueEntry): Promise<void> {
+  }: QueueEntry): Promise<"SUCCESS" | "FAILED"> {
     // 1. Create the job record as PENDING
+    const payloadToSave =
+      payload && typeof payload === "object" ? { ...payload } : payload;
+    if (payloadToSave && typeof payloadToSave === "object") {
+      delete (payloadToSave as any).functionContext;
+    }
+
     const job = await prisma.job.create({
       data: {
         name: jobName,
         status: "PENDING",
-        payload: payload ?? null,
+        payload: payloadToSave ?? null,
       },
     });
 
@@ -126,6 +160,7 @@ class BackgroundJobQueue {
         nodeId: payload?.nodeId,
         status: "SUCCESS",
       });
+      return "SUCCESS";
     } catch (err: any) {
       const failurePayload = { status: "FAILED", error: JSON.stringify(err) };
       await prisma.job.update({
@@ -136,6 +171,7 @@ class BackgroundJobQueue {
         nodeId: payload?.nodeId,
         status: "FAILED",
       });
+      return "FAILED";
     }
   }
 }
@@ -163,9 +199,10 @@ const jobQueue = new BackgroundJobQueue();
 export function registerJob<T = any>(
   userId: string,
   workflowId: string,
+  executionId: string,
   jobName: string,
   jobFn: JobFn<T>,
   payload?: T,
 ): void {
-  jobQueue.enqueue(userId, workflowId, jobName, jobFn, payload);
+  jobQueue.enqueue(userId, workflowId, executionId, jobName, jobFn, payload);
 }

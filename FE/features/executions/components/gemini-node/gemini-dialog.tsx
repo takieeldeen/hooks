@@ -131,7 +131,7 @@ function GeminiDialog({
   }, [defaultValues, form, open]);
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="dark:bg-neutral-900">
+      <SheetContent side="left" className="overflow-y-auto dark:bg-neutral-900">
         <SheetHeader>
           <SheetTitle>Gemini Configuration</SheetTitle>
           <SheetDescription>

@@ -9,6 +9,7 @@ import {
   updateWorkflowName,
   executeWorkflow,
 } from "../controllers/workflow.controller";
+import { getAllExecutions } from "../controllers/execution.controller";
 
 export const workflowRouter = Router();
 
@@ -22,3 +23,5 @@ workflowRouter
 
 workflowRouter.route("/:workflowId/name").patch(updateWorkflowName);
 workflowRouter.post("/:workflowId/execute", executeWorkflow);
+
+workflowRouter.get("/:workflowId/executions", getAllExecutions);

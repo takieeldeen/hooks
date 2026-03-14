@@ -27,6 +27,8 @@ model User {
   workflows     Workflow[]
   credentials Credential[]
   appConnections AppConnection[]
+  executions WorkflowExecution[]
+
   @@unique([email])
   @@map("user")
 }
@@ -143,6 +145,7 @@ model Workflow {
 
   nodes Node[]
   connections Connection[]
+  executions WorkflowExecution[]
 
   @@index([userId])
   @@map("workflow")
@@ -259,5 +262,55 @@ model Credential {
   userId String
   user User @relation(fields: [userId],references: [id],onDelete: Cascade)
   nodes Node[]
+}
+
+enum WorkflowExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+model WorkflowExecution {
+  id String @id @default(uuid())
+  workflowId String
+  userId String
+  trigger NodeType
+  status WorkflowExecutionStatus
+  createdAt DateTime @default(now())
+  startedAt DateTime?
+  completedAt DateTime?
+  workflow Workflow @relation(fields: [workflowId],references: [id],onDelete: Cascade)
+  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+}
+
+enum NodeExecutionStatus {
+  IDLE
+  RUNNING
+  SUCCESS
+  FAILED
+}
+model NodeExecution {
+  id String @id @default(uuid())
+  status NodeExecutionStatus
+  inputs Json
+  outputs Json
+  logs NodeExecutionLog[]
+  startedAt DateTime?
+  completedAt DateTime?
+}
+
+enum LogLevel {
+  WARNING
+  ERROR
+  INFO
+}
+model NodeExecutionLog {
+  id String @id @default(uuid())
+  level LogLevel @default(INFO)
+  message String
+  timestamp DateTime @default(now())
+  nodeExecutionId String
+
+  nodeExecution NodeExecution @relation(fields: [nodeExecutionId], references: [id], onDelete: Cascade)
 }
 

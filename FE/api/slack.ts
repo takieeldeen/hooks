@@ -4,7 +4,7 @@ import { getFetcher } from "./api";
 import { AxiosRequestConfig } from "axios";
 import { APIListResponse } from "@/types/common";
 import { AppConnection } from "@/types/appConnections";
-import { SlackServer } from "@/types/slack";
+import { SlackChannel } from "@/types/slack";
 
 export function useGetMySlackConnections() {
   const URL: [string, AxiosRequestConfig] = [
@@ -24,36 +24,19 @@ export function useGetMySlackConnections() {
   return { ...query, queryKey, data: query?.data?.content };
 }
 
-export function useGetSlackServers(connectionId?: string) {
+export function useGetSlackChannels() {
   const URL: [string, AxiosRequestConfig] = [
-    connectionId ? endpoints.integrations.slack.servers(connectionId) : "",
+    endpoints.integrations.slack.channels,
     {},
   ];
-  const queryKey = ["app-connections", "slack", "servers", connectionId];
-  const query = useQuery<APIListResponse<SlackServer>>({
+  const queryKey = ["app-connections", "slack", "channels"];
+  const query = useQuery<any>({
     queryKey,
     queryFn: getFetcher(URL),
-    enabled: !!connectionId,
   });
-  return { ...query, queryKey, data: query?.data?.content };
-}
-
-export interface SlackChannel {
-  id: string;
-  name: string;
-  type: number;
-}
-
-export function useGetSlackServerChannels(serverId?: string) {
-  const URL: [string, AxiosRequestConfig] = [
-    serverId ? endpoints.integrations.slack.channels(serverId) : "",
-    {},
-  ];
-  const queryKey = ["app-connections", "slack", "channels", serverId];
-  const query = useQuery<APIListResponse<SlackChannel>>({
+  return {
+    ...query,
     queryKey,
-    queryFn: getFetcher(URL),
-    enabled: !!serverId,
-  });
-  return { ...query, queryKey, data: query?.data?.content };
+    data: (query?.data?.content as SlackChannel[]) ?? [],
+  };
 }

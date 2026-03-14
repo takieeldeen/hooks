@@ -18,8 +18,10 @@ import {
 import { Menu } from "lucide-react";
 import Image from "next/image";
 import LOGO_IMAGE from "@/public/logo/dark.png";
+import NavbarUser from "./NavbarUser";
 
 export default function Navbar() {
+  // const { session } = useAuth();
   return (
     <nav className="border-b bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
@@ -48,7 +50,7 @@ export default function Navbar() {
         </div>
 
         {/* desktop auth */}
-        <div className="hidden md:flex space-x-4">
+        {/* <div className="hidden md:flex space-x-4">
           <Link href="/login">
             <Button
               size="sm"
@@ -63,9 +65,10 @@ export default function Navbar() {
               className="bg-indigo-800 border border-indigo-600 text-white hover:bg-indigo-700 transition-all"
             >
               Try Hooks
-            </Button>{" "}
+            </Button>
           </Link>
-        </div>
+        </div> */}
+        <NavbarUser />
 
         {/* mobile hamburger (opens sheet) */}
         <div className="md:hidden">
@@ -78,7 +81,7 @@ export default function Navbar() {
                 <Menu className="h-6 w-6" />
               </button>
             </SheetTrigger>
-            <SheetContent side="left" className="px-4">
+            <SheetContent side="left" className="px-4 overflow-y-auto">
               <SheetHeader>
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
