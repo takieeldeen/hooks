@@ -1,6 +1,5 @@
 import { AppError } from "../controllers/error.controller";
 import { WorkflowExecution } from "../generated/prisma/client";
-import { catchAsync } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 
 const getAll = async (workflowId: string, userId?: string) => {
@@ -9,6 +8,9 @@ const getAll = async (workflowId: string, userId?: string) => {
       where: {
         workflowId,
         userId,
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
     return executions;
@@ -33,6 +35,37 @@ const create = async (
   }
 };
 
-const WorkflowExecutionService = { getAll, create };
+const getExecution = async (executionId: string, userId?: string) => {
+  try {
+    const execution = await prisma.workflowExecution.findFirst({
+      where: {
+        id: executionId,
+        userId,
+      },
+      include: {
+        nodeExecutions: {
+          include: {
+            logs: true,
+            node: true,
+          },
+          orderBy: {
+            startedAt: "asc",
+          },
+        },
+      },
+    });
+    console.log(execution);
+    if (!execution) {
+      throw new AppError(404, "EXECUTION_NOT_FOUND");
+    }
+
+    return execution;
+  } catch (err: any) {
+    if (err instanceof AppError) throw err;
+    throw new AppError(400, "EXECUTION_FETCHING_FAILED");
+  }
+};
+
+const WorkflowExecutionService = { getAll, create, getExecution };
 
 export default WorkflowExecutionService;

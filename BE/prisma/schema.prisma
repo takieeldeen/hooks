@@ -211,6 +211,7 @@ model Node {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  nodeExecutions NodeExecution[]
 }
 
 model Connection {
@@ -281,6 +282,7 @@ model WorkflowExecution {
   completedAt DateTime?
   workflow Workflow @relation(fields: [workflowId],references: [id],onDelete: Cascade)
   user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+  nodeExecutions NodeExecution[]
 }
 
 enum NodeExecutionStatus {
@@ -297,6 +299,12 @@ model NodeExecution {
   logs NodeExecutionLog[]
   startedAt DateTime?
   completedAt DateTime?
+
+  workflowExecutionId String
+  workflowExecution WorkflowExecution @relation(fields: [workflowExecutionId], references: [id], onDelete: Cascade)
+
+  nodeId String
+  node Node @relation(fields: [nodeId], references: [id], onDelete: Cascade)
 }
 
 enum LogLevel {

@@ -195,11 +195,11 @@ export function useTriggerWorkflow() {
   const queryClient = useQueryClient();
   const query = useMutation({
     mutationFn: triggerWorkflow,
-    onSuccess: (data: APIDetailsResponse<Workflow>) => {
+    onSuccess: () => {
       toast.success(`Workflow Triggered Successfully`);
       queryClient.invalidateQueries({ queryKey: ["workflows"] });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast.error(`Workflow Trigger Failed`);
     },
   });
@@ -247,6 +247,35 @@ export function useGetWorkflowExecutions(
   ];
   const queryKey = ["workflows", workflowId, "executions", { page, pageSize }];
   const query = useQuery<APIListResponse<WorkflowExecution>>({
+    queryKey,
+    queryFn: getFetcher(URL),
+  });
+  return { ...query, queryKey };
+}
+
+export async function prefetchWorkflowExecution(
+  workflowId: string,
+  executionId: string
+) {
+  const URL = endpoints.workflows.execution(workflowId, executionId);
+  const queryKey = ["workflows", workflowId, "executions", executionId];
+  const queryClient = new QueryClient();
+  const query = await queryClient.prefetchQuery<
+    APIDetailsResponse<WorkflowExecution>
+  >({
+    queryKey,
+    queryFn: getFetcher(URL),
+  });
+  return { queryClient, query };
+}
+
+export function useGetWorkflowExecution(
+  workflowId: string,
+  executionId: string
+) {
+  const URL = endpoints.workflows.execution(workflowId, executionId);
+  const queryKey = ["workflows", workflowId, "executions", executionId];
+  const query = useQuery<APIDetailsResponse<WorkflowExecution>>({
     queryKey,
     queryFn: getFetcher(URL),
   });

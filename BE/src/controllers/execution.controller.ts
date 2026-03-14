@@ -13,3 +13,16 @@ export const getAllExecutions = catchAsync(async (req, res, next) => {
     status: "success",
   });
 });
+
+export const getExecution = catchAsync(async (req, res, next) => {
+  const { executionId } = req.params;
+  const execution = await WorkflowExecutionService.getExecution(
+    executionId as string,
+    req.session?.user.id,
+  );
+  
+  res.status(200).json({
+    content: execution,
+    status: "success",
+  });
+});

@@ -74,45 +74,49 @@ class BackgroundJobQueue {
   }
 
   private async runNext(workflowId: string): Promise<void> {
-    const queue = this.queues.get(workflowId);
-    if (!queue || queue.length === 0) {
-      // Nothing left – mark as idle and clean up the empty queue
-      this.running.set(workflowId, false);
-      this.queues.delete(workflowId);
-      return;
-    }
+    try {
+      const queue = this.queues.get(workflowId);
+      if (!queue || queue.length === 0) {
+        // Nothing left – mark as idle and clean up the empty queue
+        this.running.set(workflowId, false);
+        this.queues.delete(workflowId);
+        return;
+      }
 
-    this.running.set(workflowId, true);
-    const entry = queue.shift()!; // take the first job
+      this.running.set(workflowId, true);
+      const entry = queue.shift()!; // take the first job
 
-    const status = await this.executeJob(entry);
+      const status = await this.executeJob(entry);
 
-    // After executing, check if this execution has more jobs in the queue
-    const hasMoreForExecution = queue.some(
-      (q) => q.executionId === entry.executionId,
-    );
-
-    if (status === "FAILED") {
-      // Remove any remaining jobs for this executionId so they don't run
-      const remainingJobs = queue.filter(
-        (q) => q.executionId !== entry.executionId,
+      // After executing, check if this execution has more jobs in the queue
+      const hasMoreForExecution = queue.some(
+        (q) => q.executionId === entry.executionId,
       );
-      this.queues.set(workflowId, remainingJobs);
 
-      await prisma.workflowExecution.update({
-        where: { id: entry.executionId },
-        data: { status: "FAILED", completedAt: new Date() },
-      });
-    } else if (!hasMoreForExecution) {
-      // It succeeded and it was the last job for this executionId
-      await prisma.workflowExecution.update({
-        where: { id: entry.executionId },
-        data: { status: "COMPLETED", completedAt: new Date() },
-      });
+      if (status === "FAILED") {
+        // Remove any remaining jobs for this executionId so they don't run
+        const remainingJobs = queue.filter(
+          (q) => q.executionId !== entry.executionId,
+        );
+        this.queues.set(workflowId, remainingJobs);
+
+        await prisma.workflowExecution.update({
+          where: { id: entry.executionId },
+          data: { status: "FAILED", completedAt: new Date() },
+        });
+      } else if (!hasMoreForExecution) {
+        // It succeeded and it was the last job for this executionId
+        await prisma.workflowExecution.update({
+          where: { id: entry.executionId },
+          data: { status: "COMPLETED", completedAt: new Date() },
+        });
+      }
+
+      // Immediately move to the next job in this workflow's queue
+      await this.runNext(workflowId);
+    } catch (err) {
+      console.log(err);
     }
-
-    // Immediately move to the next job in this workflow's queue
-    await this.runNext(workflowId);
   }
 
   /** Runs a single job: persists status transitions to the DB. */
@@ -137,6 +141,26 @@ class BackgroundJobQueue {
       },
     });
 
+    const nodeId = (payload as any)?.nodeId;
+    let nodeExecutionId: string | undefined;
+
+    if (nodeId) {
+      const nodeExecution = await prisma.nodeExecution.findFirst({
+        where: { workflowExecutionId: executionId, nodeId },
+      });
+      if (nodeExecution) {
+        nodeExecutionId = nodeExecution.id;
+        await prisma.nodeExecution.update({
+          where: { id: nodeExecution.id },
+          data: {
+            status: "RUNNING",
+            startedAt: new Date(),
+            inputs: payloadToSave ?? {},
+          },
+        });
+      }
+    }
+
     // 2. Mark as RUNNING
     const runningPayload = { status: "RUNNING" };
     await prisma.job.update({
@@ -144,31 +168,54 @@ class BackgroundJobQueue {
       data: runningPayload,
     });
     sendNotificationToUser(this.userId!, "NODE-UPDATE", {
-      nodeId: payload?.nodeId,
+      nodeId: (payload as any)?.nodeId,
       status: "RUNNING",
     });
 
     // 3. Execute and store result / error
     try {
+      console.log(jobName, "IS EXECUTED");
       const result = await jobFn(payload, this.userId);
-      const succcessPayload = { status: "SUCCESS", result };
       await prisma.job.update({
         where: { id: job.id },
-        data: { status: "SUCCESS", result },
+        data: { status: "SUCCESS", result: result as any },
       });
+      if (nodeExecutionId) {
+        await prisma.nodeExecution.update({
+          where: { id: nodeExecutionId },
+          data: {
+            status: "SUCCESS",
+            completedAt: new Date(),
+            inputs: payloadToSave ?? {},
+            outputs: typeof result === "object" ? result ?? {} : { result },
+          },
+        });
+      }
       sendNotificationToUser(this.userId!, "NODE-UPDATE", {
-        nodeId: payload?.nodeId,
+        nodeId: (payload as any)?.nodeId,
         status: "SUCCESS",
       });
       return "SUCCESS";
     } catch (err: any) {
+      console.log(err);
       const failurePayload = { status: "FAILED", error: JSON.stringify(err) };
       await prisma.job.update({
         where: { id: job.id },
         data: failurePayload,
       });
+      if (nodeExecutionId) {
+        await prisma.nodeExecution.update({
+          where: { id: nodeExecutionId },
+          data: {
+            status: "FAILED",
+            completedAt: new Date(),
+            inputs: payloadToSave ?? {},
+            outputs: { error: err.message || JSON.stringify(err) },
+          },
+        });
+      }
       sendNotificationToUser(this.userId!, "NODE-UPDATE", {
-        nodeId: payload?.nodeId,
+        nodeId: (payload as any)?.nodeId,
         status: "FAILED",
       });
       return "FAILED";

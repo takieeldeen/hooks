@@ -16,12 +16,7 @@ export const DiscordTriggerExecutor: NodeExecutor<"DISCORD_TRIGGER"> = async ({
   // The webhook controller seeds context.discord before execution begins
   const discordPayload = context.discord as any;
 
-  if (!discordPayload) {
-    throw new AppError(
-      400,
-      `Discord Trigger Node ${nodeId}: no discord payload in context`,
-    );
-  }
+  if (!discordPayload) return context;
 
   // Optional server/channel filtering
   if (data.serverId && discordPayload.serverId !== data.serverId) {

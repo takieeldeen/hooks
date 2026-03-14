@@ -23,6 +23,8 @@ export const endpoints = {
     updateName: (workflowId: string) => `/workflows/${workflowId}/name`,
     execute: (workflowId: string) => `/workflows/${workflowId}/execute`,
     executions: (workflowId: string) => `/workflows/${workflowId}/executions`,
+    execution: (workflowId: string, executionId: string) =>
+      `/workflows/${workflowId}/executions/${executionId}`,
   },
   ai: {
     geminiAvailableModels: "/ai/my-google-models",

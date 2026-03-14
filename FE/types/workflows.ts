@@ -22,4 +22,30 @@ export interface WorkflowExecution {
   startedAt?: Date;
   completedAt?: Date;
   creditsConsumed: number;
+  nodeExecutions?: NodeExecution[];
+}
+
+export type NodeExecutionStatus = "IDLE" | "RUNNING" | "SUCCESS" | "FAILED";
+
+export type LogLevel = "WARNING" | "ERROR" | "INFO";
+
+export interface NodeExecutionLog {
+  id: string;
+  level: LogLevel;
+  message: string;
+  timestamp: Date;
+  nodeExecutionId: string;
+}
+
+export interface NodeExecution {
+  id: string;
+  status: NodeExecutionStatus;
+  inputs: Record<string, any>;
+  outputs: Record<string, any>;
+  logs: NodeExecutionLog[];
+  startedAt?: Date;
+  completedAt?: Date;
+  workflowExecutionId: string;
+  nodeId: string;
+  node?: { id: string; name: string; type: string };
 }

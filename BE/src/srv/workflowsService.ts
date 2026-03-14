@@ -42,6 +42,18 @@ async function executeWorkflow(
     startedAt: new Date(),
   });
 
+  const nodeExecutionsData = sortedArr.map((node) => ({
+    nodeId: node.id,
+    workflowExecutionId: execution.id,
+    status: "IDLE" as const,
+    inputs: typeof node.data === "object" ? node.data || {} : {},
+    outputs: {},
+  }));
+
+  await prisma.nodeExecution.createMany({
+    data: nodeExecutionsData,
+  });
+
   const context: Record<string, any> = initialData || {};
   const jar = new CookieJar();
   const axiosInstance = axios.create({

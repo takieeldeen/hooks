@@ -291,7 +291,9 @@ export const NodeExecutionScalarFieldEnum = {
   inputs: 'inputs',
   outputs: 'outputs',
   startedAt: 'startedAt',
-  completedAt: 'completedAt'
+  completedAt: 'completedAt',
+  workflowExecutionId: 'workflowExecutionId',
+  nodeId: 'nodeId'
 } as const
 
 export type NodeExecutionScalarFieldEnum = (typeof NodeExecutionScalarFieldEnum)[keyof typeof NodeExecutionScalarFieldEnum]

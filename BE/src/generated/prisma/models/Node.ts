@@ -210,6 +210,7 @@ export type NodeWhereInput = {
   inputConnections?: Prisma.ConnectionListRelationFilter
   outputConnections?: Prisma.ConnectionListRelationFilter
   credential?: Prisma.XOR<Prisma.CredentialNullableScalarRelationFilter, Prisma.CredentialWhereInput> | null
+  nodeExecutions?: Prisma.NodeExecutionListRelationFilter
 }
 
 export type NodeOrderByWithRelationInput = {
@@ -226,6 +227,7 @@ export type NodeOrderByWithRelationInput = {
   inputConnections?: Prisma.ConnectionOrderByRelationAggregateInput
   outputConnections?: Prisma.ConnectionOrderByRelationAggregateInput
   credential?: Prisma.CredentialOrderByWithRelationInput
+  nodeExecutions?: Prisma.NodeExecutionOrderByRelationAggregateInput
 }
 
 export type NodeWhereUniqueInput = Prisma.AtLeast<{
@@ -245,6 +247,7 @@ export type NodeWhereUniqueInput = Prisma.AtLeast<{
   inputConnections?: Prisma.ConnectionListRelationFilter
   outputConnections?: Prisma.ConnectionListRelationFilter
   credential?: Prisma.XOR<Prisma.CredentialNullableScalarRelationFilter, Prisma.CredentialWhereInput> | null
+  nodeExecutions?: Prisma.NodeExecutionListRelationFilter
 }, "id">
 
 export type NodeOrderByWithAggregationInput = {
@@ -289,6 +292,7 @@ export type NodeCreateInput = {
   inputConnections?: Prisma.ConnectionCreateNestedManyWithoutTargetNodeInput
   outputConnections?: Prisma.ConnectionCreateNestedManyWithoutSourceNodeInput
   credential?: Prisma.CredentialCreateNestedOneWithoutNodesInput
+  nodeExecutions?: Prisma.NodeExecutionCreateNestedManyWithoutNodeInput
 }
 
 export type NodeUncheckedCreateInput = {
@@ -303,6 +307,7 @@ export type NodeUncheckedCreateInput = {
   updatedAt?: Date | string
   inputConnections?: Prisma.ConnectionUncheckedCreateNestedManyWithoutTargetNodeInput
   outputConnections?: Prisma.ConnectionUncheckedCreateNestedManyWithoutSourceNodeInput
+  nodeExecutions?: Prisma.NodeExecutionUncheckedCreateNestedManyWithoutNodeInput
 }
 
 export type NodeUpdateInput = {
@@ -317,6 +322,7 @@ export type NodeUpdateInput = {
   inputConnections?: Prisma.ConnectionUpdateManyWithoutTargetNodeNestedInput
   outputConnections?: Prisma.ConnectionUpdateManyWithoutSourceNodeNestedInput
   credential?: Prisma.CredentialUpdateOneWithoutNodesNestedInput
+  nodeExecutions?: Prisma.NodeExecutionUpdateManyWithoutNodeNestedInput
 }
 
 export type NodeUncheckedUpdateInput = {
@@ -331,6 +337,7 @@ export type NodeUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inputConnections?: Prisma.ConnectionUncheckedUpdateManyWithoutTargetNodeNestedInput
   outputConnections?: Prisma.ConnectionUncheckedUpdateManyWithoutSourceNodeNestedInput
+  nodeExecutions?: Prisma.NodeExecutionUncheckedUpdateManyWithoutNodeNestedInput
 }
 
 export type NodeCreateManyInput = {
@@ -530,6 +537,20 @@ export type NodeUncheckedUpdateManyWithoutCredentialNestedInput = {
   deleteMany?: Prisma.NodeScalarWhereInput | Prisma.NodeScalarWhereInput[]
 }
 
+export type NodeCreateNestedOneWithoutNodeExecutionsInput = {
+  create?: Prisma.XOR<Prisma.NodeCreateWithoutNodeExecutionsInput, Prisma.NodeUncheckedCreateWithoutNodeExecutionsInput>
+  connectOrCreate?: Prisma.NodeCreateOrConnectWithoutNodeExecutionsInput
+  connect?: Prisma.NodeWhereUniqueInput
+}
+
+export type NodeUpdateOneRequiredWithoutNodeExecutionsNestedInput = {
+  create?: Prisma.XOR<Prisma.NodeCreateWithoutNodeExecutionsInput, Prisma.NodeUncheckedCreateWithoutNodeExecutionsInput>
+  connectOrCreate?: Prisma.NodeCreateOrConnectWithoutNodeExecutionsInput
+  upsert?: Prisma.NodeUpsertWithoutNodeExecutionsInput
+  connect?: Prisma.NodeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.NodeUpdateToOneWithWhereWithoutNodeExecutionsInput, Prisma.NodeUpdateWithoutNodeExecutionsInput>, Prisma.NodeUncheckedUpdateWithoutNodeExecutionsInput>
+}
+
 export type NodeCreateWithoutWorkflowInput = {
   id?: string
   name: string
@@ -541,6 +562,7 @@ export type NodeCreateWithoutWorkflowInput = {
   inputConnections?: Prisma.ConnectionCreateNestedManyWithoutTargetNodeInput
   outputConnections?: Prisma.ConnectionCreateNestedManyWithoutSourceNodeInput
   credential?: Prisma.CredentialCreateNestedOneWithoutNodesInput
+  nodeExecutions?: Prisma.NodeExecutionCreateNestedManyWithoutNodeInput
 }
 
 export type NodeUncheckedCreateWithoutWorkflowInput = {
@@ -554,6 +576,7 @@ export type NodeUncheckedCreateWithoutWorkflowInput = {
   updatedAt?: Date | string
   inputConnections?: Prisma.ConnectionUncheckedCreateNestedManyWithoutTargetNodeInput
   outputConnections?: Prisma.ConnectionUncheckedCreateNestedManyWithoutSourceNodeInput
+  nodeExecutions?: Prisma.NodeExecutionUncheckedCreateNestedManyWithoutNodeInput
 }
 
 export type NodeCreateOrConnectWithoutWorkflowInput = {
@@ -608,6 +631,7 @@ export type NodeCreateWithoutOutputConnectionsInput = {
   workflow: Prisma.WorkflowCreateNestedOneWithoutNodesInput
   inputConnections?: Prisma.ConnectionCreateNestedManyWithoutTargetNodeInput
   credential?: Prisma.CredentialCreateNestedOneWithoutNodesInput
+  nodeExecutions?: Prisma.NodeExecutionCreateNestedManyWithoutNodeInput
 }
 
 export type NodeUncheckedCreateWithoutOutputConnectionsInput = {
@@ -621,6 +645,7 @@ export type NodeUncheckedCreateWithoutOutputConnectionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   inputConnections?: Prisma.ConnectionUncheckedCreateNestedManyWithoutTargetNodeInput
+  nodeExecutions?: Prisma.NodeExecutionUncheckedCreateNestedManyWithoutNodeInput
 }
 
 export type NodeCreateOrConnectWithoutOutputConnectionsInput = {
@@ -639,6 +664,7 @@ export type NodeCreateWithoutInputConnectionsInput = {
   workflow: Prisma.WorkflowCreateNestedOneWithoutNodesInput
   outputConnections?: Prisma.ConnectionCreateNestedManyWithoutSourceNodeInput
   credential?: Prisma.CredentialCreateNestedOneWithoutNodesInput
+  nodeExecutions?: Prisma.NodeExecutionCreateNestedManyWithoutNodeInput
 }
 
 export type NodeUncheckedCreateWithoutInputConnectionsInput = {
@@ -652,6 +678,7 @@ export type NodeUncheckedCreateWithoutInputConnectionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   outputConnections?: Prisma.ConnectionUncheckedCreateNestedManyWithoutSourceNodeInput
+  nodeExecutions?: Prisma.NodeExecutionUncheckedCreateNestedManyWithoutNodeInput
 }
 
 export type NodeCreateOrConnectWithoutInputConnectionsInput = {
@@ -681,6 +708,7 @@ export type NodeUpdateWithoutOutputConnectionsInput = {
   workflow?: Prisma.WorkflowUpdateOneRequiredWithoutNodesNestedInput
   inputConnections?: Prisma.ConnectionUpdateManyWithoutTargetNodeNestedInput
   credential?: Prisma.CredentialUpdateOneWithoutNodesNestedInput
+  nodeExecutions?: Prisma.NodeExecutionUpdateManyWithoutNodeNestedInput
 }
 
 export type NodeUncheckedUpdateWithoutOutputConnectionsInput = {
@@ -694,6 +722,7 @@ export type NodeUncheckedUpdateWithoutOutputConnectionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inputConnections?: Prisma.ConnectionUncheckedUpdateManyWithoutTargetNodeNestedInput
+  nodeExecutions?: Prisma.NodeExecutionUncheckedUpdateManyWithoutNodeNestedInput
 }
 
 export type NodeUpsertWithoutInputConnectionsInput = {
@@ -718,6 +747,7 @@ export type NodeUpdateWithoutInputConnectionsInput = {
   workflow?: Prisma.WorkflowUpdateOneRequiredWithoutNodesNestedInput
   outputConnections?: Prisma.ConnectionUpdateManyWithoutSourceNodeNestedInput
   credential?: Prisma.CredentialUpdateOneWithoutNodesNestedInput
+  nodeExecutions?: Prisma.NodeExecutionUpdateManyWithoutNodeNestedInput
 }
 
 export type NodeUncheckedUpdateWithoutInputConnectionsInput = {
@@ -731,6 +761,7 @@ export type NodeUncheckedUpdateWithoutInputConnectionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   outputConnections?: Prisma.ConnectionUncheckedUpdateManyWithoutSourceNodeNestedInput
+  nodeExecutions?: Prisma.NodeExecutionUncheckedUpdateManyWithoutNodeNestedInput
 }
 
 export type NodeCreateWithoutCredentialInput = {
@@ -744,6 +775,7 @@ export type NodeCreateWithoutCredentialInput = {
   workflow: Prisma.WorkflowCreateNestedOneWithoutNodesInput
   inputConnections?: Prisma.ConnectionCreateNestedManyWithoutTargetNodeInput
   outputConnections?: Prisma.ConnectionCreateNestedManyWithoutSourceNodeInput
+  nodeExecutions?: Prisma.NodeExecutionCreateNestedManyWithoutNodeInput
 }
 
 export type NodeUncheckedCreateWithoutCredentialInput = {
@@ -757,6 +789,7 @@ export type NodeUncheckedCreateWithoutCredentialInput = {
   updatedAt?: Date | string
   inputConnections?: Prisma.ConnectionUncheckedCreateNestedManyWithoutTargetNodeInput
   outputConnections?: Prisma.ConnectionUncheckedCreateNestedManyWithoutSourceNodeInput
+  nodeExecutions?: Prisma.NodeExecutionUncheckedCreateNestedManyWithoutNodeInput
 }
 
 export type NodeCreateOrConnectWithoutCredentialInput = {
@@ -785,6 +818,78 @@ export type NodeUpdateManyWithWhereWithoutCredentialInput = {
   data: Prisma.XOR<Prisma.NodeUpdateManyMutationInput, Prisma.NodeUncheckedUpdateManyWithoutCredentialInput>
 }
 
+export type NodeCreateWithoutNodeExecutionsInput = {
+  id?: string
+  name: string
+  type: $Enums.NodeType
+  position: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workflow: Prisma.WorkflowCreateNestedOneWithoutNodesInput
+  inputConnections?: Prisma.ConnectionCreateNestedManyWithoutTargetNodeInput
+  outputConnections?: Prisma.ConnectionCreateNestedManyWithoutSourceNodeInput
+  credential?: Prisma.CredentialCreateNestedOneWithoutNodesInput
+}
+
+export type NodeUncheckedCreateWithoutNodeExecutionsInput = {
+  id?: string
+  workflowId: string
+  name: string
+  type: $Enums.NodeType
+  position: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  credentialId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  inputConnections?: Prisma.ConnectionUncheckedCreateNestedManyWithoutTargetNodeInput
+  outputConnections?: Prisma.ConnectionUncheckedCreateNestedManyWithoutSourceNodeInput
+}
+
+export type NodeCreateOrConnectWithoutNodeExecutionsInput = {
+  where: Prisma.NodeWhereUniqueInput
+  create: Prisma.XOR<Prisma.NodeCreateWithoutNodeExecutionsInput, Prisma.NodeUncheckedCreateWithoutNodeExecutionsInput>
+}
+
+export type NodeUpsertWithoutNodeExecutionsInput = {
+  update: Prisma.XOR<Prisma.NodeUpdateWithoutNodeExecutionsInput, Prisma.NodeUncheckedUpdateWithoutNodeExecutionsInput>
+  create: Prisma.XOR<Prisma.NodeCreateWithoutNodeExecutionsInput, Prisma.NodeUncheckedCreateWithoutNodeExecutionsInput>
+  where?: Prisma.NodeWhereInput
+}
+
+export type NodeUpdateToOneWithWhereWithoutNodeExecutionsInput = {
+  where?: Prisma.NodeWhereInput
+  data: Prisma.XOR<Prisma.NodeUpdateWithoutNodeExecutionsInput, Prisma.NodeUncheckedUpdateWithoutNodeExecutionsInput>
+}
+
+export type NodeUpdateWithoutNodeExecutionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumNodeTypeFieldUpdateOperationsInput | $Enums.NodeType
+  position?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workflow?: Prisma.WorkflowUpdateOneRequiredWithoutNodesNestedInput
+  inputConnections?: Prisma.ConnectionUpdateManyWithoutTargetNodeNestedInput
+  outputConnections?: Prisma.ConnectionUpdateManyWithoutSourceNodeNestedInput
+  credential?: Prisma.CredentialUpdateOneWithoutNodesNestedInput
+}
+
+export type NodeUncheckedUpdateWithoutNodeExecutionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workflowId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumNodeTypeFieldUpdateOperationsInput | $Enums.NodeType
+  position?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  credentialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inputConnections?: Prisma.ConnectionUncheckedUpdateManyWithoutTargetNodeNestedInput
+  outputConnections?: Prisma.ConnectionUncheckedUpdateManyWithoutSourceNodeNestedInput
+}
+
 export type NodeCreateManyWorkflowInput = {
   id?: string
   name: string
@@ -807,6 +912,7 @@ export type NodeUpdateWithoutWorkflowInput = {
   inputConnections?: Prisma.ConnectionUpdateManyWithoutTargetNodeNestedInput
   outputConnections?: Prisma.ConnectionUpdateManyWithoutSourceNodeNestedInput
   credential?: Prisma.CredentialUpdateOneWithoutNodesNestedInput
+  nodeExecutions?: Prisma.NodeExecutionUpdateManyWithoutNodeNestedInput
 }
 
 export type NodeUncheckedUpdateWithoutWorkflowInput = {
@@ -820,6 +926,7 @@ export type NodeUncheckedUpdateWithoutWorkflowInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inputConnections?: Prisma.ConnectionUncheckedUpdateManyWithoutTargetNodeNestedInput
   outputConnections?: Prisma.ConnectionUncheckedUpdateManyWithoutSourceNodeNestedInput
+  nodeExecutions?: Prisma.NodeExecutionUncheckedUpdateManyWithoutNodeNestedInput
 }
 
 export type NodeUncheckedUpdateManyWithoutWorkflowInput = {
@@ -855,6 +962,7 @@ export type NodeUpdateWithoutCredentialInput = {
   workflow?: Prisma.WorkflowUpdateOneRequiredWithoutNodesNestedInput
   inputConnections?: Prisma.ConnectionUpdateManyWithoutTargetNodeNestedInput
   outputConnections?: Prisma.ConnectionUpdateManyWithoutSourceNodeNestedInput
+  nodeExecutions?: Prisma.NodeExecutionUpdateManyWithoutNodeNestedInput
 }
 
 export type NodeUncheckedUpdateWithoutCredentialInput = {
@@ -868,6 +976,7 @@ export type NodeUncheckedUpdateWithoutCredentialInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inputConnections?: Prisma.ConnectionUncheckedUpdateManyWithoutTargetNodeNestedInput
   outputConnections?: Prisma.ConnectionUncheckedUpdateManyWithoutSourceNodeNestedInput
+  nodeExecutions?: Prisma.NodeExecutionUncheckedUpdateManyWithoutNodeNestedInput
 }
 
 export type NodeUncheckedUpdateManyWithoutCredentialInput = {
@@ -889,11 +998,13 @@ export type NodeUncheckedUpdateManyWithoutCredentialInput = {
 export type NodeCountOutputType = {
   inputConnections: number
   outputConnections: number
+  nodeExecutions: number
 }
 
 export type NodeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   inputConnections?: boolean | NodeCountOutputTypeCountInputConnectionsArgs
   outputConnections?: boolean | NodeCountOutputTypeCountOutputConnectionsArgs
+  nodeExecutions?: boolean | NodeCountOutputTypeCountNodeExecutionsArgs
 }
 
 /**
@@ -920,6 +1031,13 @@ export type NodeCountOutputTypeCountOutputConnectionsArgs<ExtArgs extends runtim
   where?: Prisma.ConnectionWhereInput
 }
 
+/**
+ * NodeCountOutputType without action
+ */
+export type NodeCountOutputTypeCountNodeExecutionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NodeExecutionWhereInput
+}
+
 
 export type NodeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -935,6 +1053,7 @@ export type NodeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   inputConnections?: boolean | Prisma.Node$inputConnectionsArgs<ExtArgs>
   outputConnections?: boolean | Prisma.Node$outputConnectionsArgs<ExtArgs>
   credential?: boolean | Prisma.Node$credentialArgs<ExtArgs>
+  nodeExecutions?: boolean | Prisma.Node$nodeExecutionsArgs<ExtArgs>
   _count?: boolean | Prisma.NodeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["node"]>
 
@@ -984,6 +1103,7 @@ export type NodeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   inputConnections?: boolean | Prisma.Node$inputConnectionsArgs<ExtArgs>
   outputConnections?: boolean | Prisma.Node$outputConnectionsArgs<ExtArgs>
   credential?: boolean | Prisma.Node$credentialArgs<ExtArgs>
+  nodeExecutions?: boolean | Prisma.Node$nodeExecutionsArgs<ExtArgs>
   _count?: boolean | Prisma.NodeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type NodeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1002,6 +1122,7 @@ export type $NodePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     inputConnections: Prisma.$ConnectionPayload<ExtArgs>[]
     outputConnections: Prisma.$ConnectionPayload<ExtArgs>[]
     credential: Prisma.$CredentialPayload<ExtArgs> | null
+    nodeExecutions: Prisma.$NodeExecutionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1411,6 +1532,7 @@ export interface Prisma__NodeClient<T, Null = never, ExtArgs extends runtime.Typ
   inputConnections<T extends Prisma.Node$inputConnectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Node$inputConnectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   outputConnections<T extends Prisma.Node$outputConnectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Node$outputConnectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   credential<T extends Prisma.Node$credentialArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Node$credentialArgs<ExtArgs>>): Prisma.Prisma__CredentialClient<runtime.Types.Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  nodeExecutions<T extends Prisma.Node$nodeExecutionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Node$nodeExecutionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NodeExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1909,6 +2031,30 @@ export type Node$credentialArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   include?: Prisma.CredentialInclude<ExtArgs> | null
   where?: Prisma.CredentialWhereInput
+}
+
+/**
+ * Node.nodeExecutions
+ */
+export type Node$nodeExecutionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NodeExecution
+   */
+  select?: Prisma.NodeExecutionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the NodeExecution
+   */
+  omit?: Prisma.NodeExecutionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NodeExecutionInclude<ExtArgs> | null
+  where?: Prisma.NodeExecutionWhereInput
+  orderBy?: Prisma.NodeExecutionOrderByWithRelationInput | Prisma.NodeExecutionOrderByWithRelationInput[]
+  cursor?: Prisma.NodeExecutionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NodeExecutionScalarFieldEnum | Prisma.NodeExecutionScalarFieldEnum[]
 }
 
 /**

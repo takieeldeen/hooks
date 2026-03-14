@@ -73,7 +73,7 @@ function EditorHeader({ workflowId }: { workflowId: string }) {
                   "shadow-sm dark:bg-white dark:text-background bg-background",
               )}
             >
-              <PlayCircle className="size-4 text-primary" />
+              <PlayCircle className="size-4" />
               <span className="hidden md:inline">Execution</span>
             </Link>
           )}
