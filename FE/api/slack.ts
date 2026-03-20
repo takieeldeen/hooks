@@ -20,7 +20,6 @@ export function useGetMySlackConnections() {
     queryKey,
     queryFn: getFetcher(URL),
   });
-  console.log(query);
   return { ...query, queryKey, data: query?.data?.content };
 }
 

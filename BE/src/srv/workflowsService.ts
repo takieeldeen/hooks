@@ -7,6 +7,8 @@ import { registerJob } from "../utilis/backgroundJobs/backgroundJobs";
 import { EXECUTOR_REGISTRY } from "../utilis/executions/executorRegistry";
 import { topologicalSort } from "../utilis/topoSort";
 import WorkflowExecutionService from "./execution.service";
+import LogService from "./log.service";
+import { randomUUID } from "node:crypto";
 async function executeWorkflow(
   workflowId: string,
   initialData: any,
@@ -25,7 +27,9 @@ async function executeWorkflow(
   );
 
   // 3. Protect against cyclic workflows
-  if (hasCycle) throw new AppError(400, "WORKFLOW_CONTAINS_CYCLE");
+  if (hasCycle) {
+    throw new AppError(400, "WORKFLOW_CONTAINS_CYCLE");
+  }
 
   // 4. Validate that every node has a known executor before queuing
   for (const node of sortedArr) {
@@ -43,6 +47,7 @@ async function executeWorkflow(
   });
 
   const nodeExecutionsData = sortedArr.map((node) => ({
+    id: randomUUID(),
     nodeId: node.id,
     workflowExecutionId: execution.id,
     status: "IDLE" as const,
@@ -64,7 +69,6 @@ async function executeWorkflow(
   const functionContext: Record<string, any> = {
     axios: wrapper(axiosInstance),
   };
-
   for (const node of sortedArr) {
     const executor = EXECUTOR_REGISTRY[node.type];
 
@@ -83,7 +87,7 @@ async function executeWorkflow(
     );
   }
 
-  return context;
+  return { context, executionId: execution.id };
 }
 
 async function deleteWorkflow(workflowId: string, userId: string) {

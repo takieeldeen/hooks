@@ -1,23 +1,26 @@
 "use client";
 
-import { useGetWorkflowExecution } from "@/api/workflows";
+import {
+  useGetWorkflowDetails,
+  useGetWorkflowExecution,
+} from "@/api/workflows";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { NodeExecution } from "@/types/workflows";
 import {
   CircleAlert,
   CircleCheck,
   CircleDashed,
   CircleX,
-  Clock,
   LayoutTemplate,
   Terminal,
 } from "lucide-react";
-import { useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { useSocket } from "@/providers/SocketProvider";
+import NodeExecutionItem from "./node-execution-item";
+import { NodeExecution } from "@/types/workflows";
 
 interface ExecutionViewerProps {
   workflowId: string;
@@ -28,12 +31,22 @@ export function ExecutionViewer({
   workflowId,
   executionId,
 }: ExecutionViewerProps) {
+  // const [updates, setUpdates] = useState<Record<string, NodeExecution>>({});
   const { data, isLoading, isError } = useGetWorkflowExecution(
     workflowId,
-    executionId
+    executionId,
   );
+  const { data: workflowData } = useGetWorkflowDetails(workflowId);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  // const socket = useSocket();
 
+  // useEffect(() => {
+  //   if (!isLoading) return;
+  //   socket.on("NODE-UPDATE", (payload) => {
+  //     const nodeId = payload?.nodeId;
+  //     setUpdates((p) => ({ ...p, [nodeId]: payload?.executionData }));
+  //   });
+  // }, [isLoading, socket]);
   if (isLoading) {
     return (
       <div className="flex w-full items-center justify-center p-8">
@@ -41,7 +54,6 @@ export function ExecutionViewer({
       </div>
     );
   }
-
   if (isError || !data?.content) {
     return (
       <div className="flex w-full items-center justify-center p-8 text-destructive">
@@ -52,7 +64,26 @@ export function ExecutionViewer({
   }
 
   const execution = data.content;
-  const nodeExecutions = execution.nodeExecutions || [];
+  const rawNodeExecutions = execution.nodeExecutions || [];
+
+  // Build a position-based order from the workflow's node definitions
+  const workflowNodes = workflowData?.content?.nodes ?? [];
+  const nodePositionMap = new Map(
+    workflowNodes.map(
+      (n: { id: string; position: { x: number; y: number } }) => [
+        n.id,
+        n.position,
+      ],
+    ),
+  );
+
+  // Sort by visual position: top-to-bottom (y), then left-to-right (x)
+  const nodeExecutions = [...rawNodeExecutions].sort((a, b) => {
+    const posA = nodePositionMap.get(a.nodeId) ?? { x: 0, y: 0 };
+    const posB = nodePositionMap.get(b.nodeId) ?? { x: 0, y: 0 };
+    if (posA.y !== posB.y) return posA.y - posB.y;
+    return posA.x - posB.x;
+  });
 
   // Auto-select the first node if none is selected
   const activeNodeId = selectedNodeId || (nodeExecutions[0]?.id ?? null);
@@ -74,40 +105,17 @@ export function ExecutionViewer({
         <CardContent className="p-0 flex-1 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="flex flex-col">
-              {nodeExecutions.map((nodeEx, index) => (
-                <div key={nodeEx.id} className="relative">
-                  <button
-                    onClick={() => setSelectedNodeId(nodeEx.id)}
-                    className={cn(
-                      "w-full text-left p-4 flex items-start gap-3 transition-colors hover:bg-accent focus:outline-none",
-                      activeNodeId === nodeEx.id && "bg-accent"
-                    )}
-                  >
-                    <div className="mt-0.5 shrink-0">
-                      <NodeStatusIcon status={nodeEx.status} />
-                    </div>
-                    <div className="flex flex-col min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">
-                        {nodeEx.node?.name || nodeEx.node?.type || "Unknown Node"}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                        <span className="truncate">{nodeEx.node?.type}</span>
-                        {nodeEx.startedAt && (
-                          <>
-                            <span>&bull;</span>
-                            <span className="flex items-center gap-1 shrink-0">
-                              <Clock className="size-3" />
-                              {getDuration(nodeEx)}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </button>
+              {rawNodeExecutions.map((nodeEx, index) => (
+                <Fragment key={nodeEx.id}>
+                  <NodeExecutionItem
+                    nodeEx={nodeEx}
+                    activeNodeId={activeNodeId}
+                    setSelectedNodeId={setSelectedNodeId}
+                  />
                   {index < nodeExecutions.length - 1 && (
                     <Separator className="mx-4 w-auto" />
                   )}
-                </div>
+                </Fragment>
               ))}
               {nodeExecutions.length === 0 && (
                 <div className="p-8 text-center text-sm text-muted-foreground">
@@ -142,7 +150,9 @@ export function ExecutionViewer({
                 <TabsList className="grid w-full max-w-md grid-cols-3">
                   <TabsTrigger value="inputs">Inputs</TabsTrigger>
                   <TabsTrigger value="outputs">Outputs</TabsTrigger>
-                  <TabsTrigger value="logs">Logs ({activeNode.logs?.length || 0})</TabsTrigger>
+                  <TabsTrigger value="logs">
+                    Logs ({activeNode.logs?.length || 0})
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent
@@ -211,48 +221,34 @@ export function ExecutionViewer({
   );
 }
 
-function getDuration(nodeEx: NodeExecution) {
-  if (!nodeEx.startedAt) return "-";
-  if (!nodeEx.completedAt) return "Running...";
-  const ms =
-    new Date(nodeEx.completedAt).getTime() -
-    new Date(nodeEx.startedAt).getTime();
-  return `${(ms / 1000).toFixed(2)}s`;
-}
-
-function NodeStatusIcon({ status }: { status: string }) {
-  switch (status) {
-    case "SUCCESS":
-      return <CircleCheck className="size-4 text-emerald-500" />;
-    case "FAILED":
-      return <CircleX className="size-4 text-red-500" />;
-    case "RUNNING":
-      return <CircleDashed className="size-4 text-blue-500 animate-spin" />;
-    case "IDLE":
-    default:
-      return <CircleDashed className="size-4 text-gray-400" />;
-  }
-}
-
 function NodeStatusBadge({ status }: { status: string }) {
   switch (status) {
     case "SUCCESS":
       return (
-        <Badge variant="outline" className="text-emerald-500 bg-emerald-500/10 border-emerald-500/20">
+        <Badge
+          variant="outline"
+          className="text-emerald-500 bg-emerald-500/10 border-emerald-500/20"
+        >
           <CircleCheck className="mr-1.5 size-3.5" />
           Success
         </Badge>
       );
     case "FAILED":
       return (
-        <Badge variant="outline" className="text-red-500 bg-red-500/10 border-red-500/20">
+        <Badge
+          variant="outline"
+          className="text-red-500 bg-red-500/10 border-red-500/20"
+        >
           <CircleX className="mr-1.5 size-3.5" />
           Failed
         </Badge>
       );
     case "RUNNING":
       return (
-        <Badge variant="outline" className="text-blue-500 bg-blue-500/10 border-blue-500/20">
+        <Badge
+          variant="outline"
+          className="text-blue-500 bg-blue-500/10 border-blue-500/20"
+        >
           <CircleDashed className="mr-1.5 size-3.5 animate-spin" />
           Running
         </Badge>
@@ -260,7 +256,10 @@ function NodeStatusBadge({ status }: { status: string }) {
     case "IDLE":
     default:
       return (
-        <Badge variant="outline" className="text-gray-500 bg-gray-500/10 border-gray-500/20">
+        <Badge
+          variant="outline"
+          className="text-gray-500 bg-gray-500/10 border-gray-500/20"
+        >
           <CircleDashed className="mr-1.5 size-3.5" />
           Idle
         </Badge>

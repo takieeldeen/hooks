@@ -1,5 +1,7 @@
+import { NodeExecution } from "../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import { sendNotificationToUser } from "../../service/notifications/notifications";
+import LogService from "../../srv/log.service";
 
 // --------------------------------------------------------------------------
 // Types
@@ -10,6 +12,7 @@ type JobFn<T = any> = (payload: T, userId?: string) => Promise<any>;
 interface QueueEntry<T = any> {
   jobName: string;
   executionId: string;
+  nodeExecutionId: string;
   jobFn: JobFn<T>;
   payload?: T;
 }
@@ -40,6 +43,7 @@ class BackgroundJobQueue {
     userId: string,
     workflowId: string,
     executionId: string,
+    nodeExecutionId: string,
     jobName: string,
     jobFn: JobFn<T>,
     payload?: T,
@@ -50,7 +54,9 @@ class BackgroundJobQueue {
       this.queues.set(workflowId, []);
     }
 
-    this.queues.get(workflowId)!.push({ jobName, executionId, jobFn, payload });
+    this.queues
+      .get(workflowId)!
+      .push({ jobName, nodeExecutionId, executionId, jobFn, payload });
 
     // Start processing if nothing is running for this workflow
     if (!this.running.get(workflowId)) {
@@ -85,7 +91,14 @@ class BackgroundJobQueue {
 
       this.running.set(workflowId, true);
       const entry = queue.shift()!; // take the first job
-
+      console.log(entry.executionId);
+      if (entry.executionId) {
+        await LogService.create(
+          `Execution Environment created succesfully`,
+          "INFO",
+          entry.nodeExecutionId,
+        );
+      }
       const status = await this.executeJob(entry);
 
       // After executing, check if this execution has more jobs in the queue
@@ -123,6 +136,7 @@ class BackgroundJobQueue {
   private async executeJob({
     jobName,
     executionId,
+    nodeExecutionId,
     jobFn,
     payload,
   }: QueueEntry): Promise<"SUCCESS" | "FAILED"> {
@@ -132,7 +146,7 @@ class BackgroundJobQueue {
     if (payloadToSave && typeof payloadToSave === "object") {
       delete (payloadToSave as any).functionContext;
     }
-
+    console.log("JOBNAME", jobName);
     const job = await prisma.job.create({
       data: {
         name: jobName,
@@ -141,25 +155,16 @@ class BackgroundJobQueue {
       },
     });
 
-    const nodeId = (payload as any)?.nodeId;
-    let nodeExecutionId: string | undefined;
-
-    if (nodeId) {
-      const nodeExecution = await prisma.nodeExecution.findFirst({
-        where: { workflowExecutionId: executionId, nodeId },
-      });
-      if (nodeExecution) {
-        nodeExecutionId = nodeExecution.id;
-        await prisma.nodeExecution.update({
-          where: { id: nodeExecution.id },
-          data: {
-            status: "RUNNING",
-            startedAt: new Date(),
-            inputs: payloadToSave ?? {},
-          },
-        });
-      }
-    }
+    // const nodeId = (payload as any)?.nodeId;
+    let nodeExecutionData: NodeExecution | undefined;
+    nodeExecutionData = await prisma.nodeExecution.update({
+      where: { id: nodeExecutionId },
+      data: {
+        status: "RUNNING",
+        startedAt: new Date(),
+        inputs: payloadToSave ?? {},
+      },
+    });
 
     // 2. Mark as RUNNING
     const runningPayload = { status: "RUNNING" };
@@ -170,30 +175,29 @@ class BackgroundJobQueue {
     sendNotificationToUser(this.userId!, "NODE-UPDATE", {
       nodeId: (payload as any)?.nodeId,
       status: "RUNNING",
+      executionData: nodeExecutionData,
     });
 
     // 3. Execute and store result / error
     try {
-      console.log(jobName, "IS EXECUTED");
       const result = await jobFn(payload, this.userId);
       await prisma.job.update({
         where: { id: job.id },
         data: { status: "SUCCESS", result: result as any },
       });
-      if (nodeExecutionId) {
-        await prisma.nodeExecution.update({
-          where: { id: nodeExecutionId },
-          data: {
-            status: "SUCCESS",
-            completedAt: new Date(),
-            inputs: payloadToSave ?? {},
-            outputs: typeof result === "object" ? result ?? {} : { result },
-          },
-        });
-      }
+      nodeExecutionData = await prisma.nodeExecution.update({
+        where: { id: nodeExecutionId },
+        data: {
+          status: "SUCCESS",
+          completedAt: new Date(),
+          inputs: payloadToSave ?? {},
+          outputs: typeof result === "object" ? (result ?? {}) : { result },
+        },
+      });
       sendNotificationToUser(this.userId!, "NODE-UPDATE", {
         nodeId: (payload as any)?.nodeId,
         status: "SUCCESS",
+        executionData: nodeExecutionData,
       });
       return "SUCCESS";
     } catch (err: any) {
@@ -203,20 +207,20 @@ class BackgroundJobQueue {
         where: { id: job.id },
         data: failurePayload,
       });
-      if (nodeExecutionId) {
-        await prisma.nodeExecution.update({
-          where: { id: nodeExecutionId },
-          data: {
-            status: "FAILED",
-            completedAt: new Date(),
-            inputs: payloadToSave ?? {},
-            outputs: { error: err.message || JSON.stringify(err) },
-          },
-        });
-      }
+      let nodeExecutionData: NodeExecution | undefined;
+      nodeExecutionData = await prisma.nodeExecution.update({
+        where: { id: nodeExecutionId },
+        data: {
+          status: "FAILED",
+          completedAt: new Date(),
+          inputs: payloadToSave ?? {},
+          outputs: { error: err.message || JSON.stringify(err) },
+        },
+      });
       sendNotificationToUser(this.userId!, "NODE-UPDATE", {
         nodeId: (payload as any)?.nodeId,
         status: "FAILED",
+        executionData: nodeExecutionData,
       });
       return "FAILED";
     }
@@ -247,9 +251,18 @@ export function registerJob<T = any>(
   userId: string,
   workflowId: string,
   executionId: string,
+  nodeExecutionId: string,
   jobName: string,
   jobFn: JobFn<T>,
   payload?: T,
 ): void {
-  jobQueue.enqueue(userId, workflowId, executionId, jobName, jobFn, payload);
+  jobQueue.enqueue(
+    userId,
+    workflowId,
+    nodeExecutionId,
+    executionId,
+    jobName,
+    jobFn,
+    payload,
+  );
 }

@@ -8,7 +8,9 @@ import { EditorLoading } from "@/features/editor/components/editor-loading";
 import { prefetchWorkflowDetails } from "@/api/workflows";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
-async function HistoryPage({ params }: PageProps<"/workflows/[workflowId]/history">) {
+async function HistoryPage({
+  params,
+}: PageProps<"/workflows/[workflowId]/executions">) {
   const { workflowId } = await params;
   const { queryClient } = await prefetchWorkflowDetails(workflowId);
 

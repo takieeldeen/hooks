@@ -54,7 +54,6 @@ const getExecution = async (executionId: string, userId?: string) => {
         },
       },
     });
-    console.log(execution);
     if (!execution) {
       throw new AppError(404, "EXECUTION_NOT_FOUND");
     }

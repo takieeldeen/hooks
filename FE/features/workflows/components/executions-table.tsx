@@ -13,7 +13,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowRight, CircleAlert, CircleCheck, CircleDashed, CircleX } from "lucide-react";
+import {
+  ArrowRight,
+  CircleAlert,
+  CircleCheck,
+  CircleDashed,
+  CircleX,
+} from "lucide-react";
 import Link from "next/link";
 
 interface ExecutionsTableProps {

@@ -291,34 +291,34 @@ enum NodeExecutionStatus {
   SUCCESS
   FAILED
 }
-model NodeExecution {
-  id String @id @default(uuid())
-  status NodeExecutionStatus
-  inputs Json
-  outputs Json
-  logs NodeExecutionLog[]
-  startedAt DateTime?
-  completedAt DateTime?
+  model NodeExecution {
+    id String @id @default(uuid())
+    status NodeExecutionStatus
+    inputs Json
+    outputs Json
+    logs NodeExecutionLog[]
+    startedAt DateTime?
+    completedAt DateTime?
 
-  workflowExecutionId String
-  workflowExecution WorkflowExecution @relation(fields: [workflowExecutionId], references: [id], onDelete: Cascade)
+    workflowExecutionId String
+    workflowExecution WorkflowExecution @relation(fields: [workflowExecutionId], references: [id], onDelete: Cascade)
 
-  nodeId String
-  node Node @relation(fields: [nodeId], references: [id], onDelete: Cascade)
-}
+    nodeId String
+    node Node @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  }
 
-enum LogLevel {
-  WARNING
-  ERROR
-  INFO
-}
-model NodeExecutionLog {
-  id String @id @default(uuid())
-  level LogLevel @default(INFO)
-  message String
-  timestamp DateTime @default(now())
-  nodeExecutionId String
+  enum LogLevel {
+    WARNING
+    ERROR
+    INFO
+  }
+  model NodeExecutionLog {
+    id String @id @default(uuid())
+    level LogLevel @default(INFO)
+    message String
+    timestamp DateTime @default(now())
+    nodeExecutionId String
 
-  nodeExecution NodeExecution @relation(fields: [nodeExecutionId], references: [id], onDelete: Cascade)
-}
+    nodeExecution NodeExecution @relation(fields: [nodeExecutionId], references: [id], onDelete: Cascade)
+  }
 

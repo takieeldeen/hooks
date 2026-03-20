@@ -168,9 +168,9 @@ export const executeWorkflow = catchAsync(async (req, res, next) => {
   // 0. Get the workflowId from params
   const { workflowId } = req.params;
   const { initialData } = req.body ?? {};
-
+  console.log("triggered");
   // 1. Execute Workflow
-  const context = await WorkflowService.execute(
+  const { context, executionId } = await WorkflowService.execute(
     workflowId as string,
     initialData,
     req.session?.user.id!,
@@ -182,5 +182,6 @@ export const executeWorkflow = catchAsync(async (req, res, next) => {
     message: "Workflow execution has been queued.",
     workflowId,
     context,
+    executionId,
   });
 });

@@ -16,7 +16,7 @@ function EditorHeader({ workflowId }: { workflowId: string }) {
   const executionId = executionMatch ? executionMatch[1] : null;
 
   const isEditor = pathname === `/workflows/${workflowId}`;
-  const isHistory = pathname === `/workflows/${workflowId}/history`;
+  const isHistory = pathname === `/workflows/${workflowId}/executions`;
   const isExecution = executionId !== null;
 
   return (
@@ -46,7 +46,7 @@ function EditorHeader({ workflowId }: { workflowId: string }) {
             <span className="hidden md:inline">Editor</span>
           </Link>
           <Link
-            href={`/workflows/${workflowId}/history`}
+            href={`/workflows/${workflowId}/executions`}
             className={cn(
               buttonVariants({
                 variant: isHistory ? "secondary" : "ghost",
