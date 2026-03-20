@@ -91,16 +91,21 @@ class BackgroundJobQueue {
 
       this.running.set(workflowId, true);
       const entry = queue.shift()!; // take the first job
-      console.log(entry.executionId);
       if (entry.executionId) {
         await LogService.create(
           `Execution Environment created succesfully`,
           "INFO",
           entry.nodeExecutionId,
+          this.userId,
         );
       }
       const status = await this.executeJob(entry);
-
+      await LogService.create(
+        "Node Executed Successfuly",
+        "INFO",
+        entry.nodeExecutionId,
+        this.userId,
+      );
       // After executing, check if this execution has more jobs in the queue
       const hasMoreForExecution = queue.some(
         (q) => q.executionId === entry.executionId,
@@ -146,7 +151,6 @@ class BackgroundJobQueue {
     if (payloadToSave && typeof payloadToSave === "object") {
       delete (payloadToSave as any).functionContext;
     }
-    console.log("JOBNAME", jobName);
     const job = await prisma.job.create({
       data: {
         name: jobName,
@@ -164,6 +168,10 @@ class BackgroundJobQueue {
         startedAt: new Date(),
         inputs: payloadToSave ?? {},
       },
+      include: {
+        logs: true,
+        node: true,
+      },
     });
 
     // 2. Mark as RUNNING
@@ -180,10 +188,20 @@ class BackgroundJobQueue {
 
     // 3. Execute and store result / error
     try {
+      if (payload && typeof payload === "object") {
+        (payload as any).nodeExecutionId = nodeExecutionId;
+      }
       const result = await jobFn(payload, this.userId);
+      const { context: updatedContext, output: nodeOutput } = result;
+
+      // Update the context in the payload for subsequent steps that share the same reference
+      if (payload && typeof payload === "object" && (payload as any).context) {
+        (payload as any).context = updatedContext;
+      }
+
       await prisma.job.update({
         where: { id: job.id },
-        data: { status: "SUCCESS", result: result as any },
+        data: { status: "SUCCESS", result: nodeOutput as any },
       });
       nodeExecutionData = await prisma.nodeExecution.update({
         where: { id: nodeExecutionId },
@@ -191,7 +209,12 @@ class BackgroundJobQueue {
           status: "SUCCESS",
           completedAt: new Date(),
           inputs: payloadToSave ?? {},
-          outputs: typeof result === "object" ? (result ?? {}) : { result },
+          outputs:
+            typeof nodeOutput === "object" ? (nodeOutput ?? {}) : { nodeOutput },
+        },
+        include: {
+          node: true,
+          logs: true,
         },
       });
       sendNotificationToUser(this.userId!, "NODE-UPDATE", {
@@ -215,6 +238,10 @@ class BackgroundJobQueue {
           completedAt: new Date(),
           inputs: payloadToSave ?? {},
           outputs: { error: err.message || JSON.stringify(err) },
+        },
+        include: {
+          node: true,
+          logs: true,
         },
       });
       sendNotificationToUser(this.userId!, "NODE-UPDATE", {
@@ -259,8 +286,8 @@ export function registerJob<T = any>(
   jobQueue.enqueue(
     userId,
     workflowId,
-    nodeExecutionId,
     executionId,
+    nodeExecutionId,
     jobName,
     jobFn,
     payload,

@@ -69,15 +69,16 @@ async function executeWorkflow(
   const functionContext: Record<string, any> = {
     axios: wrapper(axiosInstance),
   };
+  let cur = 0;
   for (const node of sortedArr) {
     const executor = EXECUTOR_REGISTRY[node.type];
-
     registerJob(
       workflow.userId,
       workflowId,
       execution.id,
+      nodeExecutionsData[cur]?.id,
       `node:${node.type}:${node.id}`,
-      executor,
+      executor as any,
       {
         nodeId: node.id,
         context,
@@ -85,6 +86,7 @@ async function executeWorkflow(
         functionContext,
       },
     );
+    cur++;
   }
 
   return { context, executionId: execution.id };

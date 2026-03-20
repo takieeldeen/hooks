@@ -22,9 +22,7 @@ io.on("connection", async (socket) => {
   const userId = session?.user.id;
   if (userId) {
     socket.join(`user:${userId}`);
-    console.log(`user:${userId} Joined his realtime room`);
   }
-  console.log(`Connection Established with ID : ${socket.id}`);
   socket.on("schedule", (data) => {
     const uniquer = schedule(data.expression, () => console.log(data.data));
     console.log(uniquer);

@@ -5,7 +5,6 @@ const generateDiscordUrl = (workflowId: string, userId: string) => {
   const state = Buffer.from(JSON.stringify({ userId, workflowId })).toString(
     "base64",
   );
-  console.log(state, userId, "STATTTTTTE");
   const params = new URLSearchParams({
     client_id: process.env.DISCORD_CLIENT_ID!,
     response_type: "code",
@@ -89,7 +88,6 @@ const getDiscordServers = async (accessToken: string) => {
 };
 const getDiscordServerChannels = async (serverId: string) => {
   try {
-    console.log(serverId);
     const response = await axios.get(
       `https://discord.com/api/guilds/${serverId}/channels`,
       {

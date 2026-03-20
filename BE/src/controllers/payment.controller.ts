@@ -91,7 +91,6 @@ export const checkout = catchAsync(async (req, res, next) => {
 
 export const confirmPayment = catchAsync(async (req, res, next) => {
   const transactionObject = req.body as PaymobTransaction;
-  console.log(transactionObject.obj.success, "SUCCESS");
   if (transactionObject.obj.success) {
     const payment = await prisma.payment.update({
       where: {

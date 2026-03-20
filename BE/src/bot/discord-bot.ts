@@ -17,7 +17,6 @@ client.once(Events.ClientReady, (c) => {
 client.on(Events.MessageCreate, async (message) => {
   // Ignore messages from bots (including itself)
   if (message.author.bot) return;
-  console.log("USER SENT A MESSAGE");
 
   const channelId = message.channelId;
   const serverId = message.guildId;

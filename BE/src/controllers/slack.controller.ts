@@ -52,7 +52,6 @@ export const slackEventHandler = catchAsync(async (req, res, next) => {
   }
 
   const event = body.event;
-  console.log(event);
 
   // Ignore bot messages to prevent loops
   if (event?.bot_id || event?.subtype === "bot_message") {
@@ -70,7 +69,6 @@ export const slackEventHandler = catchAsync(async (req, res, next) => {
       user: true,
     },
   });
-  console.log(slackUserId, integration);
 
   if (!integration) return res.sendStatus(200);
 

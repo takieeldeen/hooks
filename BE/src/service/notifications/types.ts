@@ -1,1 +1,1 @@
-export type NotificationType = "NODE-UPDATE" | "WORKFLOW-UPDATE";
+export type NotificationType = "NODE-UPDATE" | "WORKFLOW-UPDATE" | "LOG-UPDATE";

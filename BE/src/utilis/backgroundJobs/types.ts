@@ -5,6 +5,7 @@ export type WorkflowContext = Record<string, unknown>;
 export interface ExecutorPayload<T = Record<string, unknown>> {
   data: T;
   nodeId: string;
+  nodeExecutionId: string;
   context: WorkflowContext;
   functionContext?: Record<string, unknown>;
 }
@@ -16,7 +17,7 @@ export interface ExecutorPayload<T = Record<string, unknown>> {
 export type NodeExecutor<T extends NodeType> = (
   params: ExecutorPayload<NodeInputs[T]>,
   userId?: string,
-) => Promise<WorkflowContext>;
+) => Promise<{ context: WorkflowContext; output: any }>;
 
 export type ExecutorRegistry = { [K in NodeType]: NodeExecutor<K> };
 

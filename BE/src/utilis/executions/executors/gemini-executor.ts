@@ -4,6 +4,7 @@ import AiService from "../../../srv/aiService";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { prisma } from "../../../lib/prisma";
 import { AppError } from "../../../controllers/error.controller";
+import LogService from "../../../srv/log.service";
 
 Handlebars.registerHelper("json", (context) => {
   const stringified = JSON.stringify(context, null, 2);
@@ -12,7 +13,7 @@ Handlebars.registerHelper("json", (context) => {
 });
 
 export const GeminiExecutor: NodeExecutor<"GEMINI"> = async (
-  { context, data, nodeId },
+  { context, data, nodeId, nodeExecutionId },
   userId,
 ) => {
   if (!data.variableName) {
@@ -32,6 +33,13 @@ export const GeminiExecutor: NodeExecutor<"GEMINI"> = async (
     : "You are a helpful assistant";
   const userPrompt = Handlebars.compile(data.userPrompt)(context);
 
+  await LogService.create(
+    `Executing Gemini Prompt with model: ${data.model}`,
+    "INFO",
+    nodeExecutionId,
+    userId,
+  );
+
   const apiKey = await prisma.credential.findUniqueOrThrow({
     where: {
       id: data.credentialId,
@@ -44,8 +52,19 @@ export const GeminiExecutor: NodeExecutor<"GEMINI"> = async (
   const model = google(data.model);
 
   const result = await AiService.prompt(model, userPrompt, systemPrompt);
-  context[data.variableName] = {
+
+  await LogService.create(
+    `Gemini execution success`,
+    "INFO",
+    nodeExecutionId,
+    userId,
+  );
+
+  const output = {
     aiResponse: result.output,
   };
-  return context;
+
+  context[data.variableName] = output;
+
+  return { context, output };
 };

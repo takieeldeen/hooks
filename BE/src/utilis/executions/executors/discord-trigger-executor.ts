@@ -1,11 +1,11 @@
 import { NodeExecutor } from "../../backgroundJobs/types";
 import { AppError } from "../../../controllers/error.controller";
+import LogService from "../../../srv/log.service";
 
-export const DiscordTriggerExecutor: NodeExecutor<"DISCORD_TRIGGER"> = async ({
-  context,
-  data,
-  nodeId,
-}) => {
+export const DiscordTriggerExecutor: NodeExecutor<"DISCORD_TRIGGER"> = async (
+  { context, data, nodeId, nodeExecutionId },
+  userId,
+) => {
   if (!data.variableName) {
     throw new AppError(
       400,
@@ -16,7 +16,15 @@ export const DiscordTriggerExecutor: NodeExecutor<"DISCORD_TRIGGER"> = async ({
   // The webhook controller seeds context.discord before execution begins
   const discordPayload = context.discord as any;
 
-  if (!discordPayload) return context;
+  if (!discordPayload) {
+    await LogService.create(
+      `Discord Trigger: No payload found in context`,
+      "WARNING",
+      nodeExecutionId,
+      userId,
+    );
+    return { context, output: null };
+  }
 
   // Optional server/channel filtering
   if (data.serverId && discordPayload.serverId !== data.serverId) {
@@ -32,6 +40,14 @@ export const DiscordTriggerExecutor: NodeExecutor<"DISCORD_TRIGGER"> = async ({
     );
   }
 
-  context[data.variableName] = discordPayload;
-  return context;
+  await LogService.create(
+    `Discord Trigger processed successfully`,
+    "INFO",
+    nodeExecutionId,
+    userId,
+  );
+
+  const output = discordPayload;
+  context[data.variableName] = output;
+  return { context, output };
 };

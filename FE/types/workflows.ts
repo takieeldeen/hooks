@@ -49,3 +49,14 @@ export interface NodeExecution {
   nodeId: string;
   node?: { id: string; name: string; type: string };
 }
+
+export interface NodeExecutionWebSocketPayload {
+  nodeId: string;
+  status: string;
+  executionData: NodeExecution;
+}
+
+export interface LogUpdateWebSocketPayload {
+  nodeExecutionId: string;
+  log: NodeExecutionLog;
+}

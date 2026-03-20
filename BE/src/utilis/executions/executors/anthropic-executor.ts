@@ -4,6 +4,7 @@ import AiService from "../../../srv/aiService";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { AppError } from "../../../controllers/error.controller";
 import { prisma } from "../../../lib/prisma";
+import LogService from "../../../srv/log.service";
 
 Handlebars.registerHelper("json", (context) => {
   const stringified = JSON.stringify(context, null, 2);
@@ -12,7 +13,7 @@ Handlebars.registerHelper("json", (context) => {
 });
 
 export const AnthropicExecutor: NodeExecutor<"ANTHROPIC"> = async (
-  { context, data, nodeId },
+  { context, data, nodeId, nodeExecutionId },
   userId,
 ) => {
   if (!data.variableName) {
@@ -32,7 +33,13 @@ export const AnthropicExecutor: NodeExecutor<"ANTHROPIC"> = async (
     : "You are a helpful assistant";
   const userPrompt = Handlebars.compile(data.userPrompt)(context);
 
-  // TODO: Fetch Credential that user selected.
+  await LogService.create(
+    `Executing Anthropic Prompt with model: ${data.model}`,
+    "INFO",
+    nodeExecutionId,
+    userId,
+  );
+
   const apiKey = await prisma.credential.findUniqueOrThrow({
     where: {
       id: data.credentialId,
@@ -45,8 +52,19 @@ export const AnthropicExecutor: NodeExecutor<"ANTHROPIC"> = async (
   const model = anthropic(data.model);
 
   const result = await AiService.prompt(model, userPrompt, systemPrompt);
-  context[data.variableName] = {
+
+  await LogService.create(
+    `Anthropic execution success`,
+    "INFO",
+    nodeExecutionId,
+    userId,
+  );
+
+  const output = {
     aiResponse: result.output,
   };
-  return context;
+
+  context[data.variableName] = output;
+
+  return { context, output };
 };

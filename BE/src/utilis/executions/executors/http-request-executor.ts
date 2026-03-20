@@ -4,6 +4,7 @@ import { NodeExecutor } from "../../backgroundJobs/types";
 import { CookieJar } from "tough-cookie";
 import { wrapper } from "axios-cookiejar-support";
 import { AppError } from "../../../controllers/error.controller";
+import LogService from "../../../srv/log.service";
 
 Handlebars.registerHelper("json", (context) => {
   const stringified = JSON.stringify(context, null, 2);
@@ -11,12 +12,10 @@ Handlebars.registerHelper("json", (context) => {
   return safeString;
 });
 
-export const HttpRequestExecutor: NodeExecutor<"HTTP_REQUEST"> = async ({
-  context,
-  data,
-  nodeId,
-  functionContext,
-}) => {
+export const HttpRequestExecutor: NodeExecutor<"HTTP_REQUEST"> = async (
+  { context, data, nodeId, nodeExecutionId, functionContext },
+  userId,
+) => {
   // try {
   const axiosInstance = (functionContext?.axios as any) || axios;
   // if (!context.cookieJar) {
@@ -79,6 +78,14 @@ export const HttpRequestExecutor: NodeExecutor<"HTTP_REQUEST"> = async ({
       throw new AppError(400, "INVALID_JSON_HEADERS_STRUCTURE");
     }
   }
+
+  await LogService.create(
+    `Executing HTTP Request: [${data.method}] ${endpoint}`,
+    "INFO",
+    nodeExecutionId,
+    userId,
+  );
+
   let result: any = null;
   try {
     result = await axiosInstance({
@@ -89,16 +96,33 @@ export const HttpRequestExecutor: NodeExecutor<"HTTP_REQUEST"> = async ({
     });
   } catch (err: any) {
     console.log(err);
+    await LogService.create(
+      `HTTP Request failed: ${err.message}`,
+      "ERROR",
+      nodeExecutionId,
+      userId,
+    );
     throw new AppError(400, err.response.data);
   }
-  context[data.variableName] = {
-    httpResponse: {
-      status: result.status,
-      statusText: result.statusText,
-      data: result.data,
-    },
+
+  await LogService.create(
+    `HTTP Request success: Status ${result.status}`,
+    "INFO",
+    nodeExecutionId,
+    userId,
+  );
+
+  const output = {
+    status: result.status,
+    statusText: result.statusText,
+    data: result.data,
   };
-  return context;
+
+  context[data.variableName] = {
+    httpResponse: output,
+  };
+
+  return { context, output };
   // } catch (err) {
   //   console.log(err);
   // }

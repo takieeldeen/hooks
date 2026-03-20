@@ -234,7 +234,7 @@ export function useGetWorkflowExecutions(
   }: {
     page?: number;
     pageSize?: number;
-  } = {}
+  } = {},
 ) {
   const URL: [string, AxiosRequestConfig] = [
     endpoints.workflows.executions(workflowId),
@@ -255,7 +255,7 @@ export function useGetWorkflowExecutions(
 
 export async function prefetchWorkflowExecution(
   workflowId: string,
-  executionId: string
+  executionId: string,
 ) {
   const URL = endpoints.workflows.execution(workflowId, executionId);
   const queryKey = ["workflows", workflowId, "executions", executionId];
@@ -271,7 +271,7 @@ export async function prefetchWorkflowExecution(
 
 export function useGetWorkflowExecution(
   workflowId: string,
-  executionId: string
+  executionId: string,
 ) {
   const URL = endpoints.workflows.execution(workflowId, executionId);
   const queryKey = ["workflows", workflowId, "executions", executionId];

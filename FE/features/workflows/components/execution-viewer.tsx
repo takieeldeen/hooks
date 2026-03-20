@@ -1,9 +1,15 @@
 "use client";
 
 import {
-  useGetWorkflowDetails,
   useGetWorkflowExecution,
 } from "@/api/workflows";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSocket } from "@/providers/SocketProvider";
+import {
+  LogUpdateWebSocketPayload,
+  NodeExecutionWebSocketPayload,
+  WorkflowExecution,
+} from "@/types/workflows";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,9 +24,8 @@ import {
 } from "lucide-react";
 import { Fragment, useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useSocket } from "@/providers/SocketProvider";
 import NodeExecutionItem from "./node-execution-item";
-import { NodeExecution } from "@/types/workflows";
+import { APIDetailsResponse } from "@/types/common";
 
 interface ExecutionViewerProps {
   workflowId: string;
@@ -32,21 +37,82 @@ export function ExecutionViewer({
   executionId,
 }: ExecutionViewerProps) {
   // const [updates, setUpdates] = useState<Record<string, NodeExecution>>({});
-  const { data, isLoading, isError } = useGetWorkflowExecution(
+  const queryClient = useQueryClient();
+  const socket = useSocket();
+  const { data, isLoading, isError, queryKey } = useGetWorkflowExecution(
     workflowId,
     executionId,
   );
-  const { data: workflowData } = useGetWorkflowDetails(workflowId);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  // const socket = useSocket();
 
-  // useEffect(() => {
-  //   if (!isLoading) return;
-  //   socket.on("NODE-UPDATE", (payload) => {
-  //     const nodeId = payload?.nodeId;
-  //     setUpdates((p) => ({ ...p, [nodeId]: payload?.executionData }));
-  //   });
-  // }, [isLoading, socket]);
+  useEffect(() => {
+    if (!socket || !queryKey) return;
+
+    const handleNodeUpdate = (payload: NodeExecutionWebSocketPayload) => {
+      if (!payload) return;
+      if (payload.executionData.workflowExecutionId !== executionId) return;
+      queryClient.setQueryData(
+        queryKey,
+        (prev: APIDetailsResponse<WorkflowExecution>) => {
+          const updatedResponse: APIDetailsResponse<WorkflowExecution> =
+            JSON.parse(JSON.stringify(prev));
+          const executionIndex =
+            updatedResponse?.content?.nodeExecutions?.findIndex(
+              (execution) => execution.id === payload.executionData.id,
+            );
+          if (
+            updatedResponse?.content?.nodeExecutions &&
+            typeof executionIndex === "number"
+          ) {
+            console.log(
+              updatedResponse.content.nodeExecutions[executionIndex],
+              payload.executionData,
+            );
+            updatedResponse.content.nodeExecutions[executionIndex] =
+              payload.executionData;
+          }
+          return updatedResponse;
+        },
+      );
+    };
+
+    socket.on("NODE-UPDATE", handleNodeUpdate);
+    return () => {
+      socket.off("NODE-UPDATE", handleNodeUpdate);
+    };
+  }, [executionId, queryClient, queryKey, socket]);
+
+  // ── Real-time log streaming ────────────────────────────────────────────────
+  useEffect(() => {
+    if (!socket || !queryKey) return;
+
+    const handleLogUpdate = (payload: LogUpdateWebSocketPayload) => {
+      if (!payload) return;
+      queryClient.setQueryData(
+        queryKey,
+        (prev: APIDetailsResponse<WorkflowExecution>) => {
+          if (!prev?.content?.nodeExecutions) return prev;
+          // Deep-clone to avoid mutating cached state
+          const updated: APIDetailsResponse<WorkflowExecution> = JSON.parse(
+            JSON.stringify(prev),
+          );
+          const nodeEx = updated.content!.nodeExecutions!.find(
+            (n) => n.id === payload.nodeExecutionId,
+          );
+          if (nodeEx) {
+            nodeEx.logs = [...(nodeEx.logs ?? []), payload.log];
+          }
+          return updated;
+        },
+      );
+    };
+
+    socket.on("LOG-UPDATE", handleLogUpdate);
+    return () => {
+      socket.off("LOG-UPDATE", handleLogUpdate);
+    };
+  }, [queryClient, queryKey, socket]);
+
   if (isLoading) {
     return (
       <div className="flex w-full items-center justify-center p-8">
@@ -64,31 +130,11 @@ export function ExecutionViewer({
   }
 
   const execution = data.content;
-  const rawNodeExecutions = execution.nodeExecutions || [];
-
-  // Build a position-based order from the workflow's node definitions
-  const workflowNodes = workflowData?.content?.nodes ?? [];
-  const nodePositionMap = new Map(
-    workflowNodes.map(
-      (n: { id: string; position: { x: number; y: number } }) => [
-        n.id,
-        n.position,
-      ],
-    ),
-  );
-
-  // Sort by visual position: top-to-bottom (y), then left-to-right (x)
-  const nodeExecutions = [...rawNodeExecutions].sort((a, b) => {
-    const posA = nodePositionMap.get(a.nodeId) ?? { x: 0, y: 0 };
-    const posB = nodePositionMap.get(b.nodeId) ?? { x: 0, y: 0 };
-    if (posA.y !== posB.y) return posA.y - posB.y;
-    return posA.x - posB.x;
-  });
+  const nodeExecutions = execution.nodeExecutions || [];
 
   // Auto-select the first node if none is selected
   const activeNodeId = selectedNodeId || (nodeExecutions[0]?.id ?? null);
   const activeNode = nodeExecutions.find((n) => n.id === activeNodeId);
-
   return (
     <div className="flex flex-col md:flex-row w-full h-full gap-4 p-4 md:p-8">
       {/* Sidebar: List of executed nodes */}
@@ -105,7 +151,7 @@ export function ExecutionViewer({
         <CardContent className="p-0 flex-1 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="flex flex-col">
-              {rawNodeExecutions.map((nodeEx, index) => (
+              {nodeExecutions.map((nodeEx, index) => (
                 <Fragment key={nodeEx.id}>
                   <NodeExecutionItem
                     nodeEx={nodeEx}

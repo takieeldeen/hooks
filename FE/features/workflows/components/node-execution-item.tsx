@@ -22,7 +22,6 @@ function NodeExecutionItem({
   const socket = useSocket();
   useEffect(() => {
     const handleNodeUpdate = (payload: any) => {
-      console.log("NEW NOTIFICATION");
       if (payload.nodeId === nodeEx.node?.id) {
         setStatus(mapBackendStatusToNodeStatus(payload.status));
         console.log(nodeEx?.node?.name, "status will be", payload.status);
